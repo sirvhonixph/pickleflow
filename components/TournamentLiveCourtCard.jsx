@@ -72,20 +72,31 @@ export default function TournamentLiveCourtCard({
   scoreBRef.current = scoreB;
   const liveRef = useRef(live);
   liveRef.current = live;
-  const liveSessionKeyRef = useRef(null);
-  const liveMatchIdRef = useRef(null);
+  const scoringSessionRef = useRef(null);
   const localMatchRef = useRef(null);
   const liveStartedAtRef = useRef(0);
   localMatchRef.current = localMatch;
+
+  const liveScoringSessionKey = (m) =>
+    m ? `${m.id}:${m.startedAt ?? 0}` : null;
 
   const clearLiveScoringState = useCallback(() => {
     clearTimeout(saveTimerRef.current);
     saveTimerRef.current = null;
     pendingPatchRef.current = null;
-    liveSessionKeyRef.current = null;
-    liveMatchIdRef.current = null;
+    scoringSessionRef.current = null;
     setScoreA(0);
     setScoreB(0);
+  }, []);
+
+  const resetScoresForNewLiveMatch = useCallback((serverMatch) => {
+    setScoreA(0);
+    setScoreB(0);
+    if (serverMatch) {
+      scoringSessionRef.current = liveScoringSessionKey(serverMatch);
+      setLocalMatch({ ...serverMatch, scoreA: 0, scoreB: 0 });
+      liveStartedAtRef.current = Date.now();
+    }
   }, []);
 
   useEffect(() => {
@@ -96,16 +107,9 @@ export default function TournamentLiveCourtCard({
     }
 
     if (match.status === "live") {
-      const newSession = liveMatchIdRef.current !== match.id;
-      if (newSession) {
-        liveSessionKeyRef.current = match.id;
-        liveMatchIdRef.current = match.id;
-        liveStartedAtRef.current = Date.now();
-        const sa = match.scoreA ?? 0;
-        const sb = match.scoreB ?? 0;
-        setScoreA(sa);
-        setScoreB(sb);
-        setLocalMatch({ ...match, scoreA: sa, scoreB: sb });
+      const sessionKey = liveScoringSessionKey(match);
+      if (scoringSessionRef.current !== sessionKey) {
+        resetScoresForNewLiveMatch(match);
         return;
       }
       setLocalMatch((prev) => ({
@@ -121,12 +125,17 @@ export default function TournamentLiveCourtCard({
       return;
     }
 
-    liveSessionKeyRef.current = null;
-    liveMatchIdRef.current = null;
+    scoringSessionRef.current = null;
     setScoreA(match.scoreA ?? 0);
     setScoreB(match.scoreB ?? 0);
     setLocalMatch(match);
-  }, [match?.id, match?.status, clearLiveScoringState]);
+  }, [
+    match?.id,
+    match?.status,
+    match?.startedAt,
+    clearLiveScoringState,
+    resetScoresForNewLiveMatch,
+  ]);
 
   const displayMatch = useMemo(() => {
     const base = localMatch ?? match;
@@ -332,22 +341,15 @@ export default function TournamentLiveCourtCard({
         roundId: ctx.roundId,
         matchId: ctx.match.id,
         status: "live",
+        scoreA: 0,
+        scoreB: 0,
       });
       const started = getCourtTournamentState(ev, court.id).live;
       const startedMatch = started?.match;
       if (aiAnnounceOn && startedMatch?.teamA?.length && startedMatch?.teamB?.length) {
         announceCourtMatch(court.name, startedMatch.teamA, startedMatch.teamB);
       }
-      const sa = startedMatch?.scoreA ?? 0;
-      const sb = startedMatch?.scoreB ?? 0;
-      liveSessionKeyRef.current = startedMatch?.id ?? ctx.match.id;
-      liveMatchIdRef.current = startedMatch?.id ?? ctx.match.id;
-      liveStartedAtRef.current = Date.now();
-      setScoreA(sa);
-      setScoreB(sb);
-      setLocalMatch(
-        startedMatch ? { ...startedMatch, scoreA: sa, scoreB: sb } : null
-      );
+      resetScoresForNewLiveMatch(startedMatch ?? null);
       onPauseAutoRefresh?.(60000);
       onEventUpdate?.(ev);
     } catch (err) {
@@ -527,9 +529,10 @@ export default function TournamentLiveCourtCard({
             Now playing
           </p>
           <CourtDiagram
+            key={liveScoringSessionKey(displayMatch)}
             match={displayMatch}
-            scoreA={host ? scoreA : displayMatch.scoreA}
-            scoreB={host ? scoreB : displayMatch.scoreB}
+            scoreA={host ? scoreA : 0}
+            scoreB={host ? scoreB : 0}
             host={host}
             disabled={false}
             onSetBase={host ? handleSetBase : undefined}

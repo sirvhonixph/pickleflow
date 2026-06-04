@@ -373,6 +373,8 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
         bracketId,
         matchId,
         status: "live",
+        scoreA: 0,
+        scoreB: 0,
       });
       setEvent(ev);
     } catch (err) {
