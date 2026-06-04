@@ -85,6 +85,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const [setupBusy, setSetupBusy] = useState(false);
   const [divisionBusy, setDivisionBusy] = useState(false);
   const [startingMatchId, setStartingMatchId] = useState(null);
+  const [forfeitBusyId, setForfeitBusyId] = useState(null);
   const [startingQuarterfinals, setStartingQuarterfinals] = useState(false);
   const [streamUrl, setStreamUrl] = useState("");
   const [pairForm, setPairForm] = useState({
@@ -378,6 +379,34 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
       alert(err.message ?? "Could not start match");
     } finally {
       setStartingMatchId(null);
+    }
+  };
+
+  const handleForfeitWin = async (bracketId, matchId, forfeitWinnerPairId) => {
+    const winner = pairById.get(forfeitWinnerPairId);
+    const label =
+      winner?.displayName ?? pairDisplayName(winner ?? {});
+    if (
+      !window.confirm(
+        `Default win for ${label}? Records as 11–0 (other pair did not show).`
+      )
+    ) {
+      return;
+    }
+    setForfeitBusyId(matchId);
+    try {
+      const ev = await patchTournamentMatch(eventId, {
+        divisionId: viewDivision,
+        bracketId,
+        matchId,
+        status: "completed",
+        forfeitWinnerPairId,
+      });
+      setEvent(ev);
+    } catch (err) {
+      alert(err.message ?? "Could not record default win");
+    } finally {
+      setForfeitBusyId(null);
     }
   };
 
@@ -1073,9 +1102,16 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
                     readOnly={!divisionCanScore || divisionKnockoutActive || divisionFinished}
                     host={divisionCanScore && !divisionKnockoutActive && !divisionFinished}
                     startingMatchId={startingMatchId}
+                    forfeitBusyId={forfeitBusyId}
                     onStartMatch={
                       divisionCanScore && !divisionKnockoutActive && !divisionFinished
                         ? (matchId) => handleStartMatch(bracket.id, matchId)
+                        : undefined
+                    }
+                    onForfeitWin={
+                      divisionCanScore && !divisionKnockoutActive && !divisionFinished
+                        ? (matchId, winnerPairId) =>
+                            handleForfeitWin(bracket.id, matchId, winnerPairId)
                         : undefined
                     }
                   />

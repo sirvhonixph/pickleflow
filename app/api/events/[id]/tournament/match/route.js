@@ -21,6 +21,7 @@ export async function PATCH(request, { params }) {
       basePlayerB,
       sidesSwapped,
       winnerPairId,
+      forfeitWinnerPairId,
     } = body;
     if (!divisionId || !bracketId || !matchId) {
       return NextResponse.json(
@@ -53,6 +54,7 @@ export async function PATCH(request, { params }) {
           basePlayerB,
           sidesSwapped,
           winnerPairId,
+          forfeitWinnerPairId,
         }, { roundId }),
       { refreshTournament: !fastLiveSave }
     );

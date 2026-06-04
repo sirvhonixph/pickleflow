@@ -277,6 +277,12 @@ export default function TournamentLiveCourtCard({
 
   const endMatch = async () => {
     if (!live) return;
+    if (scoreA === 0 && scoreB === 0) {
+      alert(
+        "0–0 is not a valid result. Use “Default win” if one pair did not show, or enter a real score."
+      );
+      return;
+    }
     clearTimeout(saveTimerRef.current);
     if (pendingPatchRef.current) {
       await flushLiveSave();
@@ -308,6 +314,38 @@ export default function TournamentLiveCourtCard({
   const pairBName =
     pairById.get(match?.pairBId)?.displayName ??
     pairDisplayName(pairById.get(match?.pairBId) ?? {});
+
+  const forfeitDefaultWin = async (winnerPairId) => {
+    if (!live) return;
+    const label =
+      winnerPairId === live.match.pairAId ? pairAName : pairBName;
+    if (
+      !window.confirm(
+        `Award default win to ${label}? Score will be 11–0 (other pair did not show).`
+      )
+    ) {
+      return;
+    }
+    clearTimeout(saveTimerRef.current);
+    setActionBusy(true);
+    try {
+      const ev = await patchTournamentMatch(eventId, {
+        divisionId: live.divisionId,
+        bracketId: live.bracketId,
+        roundId: live.roundId,
+        matchId: live.match.id,
+        status: "completed",
+        forfeitWinnerPairId: winnerPairId,
+      });
+      applyEvent(ev);
+      await onReload();
+    } catch (err) {
+      showActionError(err, "Could not record default win");
+      await onReload();
+    } finally {
+      setActionBusy(false);
+    }
+  };
 
   const nextPairA =
     pairById.get(next?.match?.pairAId)?.displayName ??
@@ -434,30 +472,55 @@ export default function TournamentLiveCourtCard({
               >
                 Change court — teams switch ends
               </button>
-              <div className="border-t border-slate-800 pt-4 flex flex-wrap gap-2 justify-center">
-                {aiAnnounceOn && (
+              <div className="border-t border-slate-800 pt-4 space-y-3">
+                <div>
+                  <p className="text-xs text-slate-500 mb-2 text-center">
+                    One pair did not show?
+                  </p>
+                  <div className="flex flex-wrap gap-2 justify-center">
+                    <button
+                      type="button"
+                      disabled={actionBusy}
+                      onClick={() => forfeitDefaultWin(live.match.pairAId)}
+                      className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-amber-500/50 text-amber-100 hover:bg-amber-500/10 disabled:opacity-50"
+                    >
+                      Default win · Pair A
+                    </button>
+                    <button
+                      type="button"
+                      disabled={actionBusy}
+                      onClick={() => forfeitDefaultWin(live.match.pairBId)}
+                      className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-amber-500/50 text-amber-100 hover:bg-amber-500/10 disabled:opacity-50"
+                    >
+                      Default win · Pair B
+                    </button>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {aiAnnounceOn && (
+                    <button
+                      type="button"
+                      className="px-3 py-1.5 text-sm bg-violet-600 rounded-lg"
+                      onClick={() =>
+                        announceCourtMatch(
+                          court.name,
+                          displayMatch.teamA,
+                          displayMatch.teamB
+                        )
+                      }
+                    >
+                      Call players again
+                    </button>
+                  )}
                   <button
                     type="button"
-                    className="px-3 py-1.5 text-sm bg-violet-600 rounded-lg"
-                    onClick={() =>
-                      announceCourtMatch(
-                        court.name,
-                        displayMatch.teamA,
-                        displayMatch.teamB
-                      )
-                    }
+                    disabled={actionBusy}
+                    onClick={endMatch}
+                    className="px-4 py-2 text-sm bg-purple-500 rounded-lg font-medium disabled:opacity-50"
                   >
-                    Call players again
+                    End match
                   </button>
-                )}
-                <button
-                  type="button"
-                  disabled={actionBusy}
-                  onClick={endMatch}
-                  className="px-4 py-2 text-sm bg-purple-500 rounded-lg font-medium disabled:opacity-50"
-                >
-                  End match
-                </button>
+                </div>
               </div>
             </>
           )}

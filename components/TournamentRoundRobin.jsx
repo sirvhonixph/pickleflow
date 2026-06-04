@@ -12,6 +12,10 @@ import {
   isMatchPlayable,
   matchCountsForStandings,
 } from "@/lib/tournament-live";
+import {
+  isForfeitMatch,
+  isVoidMatchResult,
+} from "@/lib/tournament-match-outcome";
 
 function MatchScheduleRow({
   m,
@@ -20,7 +24,9 @@ function MatchScheduleRow({
   readOnly,
   host,
   onStartMatch,
+  onForfeitWin,
   startingMatchId,
+  forfeitBusyId,
 }) {
   const nameA =
     pairById.get(m.pairAId)?.displayName ??
@@ -31,7 +37,10 @@ function MatchScheduleRow({
   const done = isMatchComplete(m);
   const live = isMatchLive(m);
   const playable = isMatchPlayable(m);
-  const needsWinner = done && !matchCountsForStandings(m);
+  const voidResult = isVoidMatchResult(m);
+  const forfeit = isForfeitMatch(m);
+  const nameAShort = nameA.split(" / ")[0] ?? "Pair A";
+  const nameBShort = nameB.split(" / ")[0] ?? "Pair B";
 
   return (
     <li
@@ -54,7 +63,12 @@ function MatchScheduleRow({
             LIVE
           </span>
         )}
-        {playable && !live && (
+        {voidResult && !live && (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">
+            Rematch
+          </span>
+        )}
+        {playable && !live && !voidResult && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
             Up next
           </span>
@@ -71,22 +85,48 @@ function MatchScheduleRow({
         <p className="text-slate-400 mt-1 tabular-nums">
           {m.scoreA ?? 0} – {m.scoreB ?? 0}
           <span className="text-green-400 ml-2">
-            {needsWinner ? "needs clear winner" : "final"}
+            {forfeit ? "default win" : "final"}
           </span>
         </p>
+      ) : voidResult ? (
+        <p className="text-amber-400/90 mt-1 text-xs">
+          Invalid 0–0 — start again when both pairs are ready
+        </p>
       ) : null}
-      {!readOnly && host && onStartMatch && playable ? (
-        <button
-          type="button"
-          disabled={startingMatchId === m.id}
-          onClick={() => onStartMatch(m.id)}
-          className="mt-2 px-3 py-1.5 bg-cyan-500 text-black text-xs font-semibold rounded disabled:opacity-50"
-        >
-          {startingMatchId === m.id ? "Starting…" : "Start on court"}
-        </button>
-      ) : !live && !playable && !done ? (
-        <p className="text-slate-500 mt-1 text-xs">Played</p>
-      ) : null}
+      {!readOnly && host && playable && (
+        <div className="mt-2 flex flex-wrap gap-2">
+          {onStartMatch && (
+            <button
+              type="button"
+              disabled={startingMatchId === m.id || forfeitBusyId === m.id}
+              onClick={() => onStartMatch(m.id)}
+              className="px-3 py-1.5 bg-cyan-500 text-black text-xs font-semibold rounded disabled:opacity-50"
+            >
+              {startingMatchId === m.id ? "Starting…" : "Start on court"}
+            </button>
+          )}
+          {onForfeitWin && !live && (
+            <>
+              <button
+                type="button"
+                disabled={forfeitBusyId === m.id || startingMatchId === m.id}
+                onClick={() => onForfeitWin(m.id, m.pairAId)}
+                className="px-2 py-1 text-[10px] font-semibold rounded border border-amber-500/40 text-amber-100 hover:bg-amber-500/10 disabled:opacity-50"
+              >
+                {forfeitBusyId === m.id ? "…" : `Default · ${nameAShort}`}
+              </button>
+              <button
+                type="button"
+                disabled={forfeitBusyId === m.id || startingMatchId === m.id}
+                onClick={() => onForfeitWin(m.id, m.pairBId)}
+                className="px-2 py-1 text-[10px] font-semibold rounded border border-amber-500/40 text-amber-100 hover:bg-amber-500/10 disabled:opacity-50"
+              >
+                {forfeitBusyId === m.id ? "…" : `Default · ${nameBShort}`}
+              </button>
+            </>
+          )}
+        </div>
+      )}
     </li>
   );
 }
@@ -98,7 +138,9 @@ export default function TournamentRoundRobin({
   scheduleResetAt,
   host,
   onStartMatch,
+  onForfeitWin,
   startingMatchId,
+  forfeitBusyId,
   readOnly = false,
 }) {
   const standings = bracket.standings ?? [];
@@ -221,7 +263,9 @@ export default function TournamentRoundRobin({
                   readOnly={readOnly}
                   host={host}
                   onStartMatch={onStartMatch}
+                  onForfeitWin={onForfeitWin}
                   startingMatchId={startingMatchId}
+                  forfeitBusyId={forfeitBusyId}
                 />
               ))}
             </ul>
@@ -384,7 +428,9 @@ export default function TournamentRoundRobin({
                   readOnly={readOnly}
                   host={host}
                   onStartMatch={onStartMatch}
+                  onForfeitWin={onForfeitWin}
                   startingMatchId={startingMatchId}
+                  forfeitBusyId={forfeitBusyId}
                 />
               ))}
             </ul>
