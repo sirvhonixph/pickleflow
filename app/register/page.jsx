@@ -55,15 +55,18 @@ export default function RegisterPage() {
         return;
       }
       if (data.user) {
-        await supabase.from("profiles").upsert({
+        const { error: profileError } = await supabase.from("profiles").upsert({
           id: data.user.id,
           first_name: form.firstName,
           last_name: form.lastName,
-          email: form.email,
+          email: form.email.trim().toLowerCase(),
           phone: form.phone,
           dupr_id: form.dupr,
           category: form.category,
         });
+        if (profileError) {
+          console.warn("Profile save:", profileError.message);
+        }
       }
       const profile = {
         email: form.email,

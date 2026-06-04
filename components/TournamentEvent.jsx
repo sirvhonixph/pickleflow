@@ -476,8 +476,17 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
               type="button"
               onClick={async () => {
                 if (!confirm("End this tournament for everyone?")) return;
-                const ev = await endEvent(eventId);
-                setEvent(ev);
+                try {
+                  const ev = await endEvent(eventId);
+                  setEvent(ev);
+                } catch (err) {
+                  alert(
+                    err?.message?.includes("Blob") ||
+                      err?.message?.includes("cannot save")
+                      ? `${err.message}\n\nConnect Vercel Blob storage to the pickleflow project, then redeploy.`
+                      : err?.message ?? "Could not end tournament"
+                  );
+                }
               }}
               className="px-4 py-2 bg-red-600 hover:bg-red-500 rounded-lg text-sm font-semibold"
             >

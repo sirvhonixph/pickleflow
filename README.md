@@ -18,12 +18,11 @@ Pickleball platform — tournaments, open play, dashboard, and player profiles.
 | Open play | http://localhost:3000/open-play |
 | Tournaments | http://localhost:3000/tournament |
 
-## Supabase (optional)
+## Supabase (real login — turn off demo mode)
 
-Copy `.env.example` to `.env.local` and add your Supabase URL and anon key.  
-Run `database/schema.sql` in the Supabase SQL editor.
+See **`SUPABASE_SETUP.md`** for step-by-step setup (Supabase + Vercel env vars).
 
-Without Supabase, login/register work in **demo mode** (local storage).
+Without Supabase keys, login/register use **demo mode** (email only, no real passwords).
 
 ## Fix applied
 

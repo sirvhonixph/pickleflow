@@ -58,6 +58,21 @@ export default function TournamentLiveCourtCard({
     }
   }, [match?.scoreA, match?.scoreB, match?.startedAt, match?.id]);
 
+  const showActionError = (err, fallback) => {
+    const msg = err?.message ?? fallback;
+    if (msg.includes("event host")) {
+      alert(
+        `${msg}\n\nLog in with the same email you used when you created this tournament.`
+      );
+      return;
+    }
+    if (msg.includes("Blob") || msg.includes("cannot save")) {
+      alert(`${msg}\n\nAsk your site admin to connect Vercel Blob storage.`);
+      return;
+    }
+    alert(msg);
+  };
+
   const patchLive = async (patch) => {
     if (!live) return;
     setBusy(true);
@@ -70,6 +85,9 @@ export default function TournamentLiveCourtCard({
         status: "live",
         ...patch,
       });
+      await onReload();
+    } catch (err) {
+      showActionError(err, "Could not update match");
       await onReload();
     } finally {
       setBusy(false);
@@ -153,6 +171,9 @@ export default function TournamentLiveCourtCard({
         scoreB,
         status: "completed",
       });
+      await onReload();
+    } catch (err) {
+      showActionError(err, "Could not end match");
       await onReload();
     } finally {
       setBusy(false);

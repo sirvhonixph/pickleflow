@@ -1,12 +1,13 @@
 create table profiles (
-    id uuid primary key default gen_random_uuid(),
+    id uuid primary key references auth.users(id) on delete cascade,
     first_name text,
     last_name text,
     email text unique,
     phone text,
     dupr_id text,
     dupr_rating numeric(3,2),
-    created_at timestamp default now()
+    category text,
+    created_at timestamptz default now()
 );
 
 create table events (
