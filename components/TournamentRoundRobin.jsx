@@ -2,7 +2,12 @@
 
 import { pairDisplayName } from "@/lib/tournament-divisions";
 import { matchesPerPairInRoundRobin } from "@/lib/tournament-brackets";
-import { isMatchComplete, isMatchLive, isMatchPlayable } from "@/lib/tournament-live";
+import {
+  isMatchComplete,
+  isMatchLive,
+  isMatchPlayable,
+  matchCountsForStandings,
+} from "@/lib/tournament-live";
 
 export default function TournamentRoundRobin({
   bracket,
@@ -23,10 +28,18 @@ export default function TournamentRoundRobin({
   const divisionReady = divisionAdvancement?.ready;
   const showTiebreakCols = bracket.poolComplete;
   const pairCount = bracket.pairIds?.length ?? 0;
-  const matchCount = (bracket.matches ?? []).length;
   const perPair =
     bracket.roundRobinMeta?.matchesPerPair ??
     matchesPerPairInRoundRobin(pairCount);
+  const expectedTotal =
+    bracket.roundRobinMeta?.matchCount ??
+    (pairCount >= 2 ? (pairCount * (pairCount - 1)) / 2 : 0);
+  const finished =
+    bracket.roundRobinMeta?.finishedMatches ??
+    (bracket.matches ?? []).filter((m) => matchCountsForStandings(m)).length;
+  const matchesLeft =
+    bracket.roundRobinMeta?.matchesRemaining ??
+    Math.max(0, expectedTotal - finished);
   const playableCount = (bracket.matches ?? []).filter((m) =>
     isMatchPlayable(m)
   ).length;
@@ -45,8 +58,9 @@ export default function TournamentRoundRobin({
           <p className="text-sm text-cyan-400">{bracket.courtName}</p>
           {pairCount >= 2 && (
             <p className="text-xs text-slate-500 mt-0.5">
-              {pairCount} pairs · {matchCount} matches · each pair plays {perPair}{" "}
-              {playableCount > 0 ? `· ${playableCount} left` : ""}
+              Round robin: {pairCount} pairs, {expectedTotal} matches total — each
+              pair must play {perPair} games ({finished}/{expectedTotal} done
+              {matchesLeft > 0 ? `, ${matchesLeft} left` : ""})
             </p>
           )}
         </div>
@@ -58,8 +72,13 @@ export default function TournamentRoundRobin({
           </span>
         )}
         {!readOnly && bracket.poolComplete && !divisionReady && (
-          <span className="text-xs font-bold px-2 py-1 rounded bg-amber-500/20 text-amber-400">
+          <span className="text-xs font-bold px-2 py-1 rounded bg-green-500/20 text-green-400">
             Bracket complete
+          </span>
+        )}
+        {!readOnly && !bracket.poolComplete && matchesLeft > 0 && (
+          <span className="text-xs font-bold px-2 py-1 rounded bg-amber-500/20 text-amber-400">
+            {matchesLeft} match{matchesLeft === 1 ? "" : "es"} left
           </span>
         )}
         {divisionReady && (
@@ -79,7 +98,15 @@ export default function TournamentRoundRobin({
                 <th className="py-2">Pair</th>
                 <th className="py-2 text-center">W</th>
                 <th className="py-2 text-center">L</th>
-                <th className="py-2 text-right">Win %</th>
+                <th
+                  className="py-2 text-center"
+                  title={`Games played (need ${perPair} per pair)`}
+                >
+                  GP
+                </th>
+                <th className="py-2 text-right" title="Win rate in completed games">
+                  Win %
+                </th>
                 {showTiebreakCols && (
                   <>
                     <th
@@ -129,6 +156,15 @@ export default function TournamentRoundRobin({
                   </td>
                   <td className="py-2 text-center text-green-400">{row.wins}</td>
                   <td className="py-2 text-center text-red-400/80">{row.losses}</td>
+                  <td
+                    className={`py-2 text-center tabular-nums ${
+                      (row.matchesPlayed ?? 0) >= perPair
+                        ? "text-green-400"
+                        : "text-amber-400"
+                    }`}
+                  >
+                    {row.matchesPlayed ?? 0}/{perPair}
+                  </td>
                   <td className="py-2 text-right">{row.winPct}%</td>
                   {showTiebreakCols && (
                     <>
@@ -166,13 +202,19 @@ export default function TournamentRoundRobin({
         <p className="text-xs text-slate-500 mt-2">
           {showTiebreakCols ? (
             <>
-              Rank order: wins → TB → +/−. TB column is — for #1 (bracket winner).{" "}
+              Rank order: wins → TB → +/−. GP must be {perPair}/{perPair} for every
+              pair before this bracket is final.{" "}
               {divisionReady
                 ? "Green = advances to quarterfinals."
-                : "Finish every bracket in this division to lock quarterfinal spots."}
+                : "Finish all remaining matches to lock advancement."}
             </>
           ) : (
-            "Finish all bracket matches to show tiebreak columns (For, Agst, +/−, TB)."
+            <>
+              Pool play rules: each pair plays every other pair in this bracket once (
+              {perPair} games each). End each match with a winner on the court. GP
+              shows games played; tiebreak columns appear when the bracket is fully
+              done.
+            </>
           )}
         </p>
       </div>
