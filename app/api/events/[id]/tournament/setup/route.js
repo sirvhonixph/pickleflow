@@ -35,7 +35,9 @@ export async function POST(request, { params }) {
         throw new Error("divisionId required (or set all: true).");
       }
       if (regenerate) {
-        return regenerateDivisionSetup(event, divisionId, { force: !!force });
+        return regenerateDivisionSetup(event, divisionId, {
+          force: force !== false,
+        });
       }
       return applyDivisionSetup(event, divisionId);
     });

@@ -393,11 +393,9 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     }
   };
 
-  const handleRegenerateBracket = async (divisionId, { force = false } = {}) => {
+  const handleRegenerateBracket = async (divisionId) => {
     const label = divisionLabel(divisionId, event);
-    const msg = force
-      ? `Regenerate ${label} and erase all match scores for this division? This cannot be undone.`
-      : `Regenerate brackets for ${label}? Brackets will be rebuilt from current pairs and court pools.`;
+    const msg = `Regenerate ${label}? All pool and knockout matches for this division will be removed and scores erased. Other divisions are not changed.`;
     if (!window.confirm(msg)) return;
 
     setSetupBusy(true);
@@ -405,7 +403,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
       const ev = await runBracketSetup(eventId, {
         divisionId,
         regenerate: true,
-        force,
+        force: true,
       });
       setEvent(ev);
       setViewDivision(divisionId);
@@ -1009,18 +1007,10 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
                   <button
                     type="button"
                     disabled={setupBusy}
-                    onClick={() =>
-                      handleRegenerateBracket(viewDivision, {
-                        force: divisionHasMatchProgress(divisionSetup),
-                      })
-                    }
+                    onClick={() => handleRegenerateBracket(viewDivision)}
                     className="px-3 py-1.5 text-sm rounded-lg border border-amber-500/50 text-amber-200 hover:bg-amber-500/10 disabled:opacity-50 shrink-0"
                   >
-                    {setupBusy
-                      ? "Working…"
-                      : divisionHasMatchProgress(divisionSetup)
-                        ? "Regenerate & erase scores"
-                        : "Regenerate brackets"}
+                    {setupBusy ? "Working…" : "Regenerate division"}
                   </button>
                 )}
             </div>

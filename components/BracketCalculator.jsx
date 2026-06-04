@@ -170,7 +170,6 @@ export default function BracketCalculator({
     ? event.tournamentDivisions?.[selectedDivisionId]
     : null;
   const selectedHasBrackets = !!selectedSetup?.brackets?.length;
-  const selectedHasProgress = divisionHasMatchProgress(selectedSetup);
   const selectedCanRegenerate =
     !!selectedDivisionId &&
     !divisionIsFinished(event, selectedDivisionId) &&
@@ -616,25 +615,17 @@ export default function BracketCalculator({
               {selectedCanRegenerate && onRegenerateDivision && (
                 <div className="pt-2 border-t border-slate-700 space-y-2">
                   <p className="text-xs text-slate-500">
-                    {selectedHasProgress
-                      ? "This division has match scores. Regenerating will erase pool and knockout progress for this division."
-                      : "Fix bracket mistakes — rebuilds from current pairs and court assignment."}
+                    Rebuilds brackets from current pairs and courts. Removes all
+                    pool and knockout matches for this division and clears scores.
+                    Other divisions are unchanged.
                   </p>
                   <button
                     type="button"
                     disabled={busy}
-                    onClick={() =>
-                      onRegenerateDivision(selectedDivisionId, {
-                        force: selectedHasProgress,
-                      })
-                    }
+                    onClick={() => onRegenerateDivision(selectedDivisionId)}
                     className="px-4 py-2 border border-amber-500/50 text-amber-200 font-semibold rounded-lg text-sm disabled:opacity-50 hover:bg-amber-500/10"
                   >
-                    {busy
-                      ? "Regenerating…"
-                      : selectedHasProgress
-                        ? "Regenerate & erase scores"
-                        : "Regenerate brackets"}
+                    {busy ? "Regenerating…" : "Regenerate division"}
                   </button>
                 </div>
               )}
