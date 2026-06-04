@@ -21,13 +21,13 @@ export default function RoundRobinResultsPanel({
   return (
     <section className="bg-slate-900 border border-slate-700 rounded-xl p-6 space-y-5">
       <div>
-        <h2 className="text-xl font-bold text-slate-100">Elimination round results</h2>
+        <h2 className="text-xl font-bold text-slate-100">Pool play (round robin)</h2>
         <p className="text-slate-400 text-sm mt-1">
           {divisionName
             ? `${divisionName} — `
             : ""}
-          Final standings and scores from pool play. Scroll here to review who
-          qualified for finals.
+          Each pair plays every other pair in their bracket once. Standings below
+          decide who advances to knockout finals.
         </p>
         {completedCount > 0 && (
           <p className="text-xs text-slate-500 mt-2">

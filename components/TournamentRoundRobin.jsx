@@ -1,7 +1,8 @@
 "use client";
 
 import { pairDisplayName } from "@/lib/tournament-divisions";
-import { isMatchComplete, isMatchLive } from "@/lib/tournament-live";
+import { matchesPerPairInRoundRobin } from "@/lib/tournament-brackets";
+import { isMatchComplete, isMatchLive, isMatchPlayable } from "@/lib/tournament-live";
 
 export default function TournamentRoundRobin({
   bracket,
@@ -21,6 +22,14 @@ export default function TournamentRoundRobin({
   );
   const divisionReady = divisionAdvancement?.ready;
   const showTiebreakCols = bracket.poolComplete;
+  const pairCount = bracket.pairIds?.length ?? 0;
+  const matchCount = (bracket.matches ?? []).length;
+  const perPair =
+    bracket.roundRobinMeta?.matchesPerPair ??
+    matchesPerPairInRoundRobin(pairCount);
+  const playableCount = (bracket.matches ?? []).filter((m) =>
+    isMatchPlayable(m)
+  ).length;
 
   function formatPointDiff(diff) {
     if (typeof diff !== "number" || Number.isNaN(diff)) return "—";
@@ -34,6 +43,12 @@ export default function TournamentRoundRobin({
         <div>
           <h3 className="text-lg font-semibold">{bracket.label}</h3>
           <p className="text-sm text-cyan-400">{bracket.courtName}</p>
+          {pairCount >= 2 && (
+            <p className="text-xs text-slate-500 mt-0.5">
+              {pairCount} pairs · {matchCount} matches · each pair plays {perPair}{" "}
+              {playableCount > 0 ? `· ${playableCount} left` : ""}
+            </p>
+          )}
         </div>
         {readOnly && (
           <span className="text-xs font-bold px-2 py-1 rounded bg-slate-700 text-slate-300">
@@ -164,7 +179,7 @@ export default function TournamentRoundRobin({
 
       <div>
         <h4 className="text-sm font-semibold text-slate-400 mb-2">
-          {readOnly ? "Match results" : "Round robin matches"}
+          {readOnly ? "Match results" : "Round robin schedule"}
         </h4>
         <ul className="space-y-2 max-h-64 overflow-y-auto pr-1">
           {(bracket.matches ?? []).map((m) => {
