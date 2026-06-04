@@ -11,7 +11,8 @@ import {
   clearEndedEvents,
   deleteEndedEvent,
 } from "@/lib/events";
-import { getCurrentUser, getPlayerId, saveCurrentUser } from "@/lib/session";
+import { getCurrentUser, getPlayerId, saveCurrentUser, clearCurrentUser } from "@/lib/session";
+import { fetchRegisteredPlayer } from "@/lib/players";
 import { categoryLabel } from "@/lib/categories";
 import { isValidCategory } from "@/lib/player-category";
 import { fetchPlayerStats } from "@/lib/stats";
@@ -60,8 +61,17 @@ export default function DashboardPage() {
       const list = await fetchEvents();
       setEvents(list);
       const current = getCurrentUser();
-      setUser(current);
       const pid = getPlayerId(current);
+      if (pid) {
+        try {
+          await fetchRegisteredPlayer(pid);
+        } catch {
+          clearCurrentUser();
+          router.replace("/login");
+          return;
+        }
+      }
+      setUser(current);
       if (pid) {
         try {
           const [s, profile] = await Promise.all([
@@ -105,7 +115,7 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   useEffect(() => {
     load();
