@@ -18,7 +18,11 @@ import {
 import { patchTournamentMatch, updateCourt } from "@/lib/events";
 import { pairDisplayName } from "@/lib/tournament-divisions";
 import { getDivisionById } from "@/lib/tournament-divisions";
-import { getCourtTournamentState, pairToTeamPlayers } from "@/lib/tournament-live";
+import {
+  getCourtTournamentState,
+  mergeLiveScoresIntoEvent,
+  pairToTeamPlayers,
+} from "@/lib/tournament-live";
 
 function PlayingPairs({ pairA, pairB }) {
   return (
@@ -69,6 +73,9 @@ export default function TournamentLiveCourtCard({
   const liveRef = useRef(live);
   liveRef.current = live;
   const liveSessionKeyRef = useRef(null);
+  const localMatchRef = useRef(null);
+  const liveStartedAtRef = useRef(0);
+  localMatchRef.current = localMatch;
 
   useEffect(() => {
     if (!match) {
@@ -77,12 +84,11 @@ export default function TournamentLiveCourtCard({
       return;
     }
 
-    const sessionKey = `${match.id}:${match.startedAt ?? ""}:${match.status}`;
-
     if (match.status === "live") {
-      const newSession = liveSessionKeyRef.current !== sessionKey;
+      const newSession = liveSessionKeyRef.current !== match.id;
       if (newSession) {
-        liveSessionKeyRef.current = sessionKey;
+        liveSessionKeyRef.current = match.id;
+        liveStartedAtRef.current = Date.now();
         setScoreA(match.scoreA ?? 0);
         setScoreB(match.scoreB ?? 0);
         setLocalMatch(match);
@@ -105,7 +111,7 @@ export default function TournamentLiveCourtCard({
     setScoreA(match.scoreA ?? 0);
     setScoreB(match.scoreB ?? 0);
     setLocalMatch(match);
-  }, [match?.id, match?.startedAt, match?.status]);
+  }, [match?.id, match?.status]);
 
   const displayMatch = useMemo(() => {
     const base = localMatch ?? match;
@@ -130,12 +136,24 @@ export default function TournamentLiveCourtCard({
 
   const applyEvent = useCallback(
     (ev) => {
-      onPauseAutoRefresh?.(30000);
-      if (ev && onEventUpdate) {
-        onEventUpdate(ev);
+      onPauseAutoRefresh?.(60000);
+      if (!ev || !onEventUpdate) return;
+      const ctx = liveRef.current;
+      let next = ev;
+      if (ctx?.match?.id && ctx.match.status === "live") {
+        next = mergeLiveScoresIntoEvent(ev, {
+          courtId: court.id,
+          divisionId: ctx.divisionId,
+          bracketId: ctx.bracketId,
+          matchId: ctx.match.id,
+          scoreA: scoreARef.current,
+          scoreB: scoreBRef.current,
+          localMatch: localMatchRef.current,
+        });
       }
+      onEventUpdate(next);
     },
-    [onEventUpdate, onPauseAutoRefresh]
+    [court.id, onEventUpdate, onPauseAutoRefresh]
   );
 
   const flushLiveSave = useCallback(async () => {
@@ -197,9 +215,11 @@ export default function TournamentLiveCourtCard({
         scoreARef.current,
         scoreBRef.current
       );
-      onPauseAutoRefresh?.(30000);
+      onPauseAutoRefresh?.(60000);
       clearTimeout(saveTimerRef.current);
-      saveTimerRef.current = setTimeout(() => flushLiveSave(), 350);
+      const ms =
+        Date.now() - liveStartedAtRef.current < 12000 ? 120 : 400;
+      saveTimerRef.current = setTimeout(() => flushLiveSave(), ms);
     },
     [flushLiveSave, onPauseAutoRefresh]
   );
@@ -293,12 +313,16 @@ export default function TournamentLiveCourtCard({
       if (aiAnnounceOn && started?.match?.teamA?.length && started?.match?.teamB?.length) {
         announceCourtMatch(court.name, started.match.teamA, started.match.teamB);
       }
+      liveSessionKeyRef.current = ctx.match.id;
+      liveStartedAtRef.current = Date.now();
       applyEvent(ev);
       const startedMatch = getCourtTournamentState(ev, court.id).live?.match;
       if (startedMatch) {
-        setLocalMatch(startedMatch);
-        setScoreA(startedMatch.scoreA ?? 0);
-        setScoreB(startedMatch.scoreB ?? 0);
+        setLocalMatch({
+          ...startedMatch,
+          scoreA: scoreARef.current,
+          scoreB: scoreBRef.current,
+        });
       }
     } catch (err) {
       alert(err.message ?? "Could not start match");
