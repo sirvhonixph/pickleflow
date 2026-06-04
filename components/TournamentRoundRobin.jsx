@@ -183,6 +183,12 @@ export default function TournamentRoundRobin({
     (m) => matchCountsForStandings(m) && !isMatchPlayable(m)
   );
   const canHostStart = !readOnly && host && onStartMatch;
+  const showMatchesToPlaySection =
+    !bracket.poolComplete && (matchesLeft > 0 || liveMatches.length > 0);
+  const hasMatchesToPlayList =
+    liveMatches.length > 0 || matchesToPlay.length > 0;
+  const showFullSchedule = !showMatchesToPlaySection || !hasMatchesToPlayList;
+
   function formatPointDiff(diff) {
     if (typeof diff !== "number" || Number.isNaN(diff)) return "—";
     if (diff > 0) return `+${diff}`;
@@ -227,7 +233,7 @@ export default function TournamentRoundRobin({
         )}
       </div>
 
-      {!bracket.poolComplete && (matchesLeft > 0 || liveMatches.length > 0) && (
+      {showMatchesToPlaySection && (
         <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-3">
           <div>
             <h4 className="text-sm font-semibold text-cyan-200">
@@ -248,7 +254,7 @@ export default function TournamentRoundRobin({
           ) : matchesToPlay.length === 0 && liveMatches.length === 0 ? (
             <p className="text-sm text-amber-400/90">
               No startable matchups in the list. Regenerate this division to rebuild
-              the schedule, or scroll to completed games below.
+              the schedule.
             </p>
           ) : (
             <ul className="space-y-2">
@@ -408,39 +414,43 @@ export default function TournamentRoundRobin({
         </p>
       </div>
 
-      <div>
-        <h4 className="text-sm font-semibold text-slate-400 mb-2">
-          {readOnly ? "All match results" : "Full schedule"}
-        </h4>
-        {scheduleMatches.length === 0 ? (
-          <p className="text-sm text-slate-500">No matchups in this bracket yet.</p>
-        ) : (
-          <>
-            {completedMatches.length > 0 && (
-              <p className="text-xs text-slate-500 mb-2">
-                {completedMatches.length} completed · {playableMatches.length}{" "}
-                remaining
-              </p>
-            )}
-            <ul className="space-y-2 max-h-80 overflow-y-auto pr-1">
-              {scheduleMatches.map((m) => (
-                <MatchScheduleRow
-                  key={m.id}
-                  m={m}
-                  bracket={bracket}
-                  pairById={pairById}
-                  readOnly={readOnly}
-                  host={host}
-                  onStartMatch={onStartMatch}
-                  onForfeitWin={onForfeitWin}
-                  startingMatchId={startingMatchId}
-                  forfeitBusyId={forfeitBusyId}
-                />
-              ))}
-            </ul>
-          </>
-        )}
-      </div>
+      {showFullSchedule && (
+        <div>
+          <h4 className="text-sm font-semibold text-slate-400 mb-2">
+            {readOnly ? "All match results" : "Full schedule"}
+          </h4>
+          {scheduleMatches.length === 0 ? (
+            <p className="text-sm text-slate-500">No matchups in this bracket yet.</p>
+          ) : (
+            <>
+              {completedMatches.length > 0 && (
+                <p className="text-xs text-slate-500 mb-2">
+                  {completedMatches.length} completed
+                  {playableMatches.length > 0
+                    ? ` · ${playableMatches.length} remaining`
+                    : ""}
+                </p>
+              )}
+              <ul className="space-y-2 max-h-80 overflow-y-auto pr-1">
+                {scheduleMatches.map((m) => (
+                  <MatchScheduleRow
+                    key={m.id}
+                    m={m}
+                    bracket={bracket}
+                    pairById={pairById}
+                    readOnly={readOnly}
+                    host={host}
+                    onStartMatch={onStartMatch}
+                    onForfeitWin={onForfeitWin}
+                    startingMatchId={startingMatchId}
+                    forfeitBusyId={forfeitBusyId}
+                  />
+                ))}
+              </ul>
+            </>
+          )}
+        </div>
+      )}
     </div>
   );
 }
