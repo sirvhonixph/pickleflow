@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CategoryBadge from "@/components/CategoryBadge";
 import CourtDiagram from "@/components/CourtDiagram";
 import {
@@ -38,6 +38,7 @@ export default function LiveCourtCard({
   host,
   onReload,
   onEventUpdate,
+  onPauseAutoRefresh,
   onRemoveCourt,
   onReviewPending,
 }) {
@@ -51,70 +52,172 @@ export default function LiveCourtCard({
     autoMatchOn && !isPending && pickNextFour(court.queue ?? []) !== null;
   const [scoreA, setScoreA] = useState(0);
   const [scoreB, setScoreB] = useState(0);
+  const [localMatch, setLocalMatch] = useState(null);
   const [busy, setBusy] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const pendingPatchRef = useRef(null);
+  const saveTimerRef = useRef(null);
+  const savingRef = useRef(false);
+  const matchRef = useRef(match);
+  matchRef.current = match;
 
   useEffect(() => {
-    if (match) {
-      setScoreA(match.scoreA ?? 0);
-      setScoreB(match.scoreB ?? 0);
+    if (!match) {
+      setLocalMatch(null);
+      return;
     }
-  }, [match?.scoreA, match?.scoreB, match?.startedAt]);
+    setScoreA(match.scoreA ?? 0);
+    setScoreB(match.scoreB ?? 0);
+    setLocalMatch(match);
+  }, [court.id, match?.startedAt]);
 
-  const applyServerEvent = (ev) => {
-    if (ev) onEventUpdate?.(ev);
-    else onReload?.();
-  };
+  const displayMatch = useMemo(() => {
+    const base = localMatch ?? match;
+    if (!base) return null;
+    return { ...base, scoreA, scoreB };
+  }, [localMatch, match, scoreA, scoreB]);
 
-  const patchMatch = async (patch) => {
+  const applyServerEvent = useCallback(
+    (ev) => {
+      onPauseAutoRefresh?.(30000);
+      if (ev) onEventUpdate?.(ev);
+      else onReload?.();
+    },
+    [onEventUpdate, onPauseAutoRefresh, onReload]
+  );
+
+  const syncScoresFromEvent = useCallback(
+    (ev) => {
+      if (!ev || pendingPatchRef.current) return;
+      const c = ev.courts?.find((x) => x.id === court.id);
+      const m = c?.currentMatch;
+      if (!m) return;
+      setLocalMatch(m);
+      setScoreA(m.scoreA ?? 0);
+      setScoreB(m.scoreB ?? 0);
+    },
+    [court.id]
+  );
+
+  const flushLiveSave = useCallback(async () => {
+    const m = matchRef.current;
+    if (!m || !pendingPatchRef.current) return;
+    if (savingRef.current) {
+      saveTimerRef.current = setTimeout(() => flushLiveSave(), 150);
+      return;
+    }
+
+    const patch = pendingPatchRef.current;
+    pendingPatchRef.current = null;
+    savingRef.current = true;
+    setSaving(true);
+    onPauseAutoRefresh?.(30000);
+
     try {
       const ev = await updateLiveMatch(eventId, court.id, patch);
       applyServerEvent(ev);
+      syncScoresFromEvent(ev);
     } catch {
-      if (match) {
-        setScoreA(match.scoreA ?? 0);
-        setScoreB(match.scoreB ?? 0);
+      await onReload?.();
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+      if (pendingPatchRef.current) {
+        saveTimerRef.current = setTimeout(() => flushLiveSave(), 100);
       }
+    }
+  }, [applyServerEvent, court.id, eventId, onPauseAutoRefresh, onReload, syncScoresFromEvent]);
+
+  const queueLiveSave = useCallback(
+    (patch) => {
+      pendingPatchRef.current = { ...(pendingPatchRef.current ?? {}), ...patch };
+      onPauseAutoRefresh?.(30000);
+      clearTimeout(saveTimerRef.current);
+      saveTimerRef.current = setTimeout(() => flushLiveSave(), 300);
+    },
+    [flushLiveSave, onPauseAutoRefresh]
+  );
+
+  useEffect(() => () => clearTimeout(saveTimerRef.current), []);
+
+  const matchForScoring = () => {
+    const base = localMatch ?? match;
+    if (!base) return null;
+    return { ...base, scoreA, scoreB };
+  };
+
+  const patchMatchNow = async (patch) => {
+    const m = matchRef.current;
+    if (!m) return;
+    clearTimeout(saveTimerRef.current);
+    if (pendingPatchRef.current) {
+      await flushLiveSave();
+    }
+    onPauseAutoRefresh?.(30000);
+    setBusy(true);
+    try {
+      const ev = await updateLiveMatch(eventId, court.id, patch);
+      applyServerEvent(ev);
+      syncScoresFromEvent(ev);
+    } catch {
+      await onReload?.();
+    } finally {
+      setBusy(false);
     }
   };
 
-  const bumpScore = async (team, delta) => {
-    if (!match || busy) return;
-    const patch = applyScoreDelta(match, team, delta, { scoreA, scoreB });
+  const bumpScore = (team, delta) => {
+    const m = matchForScoring();
+    if (!m) return;
+    const patch = applyScoreDelta(m, team, delta, { scoreA, scoreB });
     setScoreA(patch.scoreA);
     setScoreB(patch.scoreB);
-    await patchMatch(patch);
+    setLocalMatch((prev) => ({ ...(prev ?? m), ...patch }));
+    queueLiveSave(patch);
   };
 
-  const setTeamScore = async (team, value) => {
-    if (!match || busy) return;
-    const patch = applyScoreValue(match, team, value, { scoreA, scoreB });
+  const setTeamScore = (team, value) => {
+    const m = matchForScoring();
+    if (!m) return;
+    const patch = applyScoreValue(m, team, value, { scoreA, scoreB });
     setScoreA(patch.scoreA);
     setScoreB(patch.scoreB);
-    await patchMatch(patch);
+    setLocalMatch((prev) => ({ ...(prev ?? m), ...patch }));
+    queueLiveSave(patch);
   };
 
   const handleSetBase = async (teamId, playerId, half) => {
-    if (!match || busy) return;
-    if (teamId === "A") {
-      await patchMatch({
-        basePlayerA: playerId,
-        teamA: alignTeamToScore(match.teamA, playerId, half, scoreA),
-      });
-    } else {
-      await patchMatch({
-        basePlayerB: playerId,
-        teamB: alignTeamToScore(match.teamB, playerId, half, scoreB),
-      });
-    }
+    const m = matchForScoring();
+    if (!m || busy) return;
+    const patch =
+      teamId === "A"
+        ? {
+            basePlayerA: playerId,
+            teamA: alignTeamToScore(m.teamA, playerId, half, scoreA),
+          }
+        : {
+            basePlayerB: playerId,
+            teamB: alignTeamToScore(m.teamB, playerId, half, scoreB),
+          };
+    setLocalMatch((prev) => ({ ...(prev ?? m), ...patch }));
+    await patchMatchNow(patch);
   };
 
   const handleChangeCourt = async () => {
-    if (!match || busy) return;
-    await patchMatch(toggleChangeCourt(match));
+    const m = matchForScoring();
+    if (!m || busy) return;
+    const patch = toggleChangeCourt(m);
+    setLocalMatch((prev) => ({ ...(prev ?? m), ...patch }));
+    await patchMatchNow(patch);
   };
 
   const handleEndMatch = async () => {
     if (busy) return;
+    clearTimeout(saveTimerRef.current);
+    if (pendingPatchRef.current) {
+      await flushLiveSave();
+    }
     setBusy(true);
     try {
       const ev = await endCourtMatch(eventId, court.id);
@@ -312,14 +415,20 @@ export default function LiveCourtCard({
             Now playing
           </p>
           <CourtDiagram
-            match={match}
-            scoreA={host ? scoreA : match.scoreA}
-            scoreB={host ? scoreB : match.scoreB}
+            match={displayMatch ?? match}
+            scoreA={host ? scoreA : (displayMatch ?? match).scoreA}
+            scoreB={host ? scoreB : (displayMatch ?? match).scoreB}
             host={host}
+            disabled={busy}
             onSetBase={host ? handleSetBase : undefined}
             onBumpScore={host ? bumpScore : undefined}
             onSetScore={host ? setTeamScore : undefined}
           />
+          {host && saving && (
+            <p className="text-[10px] text-slate-500 mt-1 text-center">
+              Syncing to server…
+            </p>
+          )}
 
           {!host && (
             <div className="mt-4 rounded-lg border border-slate-800 bg-slate-800/40 p-3">

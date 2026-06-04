@@ -56,12 +56,18 @@ export default function OpenPlayEvent({ eventId }) {
   const [paymentBusy, setPaymentBusy] = useState(false);
 
   const reloadInFlight = useRef(false);
+  const refreshPausedUntilRef = useRef(0);
+
+  const pauseAutoRefresh = useCallback((ms = 15000) => {
+    refreshPausedUntilRef.current = Date.now() + ms;
+  }, []);
 
   const applyEvent = useCallback((ev) => {
     if (ev) setEvent(ev);
   }, []);
 
   const reload = useCallback(async () => {
+    if (Date.now() < refreshPausedUntilRef.current) return;
     if (reloadInFlight.current) return;
     reloadInFlight.current = true;
     try {
@@ -84,11 +90,17 @@ export default function OpenPlayEvent({ eventId }) {
     }
   }, [eventId]);
 
+  const hasLiveCourt = event?.courts?.some((c) => c.status === "live");
+
   useEffect(() => {
     reload();
+    const isHost = event && user && isEventHost(event, user);
+    if (isHost && hasLiveCourt) {
+      return undefined;
+    }
     const t = setInterval(() => reload(), 8000);
     return () => clearInterval(t);
-  }, [reload]);
+  }, [reload, event, user, hasLiveCourt]);
 
   useEffect(() => {
     if (event?.liveStreamUrl) setStreamUrl(event.liveStreamUrl);
@@ -392,7 +404,11 @@ export default function OpenPlayEvent({ eventId }) {
                 eventId={eventId}
                 host={host && !isEnded}
                 onReload={reload}
-                onEventUpdate={applyEvent}
+                onEventUpdate={(ev) => {
+                  pauseAutoRefresh(15000);
+                  applyEvent(ev);
+                }}
+                onPauseAutoRefresh={pauseAutoRefresh}
                 onReviewPending={
                   host && !isEnded && court.status === "pending"
                     ? () => {

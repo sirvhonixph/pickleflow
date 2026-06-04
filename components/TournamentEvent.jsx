@@ -125,13 +125,6 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const knockoutPhase = event?.tournamentPhase === "knockout";
 
   useEffect(() => {
-    reload();
-    const ms = poolPlay || knockoutPhase ? 12000 : 5000;
-    const t = setInterval(reload, ms);
-    return () => clearInterval(t);
-  }, [reload, poolPlay, knockoutPhase]);
-
-  useEffect(() => {
     if (event?.liveStreamUrl) setStreamUrl(event.liveStreamUrl);
   }, [event?.liveStreamUrl]);
 
@@ -194,6 +187,17 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
       return bracketedDivisions[0].id;
     });
   }, [event?.id, bracketedIdsKey, bracketedDivisions]);
+
+  useEffect(() => {
+    reload();
+    const isHost = event && user && isEventHost(event, user);
+    if (isHost && (poolPlay || knockoutPhase)) {
+      return undefined;
+    }
+    const ms = poolPlay || knockoutPhase ? 15000 : 5000;
+    const t = setInterval(reload, ms);
+    return () => clearInterval(t);
+  }, [reload, poolPlay, knockoutPhase, event, user]);
 
   if (!event) {
     return (
