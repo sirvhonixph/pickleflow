@@ -150,6 +150,7 @@ export default function TournamentRoundRobin({
                   <td className="py-2 font-medium">
                     <div>{row.name}</div>
                     {!bracket.poolComplete &&
+                      finished > 0 &&
                       (row.matchesPlayed ?? 0) < perPair && (
                         <p className="text-[10px] text-amber-400/90 mt-0.5 font-normal">
                           Still needs:{" "}
