@@ -9,7 +9,7 @@ import {
   scorePositionHint,
 } from "@/lib/court-positions";
 
-function PlayerSlot({ player, isBase, host, onSetBase, roleLabel }) {
+function PlayerSlot({ player, isBase, host, onSetBase, roleLabel, disabled }) {
   if (!player) {
     return (
       <div className="rounded-lg border border-dashed border-slate-700 p-3 min-h-[3.5rem] flex items-center justify-center text-xs text-slate-600">
@@ -39,8 +39,9 @@ function PlayerSlot({ player, isBase, host, onSetBase, roleLabel }) {
       {host && onSetBase && (
         <button
           type="button"
+          disabled={disabled}
           onClick={() => onSetBase(player.playerId)}
-          className="mt-1 text-[10px] text-left text-cyan-400 hover:underline"
+          className="mt-1 text-[10px] text-left text-cyan-400 hover:underline disabled:opacity-40 disabled:pointer-events-none"
         >
           {isBase ? "Base ✓" : "Set as base"}
         </button>
@@ -58,6 +59,7 @@ function TeamSideScore({
   onMinus,
   onPlus,
   onSetScore,
+  disabled,
 }) {
   const [draft, setDraft] = useState(String(score ?? 0));
 
@@ -87,7 +89,8 @@ function TeamSideScore({
             min={0}
             step={1}
             inputMode="numeric"
-            className={`mt-1 w-24 text-3xl md:text-4xl font-bold tabular-nums leading-none rounded-lg bg-slate-800 border border-slate-600 px-2 py-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${accent} focus:outline-none focus:ring-2 focus:ring-cyan-500/50`}
+            disabled={disabled}
+            className={`mt-1 w-24 text-3xl md:text-4xl font-bold tabular-nums leading-none rounded-lg bg-slate-800 border border-slate-600 px-2 py-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${accent} focus:outline-none focus:ring-2 focus:ring-cyan-500/50 disabled:opacity-50`}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
             onBlur={commitDraft}
@@ -112,16 +115,18 @@ function TeamSideScore({
         <div className="flex items-center gap-2 shrink-0">
           <button
             type="button"
+            disabled={disabled}
             onClick={onMinus}
-            className="w-11 h-11 rounded-lg bg-slate-700 hover:bg-slate-600 text-xl font-bold"
+            className="w-11 h-11 rounded-lg bg-slate-700 hover:bg-slate-600 text-xl font-bold disabled:opacity-40"
             aria-label={`Decrease ${teamLabel} score`}
           >
             −
           </button>
           <button
             type="button"
+            disabled={disabled}
             onClick={onPlus}
-            className="w-11 h-11 rounded-lg bg-slate-700 hover:bg-slate-600 text-xl font-bold"
+            className="w-11 h-11 rounded-lg bg-slate-700 hover:bg-slate-600 text-xl font-bold disabled:opacity-40"
             aria-label={`Increase ${teamLabel} score`}
           >
             +
@@ -151,6 +156,7 @@ function TeamRow({
   sideLabel,
   half,
   facingLabel,
+  disabled,
 }) {
   const screenLeft = getPlayerBySlot(team, "left");
   const screenRight = getPlayerBySlot(team, "right");
@@ -175,6 +181,7 @@ function TeamRow({
         accent={accent}
         borderAccent={borderAccent}
         host={host}
+        disabled={disabled}
         onMinus={() => onBumpScore?.(teamId, -1)}
         onPlus={() => onBumpScore?.(teamId, 1)}
         onSetScore={(value) => onSetScore?.(teamId, value)}
@@ -216,6 +223,7 @@ function TeamRow({
           host={host}
           onSetBase={onSetBase}
           roleLabel={leftRole}
+          disabled={disabled}
         />
         <PlayerSlot
           player={screenRight}
@@ -223,6 +231,7 @@ function TeamRow({
           host={host}
           onSetBase={onSetBase}
           roleLabel={rightRole}
+          disabled={disabled}
         />
       </div>
     </div>
@@ -266,6 +275,7 @@ export default function CourtDiagram({
   scoreA,
   scoreB,
   host,
+  disabled = false,
   onSetBase,
   onBumpScore,
   onSetScore,
@@ -299,6 +309,7 @@ export default function CourtDiagram({
         accent={topAccent}
         borderAccent={topBorder}
         host={host}
+        disabled={disabled}
         onBumpScore={onBumpScore}
         onSetScore={onSetScore}
         onSetBase={(id) => onSetBase(layout.topTeamId, id, "top")}
@@ -322,6 +333,7 @@ export default function CourtDiagram({
         accent={bottomAccent}
         borderAccent={bottomBorder}
         host={host}
+        disabled={disabled}
         onBumpScore={onBumpScore}
         onSetScore={onSetScore}
         onSetBase={(id) => onSetBase(layout.bottomTeamId, id, "bottom")}

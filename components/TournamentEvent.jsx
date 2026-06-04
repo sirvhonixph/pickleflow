@@ -102,8 +102,14 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const [playerRegisterBusy, setPlayerRegisterBusy] = useState(false);
   const bracketCalcRef = useRef(null);
   const playViewRef = useRef(null);
+  const refreshPausedUntilRef = useRef(0);
+
+  const pauseAutoRefresh = useCallback((ms = 15000) => {
+    refreshPausedUntilRef.current = Date.now() + ms;
+  }, []);
 
   const reload = useCallback(async () => {
+    if (Date.now() < refreshPausedUntilRef.current) return;
     try {
       const ev = await fetchEventById(eventId);
       setEvent(ev);
@@ -120,7 +126,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
 
   useEffect(() => {
     reload();
-    const ms = poolPlay || knockoutPhase ? 4000 : 5000;
+    const ms = poolPlay || knockoutPhase ? 12000 : 5000;
     const t = setInterval(reload, ms);
     return () => clearInterval(t);
   }, [reload, poolPlay, knockoutPhase]);
@@ -1214,7 +1220,11 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
                     pairById={pairById}
                     host={host && !isEnded}
                     onReload={reload}
-                    onEventUpdate={setEvent}
+                    onEventUpdate={(ev) => {
+                      pauseAutoRefresh(15000);
+                      setEvent(ev);
+                    }}
+                    onPauseAutoRefresh={pauseAutoRefresh}
                   />
                 ))}
               </div>

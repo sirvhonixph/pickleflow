@@ -13,9 +13,10 @@ import {
   alignTeamToScore,
   toggleChangeCourt,
 } from "@/lib/court-positions";
-import { patchTournamentMatch, updateCourt, updateTournamentPairBase } from "@/lib/events";
+import { patchTournamentMatch, updateCourt } from "@/lib/events";
 import { pairDisplayName } from "@/lib/tournament-divisions";
-import { getCourtTournamentState } from "@/lib/tournament-live";
+import { getDivisionById } from "@/lib/tournament-divisions";
+import { getCourtTournamentState, pairToTeamPlayers } from "@/lib/tournament-live";
 
 function PlayingPairs({ pairA, pairB }) {
   return (
@@ -40,6 +41,7 @@ export default function TournamentLiveCourtCard({
   host,
   onReload,
   onEventUpdate,
+  onPauseAutoRefresh,
 }) {
   const { live, next } = useMemo(
     () => getCourtTournamentState(event, court.id),
@@ -53,11 +55,10 @@ export default function TournamentLiveCourtCard({
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    if (match) {
-      setScoreA(match.scoreA ?? 0);
-      setScoreB(match.scoreB ?? 0);
-    }
-  }, [match?.scoreA, match?.scoreB, match?.startedAt, match?.id]);
+    if (busy || !match) return;
+    setScoreA(match.scoreA ?? 0);
+    setScoreB(match.scoreB ?? 0);
+  }, [match?.scoreA, match?.scoreB, match?.startedAt, match?.id, busy]);
 
   const showActionError = (err, fallback) => {
     const msg = err?.message ?? fallback;
@@ -75,6 +76,7 @@ export default function TournamentLiveCourtCard({
   };
 
   const applyEvent = async (ev) => {
+    onPauseAutoRefresh?.(15000);
     if (ev && onEventUpdate) {
       onEventUpdate(ev);
     } else {
@@ -84,6 +86,7 @@ export default function TournamentLiveCourtCard({
 
   const patchLive = async (patch) => {
     if (!live || busy) return;
+    onPauseAutoRefresh?.(15000);
     setBusy(true);
     try {
       const ev = await patchTournamentMatch(eventId, {
@@ -121,41 +124,29 @@ export default function TournamentLiveCourtCard({
 
   const handleSetBase = async (teamId, playerId, half) => {
     if (!match || !live || busy) return;
-    setBusy(true);
-    try {
-      let ev = event;
-      const pairId = teamId === "A" ? match.pairAId : match.pairBId;
-      if (pairId) {
-        ev = await updateTournamentPairBase(eventId, pairId, playerId);
-      }
-      const liveMatch = getCourtTournamentState(ev, court.id).live?.match ?? match;
-      const team = teamId === "A" ? liveMatch.teamA : liveMatch.teamB;
-      const teamScore = teamId === "A" ? scoreA : scoreB;
-      const patch =
-        teamId === "A"
-          ? {
-              basePlayerA: playerId,
-              teamA: alignTeamToScore(team, playerId, half, teamScore),
-            }
-          : {
-              basePlayerB: playerId,
-              teamB: alignTeamToScore(team, playerId, half, teamScore),
-            };
-      const updated = await patchTournamentMatch(eventId, {
-        divisionId: live.divisionId,
-        bracketId: live.bracketId,
-        roundId: live.roundId,
-        matchId: live.match.id,
-        status: "live",
-        ...patch,
-      });
-      await applyEvent(updated);
-    } catch (err) {
-      showActionError(err, "Could not set base player");
-      await onReload();
-    } finally {
-      setBusy(false);
+    const pairId = teamId === "A" ? match.pairAId : match.pairBId;
+    const pair = pairById.get(pairId);
+    const skill = getDivisionById(event, live.divisionId)?.skill ?? "novice";
+    let team = teamId === "A" ? match.teamA : match.teamB;
+    if ((!team || team.length < 2) && pair) {
+      team = pairToTeamPlayers(pair, skill);
     }
+    if (!team?.length) {
+      alert("Could not load players for this match. Try restarting the match.");
+      return;
+    }
+    const teamScore = teamId === "A" ? scoreA : scoreB;
+    await patchLive(
+      teamId === "A"
+        ? {
+            basePlayerA: playerId,
+            teamA: alignTeamToScore(team, playerId, half, teamScore),
+          }
+        : {
+            basePlayerB: playerId,
+            teamB: alignTeamToScore(team, playerId, half, teamScore),
+          }
+    );
   };
 
   const handleChangeCourt = async () => {
@@ -312,10 +303,14 @@ export default function TournamentLiveCourtCard({
             scoreA={host ? scoreA : match.scoreA}
             scoreB={host ? scoreB : match.scoreB}
             host={host}
+            disabled={busy}
             onSetBase={host ? handleSetBase : undefined}
             onBumpScore={host ? bumpScore : undefined}
             onSetScore={host ? setTeamScore : undefined}
           />
+          {busy && (
+            <p className="text-xs text-cyan-400/90 mt-2 text-center">Saving…</p>
+          )}
 
           {!host && (
             <div className="mt-4 rounded-lg border border-slate-800 bg-slate-800/40 p-3">
