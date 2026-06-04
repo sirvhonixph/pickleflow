@@ -178,19 +178,19 @@ export default function TournamentLiveCourtCard({
       try {
         const sa = scoreARef.current;
         const sb = scoreBRef.current;
-        const ev = await patchTournamentMatch(eventId, {
+        await patchTournamentMatch(eventId, {
           divisionId: ctx.divisionId,
           bracketId: ctx.bracketId,
           roundId: ctx.roundId,
           matchId: ctx.match.id,
           status: "live",
+          ...patch,
           scoreA: sa,
           scoreB: sb,
-          ...patch,
         });
-        applyEvent(ev);
+        onPauseAutoRefresh?.(60000);
       } catch (err) {
-        showActionError(err, "Could not save match");
+        console.error("Live score sync failed:", err);
       } finally {
         savingRef.current = false;
         setSaving(false);
@@ -202,7 +202,7 @@ export default function TournamentLiveCourtCard({
 
     saveChainRef.current = saveChainRef.current.then(run, run);
     await saveChainRef.current;
-  }, [applyEvent, eventId]);
+  }, [eventId, onPauseAutoRefresh]);
 
   const queueLiveSave = useCallback(
     (patch) => {
@@ -237,7 +237,8 @@ export default function TournamentLiveCourtCard({
   const bumpScore = (team, delta) => {
     const m = matchForScoring();
     if (!m) return;
-    const patch = applyScoreDelta(m, team, delta, { scoreA, scoreB });
+    const cur = { scoreA: scoreARef.current, scoreB: scoreBRef.current };
+    const patch = applyScoreDelta(m, team, delta, cur);
     setScoreA(patch.scoreA);
     setScoreB(patch.scoreB);
     setLocalMatch((prev) => ({ ...(prev ?? m), ...patch }));
@@ -247,7 +248,8 @@ export default function TournamentLiveCourtCard({
   const setTeamScore = (team, value) => {
     const m = matchForScoring();
     if (!m) return;
-    const patch = applyScoreValue(m, team, value, { scoreA, scoreB });
+    const cur = { scoreA: scoreARef.current, scoreB: scoreBRef.current };
+    const patch = applyScoreValue(m, team, value, cur);
     setScoreA(patch.scoreA);
     setScoreB(patch.scoreB);
     setLocalMatch((prev) => ({ ...(prev ?? m), ...patch }));
