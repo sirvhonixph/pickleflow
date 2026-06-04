@@ -12,6 +12,8 @@ import {
   applyScoreValue,
   alignTeamToScore,
   toggleChangeCourt,
+  getTeamHalf,
+  withCurrentScores,
 } from "@/lib/court-positions";
 import { patchTournamentMatch, updateCourt } from "@/lib/events";
 import { pairDisplayName } from "@/lib/tournament-divisions";
@@ -60,6 +62,10 @@ export default function TournamentLiveCourtCard({
   const saveTimerRef = useRef(null);
   const savingRef = useRef(false);
   const saveChainRef = useRef(Promise.resolve());
+  const scoreARef = useRef(scoreA);
+  const scoreBRef = useRef(scoreB);
+  scoreARef.current = scoreA;
+  scoreBRef.current = scoreB;
   const liveRef = useRef(live);
   liveRef.current = live;
 
@@ -112,7 +118,11 @@ export default function TournamentLiveCourtCard({
       return;
     }
 
-    const patch = pendingPatchRef.current;
+    const patch = withCurrentScores(
+      pendingPatchRef.current,
+      scoreARef.current,
+      scoreBRef.current
+    );
     pendingPatchRef.current = null;
     savingRef.current = true;
     setSaving(true);
@@ -146,11 +156,15 @@ export default function TournamentLiveCourtCard({
 
   const queueLiveSave = useCallback(
     (patch) => {
-      pendingPatchRef.current = {
-        ...(pendingPatchRef.current ?? {}),
-        ...patch,
-        status: "live",
-      };
+      pendingPatchRef.current = withCurrentScores(
+        {
+          ...(pendingPatchRef.current ?? {}),
+          ...patch,
+          status: "live",
+        },
+        scoreARef.current,
+        scoreBRef.current
+      );
       onPauseAutoRefresh?.(30000);
       clearTimeout(saveTimerRef.current);
       saveTimerRef.current = setTimeout(() => flushLiveSave(), 200);
@@ -188,7 +202,7 @@ export default function TournamentLiveCourtCard({
     queueLiveSave(patch);
   };
 
-  const handleSetBase = (teamId, playerId, half) => {
+  const handleSetBase = (teamId, playerId) => {
     const m = matchForScoring();
     if (!m || !live) return;
     const pairId = teamId === "A" ? m.pairAId : m.pairBId;
@@ -202,25 +216,33 @@ export default function TournamentLiveCourtCard({
       alert("Could not load players for this match. Try restarting the match.");
       return;
     }
-    const teamScore = teamId === "A" ? scoreA : scoreB;
+    if (!team.some((p) => p.playerId === playerId) && pair) {
+      team = pairToTeamPlayers(pair, skill);
+    }
+    if (!team.some((p) => p.playerId === playerId)) {
+      alert("Could not set base for this player. Try again.");
+      return;
+    }
+    const courtHalf = getTeamHalf(teamId, m.sidesSwapped ?? false);
+    const teamScore = teamId === "A" ? scoreARef.current : scoreBRef.current;
     const patch =
       teamId === "A"
         ? {
             basePlayerA: playerId,
-            teamA: alignTeamToScore(team, playerId, half, teamScore),
+            teamA: alignTeamToScore(team, playerId, courtHalf, teamScore),
           }
         : {
             basePlayerB: playerId,
-            teamB: alignTeamToScore(team, playerId, half, teamScore),
+            teamB: alignTeamToScore(team, playerId, courtHalf, teamScore),
           };
-    setLocalMatch((prev) => ({ ...(prev ?? m), ...patch }));
+    setLocalMatch((prev) => ({ ...(prev ?? m), ...patch, scoreA: scoreARef.current, scoreB: scoreBRef.current }));
     queueLiveSave(patch);
   };
 
   const handleChangeCourt = () => {
     const m = matchForScoring();
     if (!m) return;
-    const patch = toggleChangeCourt(m);
+    const patch = withCurrentScores(toggleChangeCourt(m), scoreARef.current, scoreBRef.current);
     setLocalMatch((prev) => ({ ...(prev ?? m), ...patch }));
     queueLiveSave(patch);
   };
@@ -406,6 +428,7 @@ export default function TournamentLiveCourtCard({
             <>
               <button
                 type="button"
+                onPointerDown={(e) => e.preventDefault()}
                 onClick={handleChangeCourt}
                 className="w-full mt-4 mb-4 py-2 text-sm font-medium rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 transition disabled:opacity-50"
               >

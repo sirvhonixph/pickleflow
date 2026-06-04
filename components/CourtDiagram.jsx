@@ -40,8 +40,9 @@ function PlayerSlot({ player, isBase, host, onSetBase, roleLabel, disabled }) {
         <button
           type="button"
           disabled={disabled}
+          onPointerDown={(e) => e.preventDefault()}
           onClick={() => onSetBase(player.playerId)}
-          className="mt-1 text-[10px] text-left text-cyan-400 hover:underline disabled:opacity-40 disabled:pointer-events-none"
+          className="mt-1 text-[10px] text-left text-cyan-400 hover:underline disabled:opacity-40 disabled:pointer-events-none relative z-10"
         >
           {isBase ? "Base ✓" : "Set as base"}
         </button>
@@ -62,16 +63,18 @@ function TeamSideScore({
   disabled,
 }) {
   const [draft, setDraft] = useState(String(score ?? 0));
-  const scoreFocusedRef = useRef(false);
+  const editingRef = useRef(false);
 
   useEffect(() => {
-    if (!scoreFocusedRef.current) {
+    if (!editingRef.current) {
       setDraft(String(score ?? 0));
     }
   }, [score]);
 
   const commitDraft = () => {
+    if (!editingRef.current) return;
     const n = Math.max(0, Math.floor(Number(draft)) || 0);
+    editingRef.current = false;
     setDraft(String(n));
     if (n !== (score ?? 0)) {
       onSetScore?.(n);
@@ -95,14 +98,14 @@ function TeamSideScore({
             disabled={disabled}
             className={`mt-1 w-24 text-3xl md:text-4xl font-bold tabular-nums leading-none rounded-lg bg-slate-800 border border-slate-600 px-2 py-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${accent} focus:outline-none focus:ring-2 focus:ring-cyan-500/50 disabled:opacity-50`}
             value={draft}
-            onChange={(e) => setDraft(e.target.value)}
+            onChange={(e) => {
+              editingRef.current = true;
+              setDraft(e.target.value);
+            }}
             onFocus={() => {
-              scoreFocusedRef.current = true;
+              editingRef.current = true;
             }}
-            onBlur={() => {
-              scoreFocusedRef.current = false;
-              commitDraft();
-            }}
+            onBlur={commitDraft}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();
@@ -183,7 +186,7 @@ function TeamRow({
     screenRight?.playerId === basePlayerId ? "Base" : "Partner";
 
   return (
-    <div className="px-3 py-3">
+    <div className="px-3 py-3 relative z-10">
       <TeamSideScore
         teamLabel={teamLabel}
         score={teamScore}
@@ -321,7 +324,7 @@ export default function CourtDiagram({
         disabled={disabled}
         onBumpScore={onBumpScore}
         onSetScore={onSetScore}
-        onSetBase={(id) => onSetBase(layout.topTeamId, id, "top")}
+        onSetBase={(id) => onSetBase(layout.topTeamId, id)}
         sideLabel={`${topLabel} · far side`}
         half="top"
         facingLabel="Facing ↓"
@@ -345,7 +348,7 @@ export default function CourtDiagram({
         disabled={disabled}
         onBumpScore={onBumpScore}
         onSetScore={onSetScore}
-        onSetBase={(id) => onSetBase(layout.bottomTeamId, id, "bottom")}
+        onSetBase={(id) => onSetBase(layout.bottomTeamId, id)}
         sideLabel={`${bottomLabel} · near side`}
         half="bottom"
         facingLabel="Facing ↑"
