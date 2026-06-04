@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
 import { saveCurrentUser, clearCurrentUser } from "@/lib/session";
-import { fetchRegisteredPlayer } from "@/lib/players";
+import { ensureRegisteredPlayer } from "@/lib/players";
 
 function sessionFromPlayer(player, mode) {
   return {
@@ -55,10 +55,12 @@ export default function LoginPage() {
           return;
         }
 
-        const player = await fetchRegisteredPlayer(normalizedEmail);
+        const player = await ensureRegisteredPlayer(normalizedEmail, {
+          supabase,
+        });
         saveCurrentUser(sessionFromPlayer(player, "supabase"));
       } else {
-        const player = await fetchRegisteredPlayer(normalizedEmail);
+        const player = await ensureRegisteredPlayer(normalizedEmail);
         saveCurrentUser(sessionFromPlayer(player, "demo"));
       }
 

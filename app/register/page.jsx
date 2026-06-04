@@ -28,6 +28,7 @@ export default function RegisterPage() {
     setLoading(true);
     setError("");
 
+    try {
     if (!form.category) {
       setError("Please choose your skill category.");
       setLoading(false);
@@ -69,28 +70,32 @@ export default function RegisterPage() {
         }
       }
       const profile = {
-        email: form.email,
+        email: form.email.trim().toLowerCase(),
         name: `${form.firstName} ${form.lastName}`.trim(),
         category: form.category,
         dupr: form.dupr,
         mode: "supabase",
       };
-      saveCurrentUser(profile);
-      await registerPlayerProfile(profile);
+      const player = await registerPlayerProfile(profile);
+      saveCurrentUser({ ...profile, name: player.name ?? profile.name });
     } else {
       const profile = {
-        email: form.email,
+        email: form.email.trim().toLowerCase(),
         name: `${form.firstName} ${form.lastName}`.trim(),
         category: form.category,
         dupr: form.dupr,
         mode: "demo",
       };
-      saveCurrentUser(profile);
-      await registerPlayerProfile(profile);
+      const player = await registerPlayerProfile(profile);
+      saveCurrentUser({ ...profile, name: player.name ?? profile.name });
     }
 
     setLoading(false);
     router.push("/dashboard");
+    } catch (err) {
+      setError(err.message ?? "Registration failed");
+      setLoading(false);
+    }
   };
 
   return (
