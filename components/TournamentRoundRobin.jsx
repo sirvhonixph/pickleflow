@@ -15,6 +15,8 @@ import {
 import {
   isForfeitMatch,
   isVoidMatchResult,
+  needsRematch,
+  reopenMatchForRematch,
 } from "@/lib/tournament-match-outcome";
 
 function MatchScheduleRow({
@@ -37,8 +39,9 @@ function MatchScheduleRow({
   const done = isMatchComplete(m);
   const live = isMatchLive(m);
   const playable = isMatchPlayable(m);
-  const voidResult = isVoidMatchResult(m);
+  const rematch = needsRematch(m);
   const forfeit = isForfeitMatch(m);
+  const canStart = (playable || rematch) && !live;
   const nameAShort = nameA.split(" / ")[0] ?? "Pair A";
   const nameBShort = nameB.split(" / ")[0] ?? "Pair B";
 
@@ -47,7 +50,7 @@ function MatchScheduleRow({
       className={`rounded-lg border p-3 text-sm ${
         live
           ? "border-green-500/40 bg-green-500/5"
-          : playable
+          : canStart
             ? "border-cyan-500/40 bg-cyan-500/5"
             : done
               ? "border-slate-700 bg-slate-800/40"
@@ -63,12 +66,12 @@ function MatchScheduleRow({
             LIVE
           </span>
         )}
-        {voidResult && !live && (
+        {rematch && !live && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300">
             Rematch
           </span>
         )}
-        {playable && !live && !voidResult && (
+        {playable && !live && !rematch && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
             Up next
           </span>
@@ -88,12 +91,13 @@ function MatchScheduleRow({
             {forfeit ? "default win" : "final"}
           </span>
         </p>
-      ) : voidResult ? (
-        <p className="text-amber-400/90 mt-1 text-xs">
-          Invalid 0–0 — start again when both pairs are ready
+      ) : rematch ? (
+        <p className="text-slate-400 mt-1 tabular-nums">
+          {m.scoreA ?? 0} – {m.scoreB ?? 0}
+          <span className="text-amber-400 ml-2 text-xs">needs clear winner</span>
         </p>
       ) : null}
-      {!readOnly && host && playable && (
+      {!readOnly && host && canStart && (
         <div className="mt-2 flex flex-wrap gap-2">
           {onStartMatch && (
             <button
@@ -105,7 +109,7 @@ function MatchScheduleRow({
               {startingMatchId === m.id ? "Starting…" : "Start on court"}
             </button>
           )}
-          {onForfeitWin && !live && (
+          {onForfeitWin && (
             <>
               <button
                 type="button"
@@ -163,7 +167,7 @@ export default function TournamentRoundRobin({
     () =>
       getBracketRoundRobinMatches(bracket, {
         scheduleResetAt: scheduleResetAt ?? bracket.scheduleResetAt,
-      }),
+      }).map((m) => (isVoidMatchResult(m) ? reopenMatchForRematch(m) : m)),
     [bracket, scheduleResetAt]
   );
   const finished = scheduleMatches.filter((m) =>
