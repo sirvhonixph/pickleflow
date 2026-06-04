@@ -233,56 +233,6 @@ export default function TournamentRoundRobin({
         )}
       </div>
 
-      {showMatchesToPlaySection && (
-        <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-3">
-          <div>
-            <h4 className="text-sm font-semibold text-cyan-200">
-              {readOnly ? "Matches remaining" : "Matches to play"}
-            </h4>
-            <p className="text-xs text-slate-400 mt-0.5">
-              {matchesLeft} match{matchesLeft === 1 ? "" : "es"} left on{" "}
-              {bracket.courtName}.{" "}
-              {canHostStart
-                ? "Start each pairing below (or use the live court card)."
-                : "Host starts these on the assigned court."}
-            </p>
-          </div>
-          {scheduleMatches.length === 0 ? (
-            <p className="text-sm text-amber-400/90">
-              Schedule not loaded. Regenerate this division or refresh the page.
-            </p>
-          ) : matchesToPlay.length === 0 && liveMatches.length === 0 ? (
-            <p className="text-sm text-amber-400/90">
-              No startable matchups in the list. Regenerate this division to rebuild
-              the schedule.
-            </p>
-          ) : (
-            <ul className="space-y-2">
-              {(() => {
-                const liveIds = new Set(liveMatches.map((x) => x.id));
-                return [
-                  ...liveMatches,
-                  ...matchesToPlay.filter((x) => !liveIds.has(x.id)),
-                ];
-              })().map((m) => (
-                <MatchScheduleRow
-                  key={m.id}
-                  m={m}
-                  bracket={bracket}
-                  pairById={pairById}
-                  readOnly={readOnly}
-                  host={host}
-                  onStartMatch={onStartMatch}
-                  onForfeitWin={onForfeitWin}
-                  startingMatchId={startingMatchId}
-                  forfeitBusyId={forfeitBusyId}
-                />
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
-
       <div>
         <h4 className="text-sm font-semibold text-slate-400 mb-2">Standings</h4>
         <div className="overflow-x-auto">
@@ -413,6 +363,58 @@ export default function TournamentRoundRobin({
           )}
         </p>
       </div>
+
+      {showMatchesToPlaySection && (
+        <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/5 p-4 flex flex-col max-h-72">
+          <div className="shrink-0 mb-2">
+            <h4 className="text-sm font-semibold text-cyan-200">
+              {readOnly ? "Matches remaining" : "Matches to play"}
+            </h4>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {matchesLeft} match{matchesLeft === 1 ? "" : "es"} left on{" "}
+              {bracket.courtName}.{" "}
+              {canHostStart
+                ? "Start each pairing below (or use the live court card)."
+                : "Host starts these on the assigned court."}
+            </p>
+          </div>
+          <div className="min-h-0 flex-1 overflow-y-auto pr-1">
+            {scheduleMatches.length === 0 ? (
+              <p className="text-sm text-amber-400/90">
+                Schedule not loaded. Regenerate this division or refresh the page.
+              </p>
+            ) : matchesToPlay.length === 0 && liveMatches.length === 0 ? (
+              <p className="text-sm text-amber-400/90">
+                No startable matchups in the list. Regenerate this division to rebuild
+                the schedule.
+              </p>
+            ) : (
+              <ul className="space-y-2">
+                {(() => {
+                  const liveIds = new Set(liveMatches.map((x) => x.id));
+                  return [
+                    ...liveMatches,
+                    ...matchesToPlay.filter((x) => !liveIds.has(x.id)),
+                  ];
+                })().map((m) => (
+                  <MatchScheduleRow
+                    key={m.id}
+                    m={m}
+                    bracket={bracket}
+                    pairById={pairById}
+                    readOnly={readOnly}
+                    host={host}
+                    onStartMatch={onStartMatch}
+                    onForfeitWin={onForfeitWin}
+                    startingMatchId={startingMatchId}
+                    forfeitBusyId={forfeitBusyId}
+                  />
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
 
       {showFullSchedule && (
         <div>
