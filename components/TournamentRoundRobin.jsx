@@ -2,11 +2,9 @@
 
 import { pairDisplayName } from "@/lib/tournament-divisions";
 import { matchesPerPairInRoundRobin } from "@/lib/tournament-brackets";
-import { getRemainingMatchupsForPair } from "@/lib/tournament-standings";
 import {
   isMatchComplete,
   isMatchLive,
-  isMatchPlayable,
   matchCountsForStandings,
 } from "@/lib/tournament-live";
 
@@ -41,10 +39,6 @@ export default function TournamentRoundRobin({
   const matchesLeft =
     bracket.roundRobinMeta?.matchesRemaining ??
     Math.max(0, expectedTotal - finished);
-  const playableCount = (bracket.matches ?? []).filter((m) =>
-    isMatchPlayable(m)
-  ).length;
-
   function formatPointDiff(diff) {
     if (typeof diff !== "number" || Number.isNaN(diff)) return "—";
     if (diff > 0) return `+${diff}`;
@@ -149,16 +143,6 @@ export default function TournamentRoundRobin({
                   <td className="py-2 pr-2 font-bold text-slate-500">{i + 1}</td>
                   <td className="py-2 font-medium">
                     <div>{row.name}</div>
-                    {!bracket.poolComplete &&
-                      finished > 0 &&
-                      (row.matchesPlayed ?? 0) < perPair && (
-                        <p className="text-[10px] text-amber-400/90 mt-0.5 font-normal">
-                          Still needs:{" "}
-                          {getRemainingMatchupsForPair(bracket, row.pairId, pairById)
-                            .map((m) => m.opponentName)
-                            .join(", ") || "more games"}
-                        </p>
-                      )}
                     {divisionReady && advanced.has(row.pairId) && (
                       <span className="ml-2 text-xs text-green-400 font-bold">
                         {wildcardIds.has(row.pairId) ? "WILDCARD" : "ADVANCES"}
