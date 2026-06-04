@@ -1214,6 +1214,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
                     pairById={pairById}
                     host={host && !isEnded}
                     onReload={reload}
+                    onEventUpdate={setEvent}
                   />
                 ))}
               </div>

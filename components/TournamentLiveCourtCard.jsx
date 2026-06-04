@@ -39,6 +39,7 @@ export default function TournamentLiveCourtCard({
   pairById,
   host,
   onReload,
+  onEventUpdate,
 }) {
   const { live, next } = useMemo(
     () => getCourtTournamentState(event, court.id),
@@ -73,11 +74,19 @@ export default function TournamentLiveCourtCard({
     alert(msg);
   };
 
+  const applyEvent = async (ev) => {
+    if (ev && onEventUpdate) {
+      onEventUpdate(ev);
+    } else {
+      await onReload();
+    }
+  };
+
   const patchLive = async (patch) => {
-    if (!live) return;
+    if (!live || busy) return;
     setBusy(true);
     try {
-      await patchTournamentMatch(eventId, {
+      const ev = await patchTournamentMatch(eventId, {
         divisionId: live.divisionId,
         bracketId: live.bracketId,
         roundId: live.roundId,
@@ -85,7 +94,7 @@ export default function TournamentLiveCourtCard({
         status: "live",
         ...patch,
       });
-      await onReload();
+      await applyEvent(ev);
     } catch (err) {
       showActionError(err, "Could not update match");
       await onReload();
@@ -111,28 +120,46 @@ export default function TournamentLiveCourtCard({
   };
 
   const handleSetBase = async (teamId, playerId, half) => {
-    if (!match) return;
-    if (teamId === "A") {
-      await patchLive({
-        basePlayerA: playerId,
-        teamA: alignTeamToScore(match.teamA, playerId, half, scoreA),
-      });
-      if (match.pairAId) {
-        await updateTournamentPairBase(eventId, match.pairAId, playerId);
+    if (!match || !live || busy) return;
+    setBusy(true);
+    try {
+      let ev = event;
+      const pairId = teamId === "A" ? match.pairAId : match.pairBId;
+      if (pairId) {
+        ev = await updateTournamentPairBase(eventId, pairId, playerId);
       }
-    } else {
-      await patchLive({
-        basePlayerB: playerId,
-        teamB: alignTeamToScore(match.teamB, playerId, half, scoreB),
+      const liveMatch = getCourtTournamentState(ev, court.id).live?.match ?? match;
+      const team = teamId === "A" ? liveMatch.teamA : liveMatch.teamB;
+      const teamScore = teamId === "A" ? scoreA : scoreB;
+      const patch =
+        teamId === "A"
+          ? {
+              basePlayerA: playerId,
+              teamA: alignTeamToScore(team, playerId, half, teamScore),
+            }
+          : {
+              basePlayerB: playerId,
+              teamB: alignTeamToScore(team, playerId, half, teamScore),
+            };
+      const updated = await patchTournamentMatch(eventId, {
+        divisionId: live.divisionId,
+        bracketId: live.bracketId,
+        roundId: live.roundId,
+        matchId: live.match.id,
+        status: "live",
+        ...patch,
       });
-      if (match.pairBId) {
-        await updateTournamentPairBase(eventId, match.pairBId, playerId);
-      }
+      await applyEvent(updated);
+    } catch (err) {
+      showActionError(err, "Could not set base player");
+      await onReload();
+    } finally {
+      setBusy(false);
     }
   };
 
   const handleChangeCourt = async () => {
-    if (!match) return;
+    if (!match || busy) return;
     await patchLive(toggleChangeCourt(match));
   };
 
