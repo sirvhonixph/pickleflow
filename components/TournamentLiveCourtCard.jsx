@@ -73,25 +73,39 @@ export default function TournamentLiveCourtCard({
   const liveRef = useRef(live);
   liveRef.current = live;
   const liveSessionKeyRef = useRef(null);
+  const liveMatchIdRef = useRef(null);
   const localMatchRef = useRef(null);
   const liveStartedAtRef = useRef(0);
   localMatchRef.current = localMatch;
 
+  const clearLiveScoringState = useCallback(() => {
+    clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = null;
+    pendingPatchRef.current = null;
+    liveSessionKeyRef.current = null;
+    liveMatchIdRef.current = null;
+    setScoreA(0);
+    setScoreB(0);
+  }, []);
+
   useEffect(() => {
     if (!match) {
       setLocalMatch(null);
-      liveSessionKeyRef.current = null;
+      clearLiveScoringState();
       return;
     }
 
     if (match.status === "live") {
-      const newSession = liveSessionKeyRef.current !== match.id;
+      const newSession = liveMatchIdRef.current !== match.id;
       if (newSession) {
         liveSessionKeyRef.current = match.id;
+        liveMatchIdRef.current = match.id;
         liveStartedAtRef.current = Date.now();
-        setScoreA(match.scoreA ?? 0);
-        setScoreB(match.scoreB ?? 0);
-        setLocalMatch(match);
+        const sa = match.scoreA ?? 0;
+        const sb = match.scoreB ?? 0;
+        setScoreA(sa);
+        setScoreB(sb);
+        setLocalMatch({ ...match, scoreA: sa, scoreB: sb });
         return;
       }
       setLocalMatch((prev) => ({
@@ -108,10 +122,11 @@ export default function TournamentLiveCourtCard({
     }
 
     liveSessionKeyRef.current = null;
+    liveMatchIdRef.current = null;
     setScoreA(match.scoreA ?? 0);
     setScoreB(match.scoreB ?? 0);
     setLocalMatch(match);
-  }, [match?.id, match?.status]);
+  }, [match?.id, match?.status, clearLiveScoringState]);
 
   const displayMatch = useMemo(() => {
     const base = localMatch ?? match;
@@ -139,8 +154,13 @@ export default function TournamentLiveCourtCard({
       onPauseAutoRefresh?.(60000);
       if (!ev || !onEventUpdate) return;
       const ctx = liveRef.current;
+      const courtLive = getCourtTournamentState(ev, court.id).live;
       let next = ev;
-      if (ctx?.match?.id && ctx.match.status === "live") {
+      if (
+        ctx?.match?.id &&
+        ctx.match.status === "live" &&
+        courtLive?.match?.id === ctx.match.id
+      ) {
         next = mergeLiveScoresIntoEvent(ev, {
           courtId: court.id,
           divisionId: ctx.divisionId,
@@ -303,6 +323,8 @@ export default function TournamentLiveCourtCard({
 
   const startMatch = async (ctx) => {
     setActionBusy(true);
+    clearTimeout(saveTimerRef.current);
+    pendingPatchRef.current = null;
     try {
       const ev = await patchTournamentMatch(eventId, {
         divisionId: ctx.divisionId,
@@ -312,20 +334,22 @@ export default function TournamentLiveCourtCard({
         status: "live",
       });
       const started = getCourtTournamentState(ev, court.id).live;
-      if (aiAnnounceOn && started?.match?.teamA?.length && started?.match?.teamB?.length) {
-        announceCourtMatch(court.name, started.match.teamA, started.match.teamB);
+      const startedMatch = started?.match;
+      if (aiAnnounceOn && startedMatch?.teamA?.length && startedMatch?.teamB?.length) {
+        announceCourtMatch(court.name, startedMatch.teamA, startedMatch.teamB);
       }
-      liveSessionKeyRef.current = ctx.match.id;
+      const sa = startedMatch?.scoreA ?? 0;
+      const sb = startedMatch?.scoreB ?? 0;
+      liveSessionKeyRef.current = startedMatch?.id ?? ctx.match.id;
+      liveMatchIdRef.current = startedMatch?.id ?? ctx.match.id;
       liveStartedAtRef.current = Date.now();
-      applyEvent(ev);
-      const startedMatch = getCourtTournamentState(ev, court.id).live?.match;
-      if (startedMatch) {
-        setLocalMatch({
-          ...startedMatch,
-          scoreA: scoreARef.current,
-          scoreB: scoreBRef.current,
-        });
-      }
+      setScoreA(sa);
+      setScoreB(sb);
+      setLocalMatch(
+        startedMatch ? { ...startedMatch, scoreA: sa, scoreB: sb } : null
+      );
+      onPauseAutoRefresh?.(60000);
+      onEventUpdate?.(ev);
     } catch (err) {
       alert(err.message ?? "Could not start match");
     } finally {
@@ -357,9 +381,11 @@ export default function TournamentLiveCourtCard({
         status: "completed",
       });
       applyEvent(ev);
+      clearLiveScoringState();
       await onReload();
     } catch (err) {
       showActionError(err, "Could not end match");
+      clearLiveScoringState();
       await onReload();
     } finally {
       setActionBusy(false);
@@ -396,9 +422,11 @@ export default function TournamentLiveCourtCard({
         forfeitWinnerPairId: winnerPairId,
       });
       applyEvent(ev);
+      clearLiveScoringState();
       await onReload();
     } catch (err) {
       showActionError(err, "Could not record default win");
+      clearLiveScoringState();
       await onReload();
     } finally {
       setActionBusy(false);
