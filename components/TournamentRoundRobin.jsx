@@ -2,6 +2,7 @@
 
 import { pairDisplayName } from "@/lib/tournament-divisions";
 import { matchesPerPairInRoundRobin } from "@/lib/tournament-brackets";
+import { getRemainingMatchupsForPair } from "@/lib/tournament-standings";
 import {
   isMatchComplete,
   isMatchLive,
@@ -147,7 +148,16 @@ export default function TournamentRoundRobin({
                 >
                   <td className="py-2 pr-2 font-bold text-slate-500">{i + 1}</td>
                   <td className="py-2 font-medium">
-                    {row.name}
+                    <div>{row.name}</div>
+                    {!bracket.poolComplete &&
+                      (row.matchesPlayed ?? 0) < perPair && (
+                        <p className="text-[10px] text-amber-400/90 mt-0.5 font-normal">
+                          Still needs:{" "}
+                          {getRemainingMatchupsForPair(bracket, row.pairId, pairById)
+                            .map((m) => m.opponentName)
+                            .join(", ") || "more games"}
+                        </p>
+                      )}
                     {divisionReady && advanced.has(row.pairId) && (
                       <span className="ml-2 text-xs text-green-400 font-bold">
                         {wildcardIds.has(row.pairId) ? "WILDCARD" : "ADVANCES"}
