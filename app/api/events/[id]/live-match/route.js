@@ -14,7 +14,9 @@ export async function PATCH(request, { params }) {
       );
     }
 
-    const saved = await updateEventRecord(params.id, (event) => {
+    const saved = await updateEventRecord(
+      params.id,
+      (event) => {
       assertRequestHost(hostId, event);
       if (event.status === "ended") {
         throw new Error("This event has ended.");
@@ -30,7 +32,9 @@ export async function PATCH(request, { params }) {
           };
         }),
       };
-    });
+    },
+      { refreshTournament: false }
+    );
 
     if (!saved) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });

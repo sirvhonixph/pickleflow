@@ -94,13 +94,17 @@ export default function OpenPlayEvent({ eventId }) {
 
   useEffect(() => {
     reload();
-    const isHost = event && user && isEventHost(event, user);
+  }, [eventId, reload]);
+
+  useEffect(() => {
+    if (!event) return undefined;
+    const isHost = user && isEventHost(event, user);
     if (isHost && hasLiveCourt) {
       return undefined;
     }
-    const t = setInterval(() => reload(), 8000);
+    const t = setInterval(() => reload(), 12000);
     return () => clearInterval(t);
-  }, [reload, event, user, hasLiveCourt]);
+  }, [eventId, reload, user, event?.id, hasLiveCourt]);
 
   useEffect(() => {
     if (event?.liveStreamUrl) setStreamUrl(event.liveStreamUrl);
@@ -405,7 +409,7 @@ export default function OpenPlayEvent({ eventId }) {
                 host={host && !isEnded}
                 onReload={reload}
                 onEventUpdate={(ev) => {
-                  pauseAutoRefresh(15000);
+                  pauseAutoRefresh(120000);
                   applyEvent(ev);
                 }}
                 onPauseAutoRefresh={pauseAutoRefresh}

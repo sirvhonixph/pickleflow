@@ -59,6 +59,7 @@ export default function TournamentLiveCourtCard({
   const pendingPatchRef = useRef(null);
   const saveTimerRef = useRef(null);
   const savingRef = useRef(false);
+  const saveChainRef = useRef(Promise.resolve());
   const liveRef = useRef(live);
   liveRef.current = live;
 
@@ -103,18 +104,6 @@ export default function TournamentLiveCourtCard({
     [onEventUpdate, onPauseAutoRefresh]
   );
 
-  const syncFromServerEvent = useCallback(
-    (ev) => {
-      if (!ev || pendingPatchRef.current) return;
-      const srv = getCourtTournamentState(ev, court.id).live?.match;
-      if (!srv) return;
-      setLocalMatch(srv);
-      setScoreA(srv.scoreA ?? 0);
-      setScoreB(srv.scoreB ?? 0);
-    },
-    [court.id]
-  );
-
   const flushLiveSave = useCallback(async () => {
     const ctx = liveRef.current;
     if (!ctx || !pendingPatchRef.current) return;
@@ -129,28 +118,31 @@ export default function TournamentLiveCourtCard({
     setSaving(true);
     onPauseAutoRefresh?.(30000);
 
-    try {
-      const ev = await patchTournamentMatch(eventId, {
-        divisionId: ctx.divisionId,
-        bracketId: ctx.bracketId,
-        roundId: ctx.roundId,
-        matchId: ctx.match.id,
-        status: "live",
-        ...patch,
-      });
-      applyEvent(ev);
-      syncFromServerEvent(ev);
-    } catch (err) {
-      showActionError(err, "Could not save match");
-      await onReload();
-    } finally {
-      savingRef.current = false;
-      setSaving(false);
-      if (pendingPatchRef.current) {
-        saveTimerRef.current = setTimeout(() => flushLiveSave(), 100);
+    const run = async () => {
+      try {
+        const ev = await patchTournamentMatch(eventId, {
+          divisionId: ctx.divisionId,
+          bracketId: ctx.bracketId,
+          roundId: ctx.roundId,
+          matchId: ctx.match.id,
+          status: "live",
+          ...patch,
+        });
+        applyEvent(ev);
+      } catch (err) {
+        showActionError(err, "Could not save match");
+      } finally {
+        savingRef.current = false;
+        setSaving(false);
+        if (pendingPatchRef.current) {
+          saveTimerRef.current = setTimeout(() => flushLiveSave(), 80);
+        }
       }
-    }
-  }, [applyEvent, eventId, onReload, syncFromServerEvent]);
+    };
+
+    saveChainRef.current = saveChainRef.current.then(run, run);
+    await saveChainRef.current;
+  }, [applyEvent, eventId]);
 
   const queueLiveSave = useCallback(
     (patch) => {
@@ -161,7 +153,7 @@ export default function TournamentLiveCourtCard({
       };
       onPauseAutoRefresh?.(30000);
       clearTimeout(saveTimerRef.current);
-      saveTimerRef.current = setTimeout(() => flushLiveSave(), 350);
+      saveTimerRef.current = setTimeout(() => flushLiveSave(), 200);
     },
     [flushLiveSave, onPauseAutoRefresh]
   );
@@ -174,34 +166,6 @@ export default function TournamentLiveCourtCard({
     const base = localMatch ?? match;
     if (!base) return null;
     return { ...base, scoreA, scoreB };
-  };
-
-  const patchLiveNow = async (patch) => {
-    const ctx = liveRef.current;
-    if (!ctx) return;
-    clearTimeout(saveTimerRef.current);
-    if (pendingPatchRef.current) {
-      await flushLiveSave();
-    }
-    onPauseAutoRefresh?.(30000);
-    setActionBusy(true);
-    try {
-      const ev = await patchTournamentMatch(eventId, {
-        divisionId: ctx.divisionId,
-        bracketId: ctx.bracketId,
-        roundId: ctx.roundId,
-        matchId: ctx.match.id,
-        status: "live",
-        ...patch,
-      });
-      applyEvent(ev);
-      syncFromServerEvent(ev);
-    } catch (err) {
-      showActionError(err, "Could not update match");
-      await onReload();
-    } finally {
-      setActionBusy(false);
-    }
   };
 
   const bumpScore = (team, delta) => {
@@ -224,9 +188,9 @@ export default function TournamentLiveCourtCard({
     queueLiveSave(patch);
   };
 
-  const handleSetBase = async (teamId, playerId, half) => {
+  const handleSetBase = (teamId, playerId, half) => {
     const m = matchForScoring();
-    if (!m || !live || actionBusy) return;
+    if (!m || !live) return;
     const pairId = teamId === "A" ? m.pairAId : m.pairBId;
     const pair = pairById.get(pairId);
     const skill = getDivisionById(event, live.divisionId)?.skill ?? "novice";
@@ -250,15 +214,15 @@ export default function TournamentLiveCourtCard({
             teamB: alignTeamToScore(team, playerId, half, teamScore),
           };
     setLocalMatch((prev) => ({ ...(prev ?? m), ...patch }));
-    await patchLiveNow(patch);
+    queueLiveSave(patch);
   };
 
-  const handleChangeCourt = async () => {
+  const handleChangeCourt = () => {
     const m = matchForScoring();
-    if (!m || actionBusy) return;
+    if (!m) return;
     const patch = toggleChangeCourt(m);
     setLocalMatch((prev) => ({ ...(prev ?? m), ...patch }));
-    await patchLiveNow(patch);
+    queueLiveSave(patch);
   };
 
   const startMatch = async (ctx) => {
@@ -276,7 +240,12 @@ export default function TournamentLiveCourtCard({
         announceCourtMatch(court.name, started.match.teamA, started.match.teamB);
       }
       applyEvent(ev);
-      syncFromServerEvent(ev);
+      const startedMatch = getCourtTournamentState(ev, court.id).live?.match;
+      if (startedMatch) {
+        setLocalMatch(startedMatch);
+        setScoreA(startedMatch.scoreA ?? 0);
+        setScoreB(startedMatch.scoreB ?? 0);
+      }
     } catch (err) {
       alert(err.message ?? "Could not start match");
     } finally {
@@ -416,7 +385,7 @@ export default function TournamentLiveCourtCard({
             scoreA={host ? scoreA : displayMatch.scoreA}
             scoreB={host ? scoreB : displayMatch.scoreB}
             host={host}
-            disabled={actionBusy}
+            disabled={false}
             onSetBase={host ? handleSetBase : undefined}
             onBumpScore={host ? bumpScore : undefined}
             onSetScore={host ? setTeamScore : undefined}
@@ -437,7 +406,6 @@ export default function TournamentLiveCourtCard({
             <>
               <button
                 type="button"
-                disabled={actionBusy}
                 onClick={handleChangeCourt}
                 className="w-full mt-4 mb-4 py-2 text-sm font-medium rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 transition disabled:opacity-50"
               >

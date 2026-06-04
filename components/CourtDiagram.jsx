@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CategoryBadge from "@/components/CategoryBadge";
 import {
   getCourtLayout,
@@ -62,9 +62,12 @@ function TeamSideScore({
   disabled,
 }) {
   const [draft, setDraft] = useState(String(score ?? 0));
+  const scoreFocusedRef = useRef(false);
 
   useEffect(() => {
-    setDraft(String(score ?? 0));
+    if (!scoreFocusedRef.current) {
+      setDraft(String(score ?? 0));
+    }
   }, [score]);
 
   const commitDraft = () => {
@@ -93,7 +96,13 @@ function TeamSideScore({
             className={`mt-1 w-24 text-3xl md:text-4xl font-bold tabular-nums leading-none rounded-lg bg-slate-800 border border-slate-600 px-2 py-1 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${accent} focus:outline-none focus:ring-2 focus:ring-cyan-500/50 disabled:opacity-50`}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            onBlur={commitDraft}
+            onFocus={() => {
+              scoreFocusedRef.current = true;
+            }}
+            onBlur={() => {
+              scoreFocusedRef.current = false;
+              commitDraft();
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 e.preventDefault();

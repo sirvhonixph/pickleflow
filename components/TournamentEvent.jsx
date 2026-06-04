@@ -190,14 +190,18 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
 
   useEffect(() => {
     reload();
-    const isHost = event && user && isEventHost(event, user);
+  }, [eventId, reload]);
+
+  useEffect(() => {
+    if (!event) return undefined;
+    const isHost = user && isEventHost(event, user);
     if (isHost && (poolPlay || knockoutPhase)) {
       return undefined;
     }
-    const ms = poolPlay || knockoutPhase ? 15000 : 5000;
+    const ms = poolPlay || knockoutPhase ? 20000 : 8000;
     const t = setInterval(reload, ms);
     return () => clearInterval(t);
-  }, [reload, poolPlay, knockoutPhase, event, user]);
+  }, [eventId, reload, poolPlay, knockoutPhase, user, event?.id]);
 
   if (!event) {
     return (
@@ -1225,7 +1229,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
                     host={host && !isEnded}
                     onReload={reload}
                     onEventUpdate={(ev) => {
-                      pauseAutoRefresh(15000);
+                      pauseAutoRefresh(120000);
                       setEvent(ev);
                     }}
                     onPauseAutoRefresh={pauseAutoRefresh}
