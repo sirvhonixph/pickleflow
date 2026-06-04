@@ -3,6 +3,8 @@
 import { useMemo } from "react";
 import { pairDisplayName } from "@/lib/tournament-divisions";
 import {
+  expectedRoundRobinMatchCount,
+  findDuplicateRoundRobinPairings,
   getBracketRoundRobinMatches,
   matchesPerPairInRoundRobin,
 } from "@/lib/tournament-brackets";
@@ -170,6 +172,15 @@ export default function TournamentRoundRobin({
       }).map((m) => (isVoidMatchResult(m) ? reopenMatchForRematch(m) : m)),
     [bracket, scheduleResetAt]
   );
+  const duplicatePairings = useMemo(
+    () => findDuplicateRoundRobinPairings(bracket.matches, bracket.pairIds),
+    [bracket.matches, bracket.pairIds]
+  );
+  const expectedFromPairs = expectedRoundRobinMatchCount(pairCount);
+  const scheduleCountMismatch =
+    pairCount >= 2 &&
+    (scheduleMatches.length !== expectedFromPairs ||
+      (bracket.matches ?? []).length > expectedFromPairs);
   const finished = scheduleMatches.filter((m) =>
     matchCountsForStandings(m)
   ).length;
@@ -204,8 +215,20 @@ export default function TournamentRoundRobin({
           {pairCount >= 2 && (
             <p className="text-xs text-slate-500 mt-0.5">
               Round robin: {pairCount} pairs, {expectedTotal} matches total — each
-              pair must play {perPair} games ({finished}/{expectedTotal} done
+              pair plays every other pair once ({perPair} games per pair,{" "}
+              {finished}/{expectedTotal} done
               {matchesLeft > 0 ? `, ${matchesLeft} left` : ""})
+            </p>
+          )}
+          {(duplicatePairings.length > 0 || scheduleCountMismatch) && (
+            <p className="text-xs text-amber-400/90 mt-1">
+              Schedule needs repair
+              {duplicatePairings.length > 0
+                ? ` (${duplicatePairings.length} duplicate pairing${duplicatePairings.length === 1 ? "" : "s"})`
+                : scheduleCountMismatch
+                  ? ` (expected ${expectedFromPairs}, showing ${scheduleMatches.length})`
+                  : ""}
+              . Regenerate this division to rebuild the round robin.
             </p>
           )}
         </div>
