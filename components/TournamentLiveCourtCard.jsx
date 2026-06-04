@@ -68,16 +68,44 @@ export default function TournamentLiveCourtCard({
   scoreBRef.current = scoreB;
   const liveRef = useRef(live);
   liveRef.current = live;
+  const liveSessionKeyRef = useRef(null);
 
   useEffect(() => {
     if (!match) {
       setLocalMatch(null);
+      liveSessionKeyRef.current = null;
       return;
     }
+
+    const sessionKey = `${match.id}:${match.startedAt ?? ""}:${match.status}`;
+
+    if (match.status === "live") {
+      const newSession = liveSessionKeyRef.current !== sessionKey;
+      if (newSession) {
+        liveSessionKeyRef.current = sessionKey;
+        setScoreA(match.scoreA ?? 0);
+        setScoreB(match.scoreB ?? 0);
+        setLocalMatch(match);
+        return;
+      }
+      setLocalMatch((prev) => ({
+        ...match,
+        scoreA: scoreARef.current,
+        scoreB: scoreBRef.current,
+        teamA: prev?.teamA?.length ? prev.teamA : match.teamA,
+        teamB: prev?.teamB?.length ? prev.teamB : match.teamB,
+        basePlayerA: prev?.basePlayerA ?? match.basePlayerA,
+        basePlayerB: prev?.basePlayerB ?? match.basePlayerB,
+        sidesSwapped: prev?.sidesSwapped ?? match.sidesSwapped,
+      }));
+      return;
+    }
+
+    liveSessionKeyRef.current = null;
     setScoreA(match.scoreA ?? 0);
     setScoreB(match.scoreB ?? 0);
     setLocalMatch(match);
-  }, [match?.id, match?.startedAt]);
+  }, [match?.id, match?.startedAt, match?.status]);
 
   const displayMatch = useMemo(() => {
     const base = localMatch ?? match;
@@ -130,12 +158,16 @@ export default function TournamentLiveCourtCard({
 
     const run = async () => {
       try {
+        const sa = scoreARef.current;
+        const sb = scoreBRef.current;
         const ev = await patchTournamentMatch(eventId, {
           divisionId: ctx.divisionId,
           bracketId: ctx.bracketId,
           roundId: ctx.roundId,
           matchId: ctx.match.id,
           status: "live",
+          scoreA: sa,
+          scoreB: sb,
           ...patch,
         });
         applyEvent(ev);
@@ -167,7 +199,7 @@ export default function TournamentLiveCourtCard({
       );
       onPauseAutoRefresh?.(30000);
       clearTimeout(saveTimerRef.current);
-      saveTimerRef.current = setTimeout(() => flushLiveSave(), 200);
+      saveTimerRef.current = setTimeout(() => flushLiveSave(), 350);
     },
     [flushLiveSave, onPauseAutoRefresh]
   );
