@@ -13,10 +13,89 @@ import {
   matchCountsForStandings,
 } from "@/lib/tournament-live";
 
+function MatchScheduleRow({
+  m,
+  bracket,
+  pairById,
+  readOnly,
+  host,
+  onStartMatch,
+  startingMatchId,
+}) {
+  const nameA =
+    pairById.get(m.pairAId)?.displayName ??
+    pairDisplayName(pairById.get(m.pairAId) ?? {});
+  const nameB =
+    pairById.get(m.pairBId)?.displayName ??
+    pairDisplayName(pairById.get(m.pairBId) ?? {});
+  const done = isMatchComplete(m);
+  const live = isMatchLive(m);
+  const playable = isMatchPlayable(m);
+  const needsWinner = done && !matchCountsForStandings(m);
+
+  return (
+    <li
+      className={`rounded-lg border p-3 text-sm ${
+        live
+          ? "border-green-500/40 bg-green-500/5"
+          : playable
+            ? "border-cyan-500/40 bg-cyan-500/5"
+            : done
+              ? "border-slate-700 bg-slate-800/40"
+              : "border-slate-800 bg-slate-900/50"
+      }`}
+    >
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <p className="font-medium">
+          {nameA} <span className="text-slate-500">vs</span> {nameB}
+        </p>
+        {live && (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500 text-black">
+            LIVE
+          </span>
+        )}
+        {playable && !live && (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
+            Up next
+          </span>
+        )}
+      </div>
+      {live ? (
+        <p className="text-cyan-400 mt-1 tabular-nums font-semibold">
+          {m.scoreA ?? 0} – {m.scoreB ?? 0}
+          <span className="text-slate-500 font-normal ml-2 text-xs">
+            scoring on {bracket.courtName}
+          </span>
+        </p>
+      ) : done ? (
+        <p className="text-slate-400 mt-1 tabular-nums">
+          {m.scoreA ?? 0} – {m.scoreB ?? 0}
+          <span className="text-green-400 ml-2">
+            {needsWinner ? "needs clear winner" : "final"}
+          </span>
+        </p>
+      ) : null}
+      {!readOnly && host && onStartMatch && playable ? (
+        <button
+          type="button"
+          disabled={startingMatchId === m.id}
+          onClick={() => onStartMatch(m.id)}
+          className="mt-2 px-3 py-1.5 bg-cyan-500 text-black text-xs font-semibold rounded disabled:opacity-50"
+        >
+          {startingMatchId === m.id ? "Starting…" : "Start on court"}
+        </button>
+      ) : !live && !playable && !done ? (
+        <p className="text-slate-500 mt-1 text-xs">Played</p>
+      ) : null}
+    </li>
+  );
+}
+
 export default function TournamentRoundRobin({
   bracket,
   pairById,
   divisionAdvancement,
+  scheduleResetAt,
   host,
   onStartMatch,
   startingMatchId,
@@ -39,15 +118,25 @@ export default function TournamentRoundRobin({
     bracket.roundRobinMeta?.matchCount ??
     (pairCount >= 2 ? (pairCount * (pairCount - 1)) / 2 : 0);
   const scheduleMatches = useMemo(
-    () => getBracketRoundRobinMatches(bracket),
-    [bracket]
+    () =>
+      getBracketRoundRobinMatches(bracket, {
+        scheduleResetAt: scheduleResetAt ?? bracket.scheduleResetAt,
+      }),
+    [bracket, scheduleResetAt]
   );
-  const finished =
-    bracket.roundRobinMeta?.finishedMatches ??
-    scheduleMatches.filter((m) => matchCountsForStandings(m)).length;
-  const matchesLeft =
-    bracket.roundRobinMeta?.matchesRemaining ??
-    Math.max(0, expectedTotal - finished);
+  const finished = scheduleMatches.filter((m) =>
+    matchCountsForStandings(m)
+  ).length;
+  const matchesLeft = Math.max(0, expectedTotal - finished);
+  const liveMatches = scheduleMatches.filter((m) => isMatchLive(m));
+  const playableMatches = scheduleMatches.filter((m) => isMatchPlayable(m));
+  const matchesToPlay = scheduleMatches.filter(
+    (m) => !matchCountsForStandings(m) && !isMatchLive(m)
+  );
+  const completedMatches = scheduleMatches.filter(
+    (m) => matchCountsForStandings(m) && !isMatchPlayable(m)
+  );
+  const canHostStart = !readOnly && host && onStartMatch;
   function formatPointDiff(diff) {
     if (typeof diff !== "number" || Number.isNaN(diff)) return "—";
     if (diff > 0) return `+${diff}`;
@@ -91,6 +180,54 @@ export default function TournamentRoundRobin({
           </span>
         )}
       </div>
+
+      {!bracket.poolComplete && (matchesLeft > 0 || liveMatches.length > 0) && (
+        <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-3">
+          <div>
+            <h4 className="text-sm font-semibold text-cyan-200">
+              {readOnly ? "Matches remaining" : "Matches to play"}
+            </h4>
+            <p className="text-xs text-slate-400 mt-0.5">
+              {matchesLeft} match{matchesLeft === 1 ? "" : "es"} left on{" "}
+              {bracket.courtName}.{" "}
+              {canHostStart
+                ? "Start each pairing below (or use the live court card)."
+                : "Host starts these on the assigned court."}
+            </p>
+          </div>
+          {scheduleMatches.length === 0 ? (
+            <p className="text-sm text-amber-400/90">
+              Schedule not loaded. Regenerate this division or refresh the page.
+            </p>
+          ) : matchesToPlay.length === 0 && liveMatches.length === 0 ? (
+            <p className="text-sm text-amber-400/90">
+              No startable matchups in the list. Regenerate this division to rebuild
+              the schedule, or scroll to completed games below.
+            </p>
+          ) : (
+            <ul className="space-y-2">
+              {(() => {
+                const liveIds = new Set(liveMatches.map((x) => x.id));
+                return [
+                  ...liveMatches,
+                  ...matchesToPlay.filter((x) => !liveIds.has(x.id)),
+                ];
+              })().map((m) => (
+                <MatchScheduleRow
+                  key={m.id}
+                  m={m}
+                  bracket={bracket}
+                  pairById={pairById}
+                  readOnly={readOnly}
+                  host={host}
+                  onStartMatch={onStartMatch}
+                  startingMatchId={startingMatchId}
+                />
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
 
       <div>
         <h4 className="text-sm font-semibold text-slate-400 mb-2">Standings</h4>
@@ -225,71 +362,34 @@ export default function TournamentRoundRobin({
 
       <div>
         <h4 className="text-sm font-semibold text-slate-400 mb-2">
-          {readOnly ? "Match results" : "Round robin schedule"}
+          {readOnly ? "All match results" : "Full schedule"}
         </h4>
-        <ul className="space-y-2 max-h-64 overflow-y-auto pr-1">
-          {scheduleMatches.map((m) => {
-            const nameA =
-              pairById.get(m.pairAId)?.displayName ??
-              pairDisplayName(pairById.get(m.pairAId) ?? {});
-            const nameB =
-              pairById.get(m.pairBId)?.displayName ??
-              pairDisplayName(pairById.get(m.pairBId) ?? {});
-            const done = isMatchComplete(m);
-            const live = isMatchLive(m);
-
-            return (
-              <li
-                key={m.id}
-                className={`rounded-lg border p-3 text-sm ${
-                  live
-                    ? "border-green-500/40 bg-green-500/5"
-                    : done
-                      ? "border-slate-700 bg-slate-800/40"
-                      : "border-slate-800 bg-slate-900/50"
-                }`}
-              >
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <p className="font-medium">
-                    {nameA}{" "}
-                    <span className="text-slate-500">vs</span> {nameB}
-                  </p>
-                  {live && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500 text-black">
-                      LIVE
-                    </span>
-                  )}
-                </div>
-                {live ? (
-                  <p className="text-cyan-400 mt-1 tabular-nums font-semibold">
-                    {m.scoreA ?? 0} – {m.scoreB ?? 0}
-                    <span className="text-slate-500 font-normal ml-2 text-xs">
-                      scoring on {bracket.courtName}
-                    </span>
-                  </p>
-                ) : done ? (
-                  <p className="text-slate-400 mt-1 tabular-nums">
-                    {m.scoreA ?? 0} – {m.scoreB ?? 0}
-                    <span className="text-green-400 ml-2">final</span>
-                  </p>
-                ) : !readOnly && host && onStartMatch && isMatchPlayable(m) ? (
-                  <button
-                    type="button"
-                    disabled={startingMatchId === m.id}
-                    onClick={() => onStartMatch(m.id)}
-                    className="mt-2 px-3 py-1 bg-cyan-500/90 text-black text-xs font-semibold rounded disabled:opacity-50"
-                  >
-                    {startingMatchId === m.id ? "Starting…" : "Start on court"}
-                  </button>
-                ) : !done ? (
-                  <p className="text-slate-500 mt-1 text-xs">
-                    {isMatchPlayable(m) ? "Scheduled" : "Played"}
-                  </p>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
+        {scheduleMatches.length === 0 ? (
+          <p className="text-sm text-slate-500">No matchups in this bracket yet.</p>
+        ) : (
+          <>
+            {completedMatches.length > 0 && (
+              <p className="text-xs text-slate-500 mb-2">
+                {completedMatches.length} completed · {playableMatches.length}{" "}
+                remaining
+              </p>
+            )}
+            <ul className="space-y-2 max-h-80 overflow-y-auto pr-1">
+              {scheduleMatches.map((m) => (
+                <MatchScheduleRow
+                  key={m.id}
+                  m={m}
+                  bracket={bracket}
+                  pairById={pairById}
+                  readOnly={readOnly}
+                  host={host}
+                  onStartMatch={onStartMatch}
+                  startingMatchId={startingMatchId}
+                />
+              ))}
+            </ul>
+          </>
+        )}
       </div>
     </div>
   );

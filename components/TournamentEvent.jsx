@@ -1069,6 +1069,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
                     bracket={bracket}
                     pairById={pairById}
                     divisionAdvancement={divisionSetup?.advancement}
+                    scheduleResetAt={divisionSetup?.scheduleResetAt}
                     readOnly={!divisionCanScore || divisionKnockoutActive || divisionFinished}
                     host={divisionCanScore && !divisionKnockoutActive && !divisionFinished}
                     startingMatchId={startingMatchId}
