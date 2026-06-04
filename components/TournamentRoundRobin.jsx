@@ -1,10 +1,15 @@
 "use client";
 
+import { useMemo } from "react";
 import { pairDisplayName } from "@/lib/tournament-divisions";
-import { matchesPerPairInRoundRobin } from "@/lib/tournament-brackets";
+import {
+  getBracketRoundRobinMatches,
+  matchesPerPairInRoundRobin,
+} from "@/lib/tournament-brackets";
 import {
   isMatchComplete,
   isMatchLive,
+  isMatchPlayable,
   matchCountsForStandings,
 } from "@/lib/tournament-live";
 
@@ -33,9 +38,13 @@ export default function TournamentRoundRobin({
   const expectedTotal =
     bracket.roundRobinMeta?.matchCount ??
     (pairCount >= 2 ? (pairCount * (pairCount - 1)) / 2 : 0);
+  const scheduleMatches = useMemo(
+    () => getBracketRoundRobinMatches(bracket),
+    [bracket]
+  );
   const finished =
     bracket.roundRobinMeta?.finishedMatches ??
-    (bracket.matches ?? []).filter((m) => matchCountsForStandings(m)).length;
+    scheduleMatches.filter((m) => matchCountsForStandings(m)).length;
   const matchesLeft =
     bracket.roundRobinMeta?.matchesRemaining ??
     Math.max(0, expectedTotal - finished);
@@ -219,7 +228,7 @@ export default function TournamentRoundRobin({
           {readOnly ? "Match results" : "Round robin schedule"}
         </h4>
         <ul className="space-y-2 max-h-64 overflow-y-auto pr-1">
-          {(bracket.matches ?? []).map((m) => {
+          {scheduleMatches.map((m) => {
             const nameA =
               pairById.get(m.pairAId)?.displayName ??
               pairDisplayName(pairById.get(m.pairAId) ?? {});
@@ -263,7 +272,7 @@ export default function TournamentRoundRobin({
                     {m.scoreA ?? 0} – {m.scoreB ?? 0}
                     <span className="text-green-400 ml-2">final</span>
                   </p>
-                ) : !readOnly && host && onStartMatch ? (
+                ) : !readOnly && host && onStartMatch && isMatchPlayable(m) ? (
                   <button
                     type="button"
                     disabled={startingMatchId === m.id}
@@ -272,9 +281,11 @@ export default function TournamentRoundRobin({
                   >
                     {startingMatchId === m.id ? "Starting…" : "Start on court"}
                   </button>
-                ) : (
-                  <p className="text-slate-500 mt-1 text-xs">Scheduled</p>
-                )}
+                ) : !done ? (
+                  <p className="text-slate-500 mt-1 text-xs">
+                    {isMatchPlayable(m) ? "Scheduled" : "Played"}
+                  </p>
+                ) : null}
               </li>
             );
           })}
