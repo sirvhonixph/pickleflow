@@ -457,6 +457,59 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     </div>
   );
 
+  const liveCourtsSection = () =>
+    (event.courts?.length ?? 0) > 0 ? (
+      <section>
+        <div className="mb-4">
+          <h2 className="text-xl font-bold">Live courts</h2>
+          {courtPools.length > 1 && (
+            <p className="text-slate-500 text-sm mt-1">
+              {courtPools.map((p) => `${p.label}: ${p.courtNames}`).join(" · ")}
+            </p>
+          )}
+          {activeCourtDivisionLabel ? (
+            <p className="text-cyan-400 text-sm mt-1">
+              This tier is playing {activeCourtDivisionLabel}
+              {viewDivision !== activeCourtDivisionId && (
+                <span className="text-slate-500">
+                  {" "}
+                  — switch division tabs below to score other divisions
+                </span>
+              )}
+            </p>
+          ) : (
+            <p className="text-slate-500 text-sm mt-1">
+              {host
+                ? knockoutPhase
+                  ? "Finals matches auto-fill courts. Score with +/− — loser is out."
+                  : "Start a match, then score with +/− or type scores — same as open play."
+                : knockoutPhase
+                  ? "Finals — live scores, read only."
+                  : "Live scores for each court — read only."}
+            </p>
+          )}
+        </div>
+        <div className="grid xl:grid-cols-2 gap-6">
+          {event.courts.map((court) => (
+            <TournamentLiveCourtCard
+              key={court.id}
+              court={court}
+              event={event}
+              eventId={eventId}
+              pairById={pairById}
+              host={host && !isEnded}
+              onReload={reload}
+              onEventUpdate={(ev) => {
+                pauseAutoRefresh(120000);
+                setEvent(ev);
+              }}
+              onPauseAutoRefresh={pauseAutoRefresh}
+            />
+          ))}
+        </div>
+      </section>
+    ) : null;
+
   const handleStartMatch = async (bracketId, matchId) => {
     setStartingMatchId(matchId);
     try {
@@ -630,6 +683,13 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
           )}
         </div>
       </div>
+
+      {!host && showPlayView && (
+        <section className="space-y-6" aria-label="Live action">
+          {event.liveStreamEnabled ? liveVideoPanel(true) : null}
+          {liveCourtsSection()}
+        </section>
+      )}
 
       {host && phase === "registration" && !isEnded && (
         <section className="bg-slate-900 border border-slate-800 rounded-xl p-6">
@@ -1115,60 +1175,13 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
 
       {showPlayView && (
         <section ref={playViewRef} className="space-y-6">
-          {(host && !isEnded) || (event.liveStreamEnabled && embed)
-            ? liveVideoPanel(true)
-            : null}
-
-          {(event.courts?.length ?? 0) > 0 && (
-            <section>
-              <div className="mb-4">
-                <h2 className="text-xl font-bold">Live courts</h2>
-                {courtPools.length > 1 && (
-                  <p className="text-slate-500 text-sm mt-1">
-                    {courtPools.map((p) => `${p.label}: ${p.courtNames}`).join(" · ")}
-                  </p>
-                )}
-                {activeCourtDivisionLabel ? (
-                  <p className="text-cyan-400 text-sm mt-1">
-                    This tier is playing {activeCourtDivisionLabel}
-                    {viewDivision !== activeCourtDivisionId && (
-                      <span className="text-slate-500">
-                        {" "}
-                        — switch division tabs below to score other divisions
-                      </span>
-                    )}
-                  </p>
-                ) : (
-                  <p className="text-slate-500 text-sm mt-1">
-                    {host
-                      ? knockoutPhase
-                        ? "Finals matches auto-fill courts. Score with +/− — loser is out."
-                        : "Start a match, then score with +/− or type scores — same as open play."
-                      : knockoutPhase
-                        ? "Finals — live scores, read only."
-                        : "Live scores for each court — read only."}
-                  </p>
-                )}
-              </div>
-              <div className="grid xl:grid-cols-2 gap-6">
-                {event.courts.map((court) => (
-                  <TournamentLiveCourtCard
-                    key={court.id}
-                    court={court}
-                    event={event}
-                    eventId={eventId}
-                    pairById={pairById}
-                    host={host && !isEnded}
-                    onReload={reload}
-                    onEventUpdate={(ev) => {
-                      pauseAutoRefresh(120000);
-                      setEvent(ev);
-                    }}
-                    onPauseAutoRefresh={pauseAutoRefresh}
-                  />
-                ))}
-              </div>
-            </section>
+          {host && (
+            <>
+              {(host && !isEnded) || (event.liveStreamEnabled && embed)
+                ? liveVideoPanel(true)
+                : null}
+              {liveCourtsSection()}
+            </>
           )}
 
           {bracketedDivisions.length > 0 && (
