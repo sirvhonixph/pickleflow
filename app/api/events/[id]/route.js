@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import {
+  getAllEvents,
   getEventById,
   updateEventRecord,
   deleteEventRecord,
@@ -13,7 +14,12 @@ import {
 } from "@/lib/event-host";
 
 export async function GET(_request, { params }) {
-  const event = await getEventById(params.id);
+  const id = String(params.id ?? "");
+  let event = await getEventById(id);
+  if (!event) {
+    const events = await getAllEvents();
+    event = events.find((e) => String(e.id) === id) ?? null;
+  }
   if (!event) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
