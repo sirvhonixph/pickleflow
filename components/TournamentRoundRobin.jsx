@@ -23,6 +23,7 @@ import {
 } from "@/lib/tournament-live";
 import {
   canLockRoundRobinMatch,
+  inferWinnerPairId,
   isForfeitMatch,
   isRoundRobinMatchLocked,
   needsRematch,
@@ -58,6 +59,9 @@ function MatchScheduleRow({
   const canStart = playable && !live;
   const nameAShort = nameA.split(" / ")[0] ?? "Pair A";
   const nameBShort = nameB.split(" / ")[0] ?? "Pair B";
+  const winnerPairId = done ? inferWinnerPairId(m) : null;
+  const aWon = winnerPairId === m.pairAId;
+  const bWon = winnerPairId === m.pairBId;
 
   return (
     <li
@@ -80,7 +84,29 @@ function MatchScheduleRow({
               #{m.scheduleOrder}
             </span>
           )}
-          {nameA} <span className="text-slate-500">vs</span> {nameB}
+          <span
+            className={
+              locked && aWon
+                ? "text-amber-300 font-semibold"
+                : done && aWon
+                  ? "text-green-300 font-semibold"
+                  : ""
+            }
+          >
+            {nameA}
+          </span>{" "}
+          <span className="text-slate-500">vs</span>{" "}
+          <span
+            className={
+              locked && bWon
+                ? "text-amber-300 font-semibold"
+                : done && bWon
+                  ? "text-green-300 font-semibold"
+                  : ""
+            }
+          >
+            {nameB}
+          </span>
         </p>
         {live && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-green-500 text-black">
@@ -117,7 +143,33 @@ function MatchScheduleRow({
         </p>
       ) : done ? (
         <p className="text-slate-400 mt-1 tabular-nums">
-          {m.scoreA ?? 0} – {m.scoreB ?? 0}
+          <span
+            className={
+              locked && aWon
+                ? "text-amber-300 font-bold"
+                : locked
+                  ? "text-slate-500"
+                  : aWon
+                    ? "text-green-300 font-bold"
+                    : ""
+            }
+          >
+            {m.scoreA ?? 0}
+          </span>
+          <span className="text-slate-600"> – </span>
+          <span
+            className={
+              locked && bWon
+                ? "text-amber-300 font-bold"
+                : locked
+                  ? "text-slate-500"
+                  : bWon
+                    ? "text-green-300 font-bold"
+                    : ""
+            }
+          >
+            {m.scoreB ?? 0}
+          </span>
           <span className={locked ? "text-amber-400 ml-2" : "text-green-400 ml-2"}>
             {locked ? "locked final" : forfeit ? "default win" : "final"}
           </span>
