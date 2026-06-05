@@ -170,17 +170,17 @@ export default function TournamentRoundRobin({
     () => orderStandingsForDisplay(standings, bracket.pairIds, pairById),
     [standings, bracket.pairIds, pairById]
   );
+  const showPoolLeaders = bracket.poolComplete;
   const { top1PairId, top2PairId } = useMemo(() => {
-    const sorted = [...standings].sort(compareStandings);
-    const hasResults = sorted.some((r) => (r.matchesPlayed ?? 0) > 0);
-    if (!hasResults || sorted.length === 0) {
+    if (!showPoolLeaders || standings.length === 0) {
       return { top1PairId: null, top2PairId: null };
     }
+    const sorted = [...standings].sort(compareStandings);
     return {
       top1PairId: sorted[0]?.pairId ?? null,
       top2PairId: sorted.length > 1 ? sorted[1]?.pairId ?? null : null,
     };
-  }, [standings]);
+  }, [standings, showPoolLeaders]);
   const advanced = new Set(bracket.advancedPairIds ?? []);
   const wildcardIds = new Set(
     (divisionAdvancement?.wildcards ?? [])
@@ -388,8 +388,9 @@ export default function TournamentRoundRobin({
           </table>
         </div>
         <p className="text-xs text-slate-500 mt-2">
-          Pair list stays in bracket order. TOP 1 / TOP 2 badges follow Pts → Diff →
-          PF (TOP 1 leaves Diff and Pts blank). Win ={" "}
+          Pair list stays in bracket order. TOP 1 / TOP 2 badges appear after this
+          bracket finishes all pool matches (Pts → Diff → PF; TOP 1 leaves Diff and
+          Pts blank). Win ={" "}
           {ROUND_ROBIN_WIN_POINTS} pts, loss = 0 (default win = {ROUND_ROBIN_WIN_POINTS}
           ). Each pair plays {perPair} matches ({expectedTotal} total). Advancement:
           Pts → Diff → PF.{" "}
