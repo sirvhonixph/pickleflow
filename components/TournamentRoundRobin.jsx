@@ -128,7 +128,7 @@ function MatchScheduleRow({
           <span className="text-amber-400 ml-2 text-xs">needs clear winner</span>
         </p>
       ) : null}
-      {!readOnly && host && canLock && onLockMatch && (
+      {!readOnly && host && !locked && canLock && onLockMatch && (
         <div className="mt-2">
           <button
             type="button"
