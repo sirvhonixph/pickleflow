@@ -8,6 +8,7 @@ import {
   assertRequestHost,
   courtsPayloadChanged,
   stripActingHostId,
+  streamPayloadChanged,
   tournamentPayloadChanged,
 } from "@/lib/event-host";
 
@@ -33,6 +34,7 @@ export async function PATCH(request, { params }) {
     const hostOnlyChange =
       courtsPayloadChanged(current, merged) ||
       tournamentPayloadChanged(current, merged) ||
+      streamPayloadChanged(current, merged) ||
       JSON.stringify(current.paymentConfig ?? {}) !==
         JSON.stringify(merged.paymentConfig ?? {}) ||
       JSON.stringify(current.registrations ?? []) !==

@@ -60,18 +60,29 @@ import {
 import { describeCourtPools } from "@/lib/tournament-court-pools";
 
 function embedVideoUrl(url) {
-  if (!url) return null;
+  if (!url?.trim()) return null;
+  const raw = url.trim();
   try {
-    const u = new URL(url);
-    if (u.hostname.includes("youtube.com") || u.hostname.includes("youtu.be")) {
+    const u = new URL(raw);
+    const host = u.hostname.replace(/^www\./, "");
+    if (host === "youtu.be") {
+      const id = u.pathname.replace(/^\//, "").split("/")[0];
+      if (id) return `https://www.youtube.com/embed/${id}`;
+    }
+    if (host === "youtube.com" || host === "m.youtube.com") {
       let id = u.searchParams.get("v");
-      if (!id && u.hostname.includes("youtu.be")) id = u.pathname.slice(1);
+      if (!id && u.pathname.startsWith("/embed/")) {
+        id = u.pathname.split("/")[2];
+      }
+      if (!id && u.pathname.startsWith("/live/")) {
+        id = u.pathname.split("/")[2];
+      }
       if (id) return `https://www.youtube.com/embed/${id}`;
     }
   } catch {
-    return url;
+    return null;
   }
-  return url;
+  return null;
 }
 
 export default function TournamentEvent({ eventId, initialEvent = null }) {
@@ -88,6 +99,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const [forfeitBusyId, setForfeitBusyId] = useState(null);
   const [startingQuarterfinals, setStartingQuarterfinals] = useState(false);
   const [streamUrl, setStreamUrl] = useState("");
+  const [streamBusy, setStreamBusy] = useState(false);
   const [pairForm, setPairForm] = useState({
     divisionId: "",
     player1Name: "",
@@ -364,6 +376,86 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const silverName = resolveMedalName(medalists.silverId);
   const bronzeName = resolveMedalName(medalists.bronzeId);
   const embed = embedVideoUrl(event.liveStreamUrl);
+
+  const saveLiveStream = async (patch) => {
+    setStreamBusy(true);
+    try {
+      const ev = await updateEventStream(eventId, patch);
+      if (ev) setEvent(ev);
+    } catch (err) {
+      alert(err.message ?? "Could not save live video settings");
+    } finally {
+      setStreamBusy(false);
+    }
+  };
+
+  const liveVideoPanel = (showEmbed = true) => (
+    <div className="space-y-4">
+      {host && !isEnded && (
+        <section className="bg-slate-900 border border-slate-800 rounded-xl p-6 relative z-10">
+          <h2 className="font-semibold mb-3">Live video (host)</h2>
+          <div className="flex flex-wrap gap-3 items-center">
+            <input
+              type="url"
+              className="flex-1 min-w-[200px] p-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-white"
+              placeholder="YouTube link (youtube.com/watch?v=… or youtu.be/…)"
+              value={streamUrl}
+              disabled={streamBusy}
+              onChange={(e) => setStreamUrl(e.target.value)}
+            />
+            <label className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                className="w-4 h-4 cursor-pointer"
+                checked={!!event.liveStreamEnabled}
+                disabled={streamBusy}
+                onChange={(e) => {
+                  void saveLiveStream({
+                    liveStreamUrl: streamUrl,
+                    liveStreamEnabled: e.target.checked,
+                  });
+                }}
+              />
+              Show live video
+            </label>
+            <button
+              type="button"
+              className="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm disabled:opacity-50"
+              disabled={streamBusy}
+              onClick={() => void saveLiveStream({ liveStreamUrl: streamUrl })}
+            >
+              {streamBusy ? "Saving…" : "Save URL"}
+            </button>
+          </div>
+        </section>
+      )}
+      {showEmbed && event.liveStreamEnabled && embed && (
+        <section className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+          <h2 className="px-6 py-3 border-b border-slate-800 font-semibold">
+            Live video
+          </h2>
+          <div className="aspect-video w-full">
+            <iframe
+              title="Live stream"
+              src={embed}
+              className="w-full h-full"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+        </section>
+      )}
+      {showEmbed &&
+        event.liveStreamEnabled &&
+        !embed &&
+        (event.liveStreamUrl || streamUrl) && (
+          <p className="text-sm text-amber-400/90 px-1">
+            Could not embed this URL. Paste a full YouTube watch or youtu.be link,
+            save, then enable Show live video.
+          </p>
+        )}
+    </div>
+  );
 
   const handleStartMatch = async (bracketId, matchId) => {
     setStartingMatchId(matchId);
@@ -1019,8 +1111,14 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
         </div>
       )}
 
+      {host && !isEnded && !showPlayView && liveVideoPanel(false)}
+
       {showPlayView && (
         <section ref={playViewRef} className="space-y-6">
+          {(host && !isEnded) || (event.liveStreamEnabled && embed)
+            ? liveVideoPanel(true)
+            : null}
+
           {(event.courts?.length ?? 0) > 0 && (
             <section>
               <div className="mb-4">
@@ -1211,61 +1309,6 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
               subtitle={divisionLabel(viewDivision, event)}
               compact={!!championName && !silverName && !bronzeName}
             />
-          )}
-
-          {event.liveStreamEnabled && embed && (
-            <section className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-              <h2 className="px-6 py-3 border-b border-slate-800 font-semibold">
-                Live video
-              </h2>
-              <div className="aspect-video w-full">
-                <iframe
-                  title="Live stream"
-                  src={embed}
-                  className="w-full h-full"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            </section>
-          )}
-
-          {host && !isEnded && (
-            <section className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-              <h2 className="font-semibold mb-3">Live video (host)</h2>
-              <div className="flex flex-wrap gap-3 items-center">
-                <input
-                  className="flex-1 min-w-[200px] p-2 rounded-lg bg-slate-800 border border-slate-700 text-sm"
-                  placeholder="YouTube or stream URL"
-                  value={streamUrl}
-                  onChange={(e) => setStreamUrl(e.target.value)}
-                />
-                <label className="flex items-center gap-2 text-sm text-slate-300">
-                  <input
-                    type="checkbox"
-                    checked={!!event.liveStreamEnabled}
-                    onChange={async (e) => {
-                      await updateEventStream(eventId, {
-                        liveStreamUrl: streamUrl,
-                        liveStreamEnabled: e.target.checked,
-                      });
-                      await reload();
-                    }}
-                  />
-                  Show live video
-                </label>
-                <button
-                  type="button"
-                  className="px-4 py-2 bg-slate-700 rounded-lg text-sm"
-                  onClick={async () => {
-                    await updateEventStream(eventId, { liveStreamUrl: streamUrl });
-                    await reload();
-                  }}
-                >
-                  Save URL
-                </button>
-              </div>
-            </section>
           )}
 
         </section>
