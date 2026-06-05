@@ -7,6 +7,7 @@ import {
   findDuplicateRoundRobinPairings,
   getBracketRoundRobinMatches,
   matchesPerPairInRoundRobin,
+  normalizeStoredMatch,
 } from "@/lib/tournament-brackets";
 import {
   isMatchComplete,
@@ -38,11 +39,12 @@ function MatchScheduleRow({
     pairById.get(m.pairBId)?.displayName ??
     pairDisplayName(pairById.get(m.pairBId) ?? {});
   const live = isMatchLive(m);
-  const done = isRoundRobinMatchDone(m);
+  const done =
+    isRoundRobinMatchDone(m) || matchCountsForStandings(m);
   const playable = isMatchPlayable(m);
-  const rematch = needsRematch(m);
+  const rematch = !done && needsRematch(m);
   const forfeit = isForfeitMatch(m);
-  const canStart = playable && !live && !done;
+  const canStart = playable && !live;
   const nameAShort = nameA.split(" / ")[0] ?? "Pair A";
   const nameBShort = nameB.split(" / ")[0] ?? "Pair B";
 
@@ -51,10 +53,10 @@ function MatchScheduleRow({
       className={`rounded-lg border p-3 text-sm transition-colors ${
         live
           ? "border-green-500/40 bg-green-500/5"
-          : canStart || rematch
-            ? "border-cyan-500/40 bg-cyan-500/5"
-            : done
-              ? "border-slate-800/80 bg-slate-900/30 opacity-60"
+          : done
+            ? "border-slate-800/80 bg-slate-900/30 opacity-55"
+            : canStart || rematch
+              ? "border-cyan-500/40 bg-cyan-500/5"
               : "border-slate-800 bg-slate-900/50"
       }`}
     >
@@ -173,7 +175,7 @@ export default function TournamentRoundRobin({
     () =>
       getBracketRoundRobinMatches(bracket, {
         scheduleResetAt: scheduleResetAt ?? bracket.scheduleResetAt,
-      }),
+      }).map((m) => normalizeStoredMatch(m)),
     [bracket, scheduleResetAt]
   );
   const duplicatePairings = useMemo(
