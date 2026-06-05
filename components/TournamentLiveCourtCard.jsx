@@ -26,6 +26,7 @@ import {
 } from "@/lib/tournament-live";
 import {
   hasRecordedRoundRobinResult,
+  isRoundRobinMatchLocked,
   sealRoundRobinMatchRow,
 } from "@/lib/tournament-match-outcome";
 
@@ -226,6 +227,10 @@ export default function TournamentLiveCourtCard({
           return;
         }
         const stored = storedBracketMatch(eventRef.current, ctx);
+        if (stored && isRoundRobinMatchLocked(stored)) {
+          completedMatchIdsRef.current.add(ctx.match.id);
+          return;
+        }
         if (
           stored &&
           hasRecordedRoundRobinResult(sealRoundRobinMatchRow(stored))

@@ -22,7 +22,9 @@ import {
   matchCountsForStandings,
 } from "@/lib/tournament-live";
 import {
+  canLockRoundRobinMatch,
   isForfeitMatch,
+  isRoundRobinMatchLocked,
   needsRematch,
 } from "@/lib/tournament-match-outcome";
 
@@ -34,7 +36,9 @@ function MatchScheduleRow({
   host,
   onStartMatch,
   onForfeitWin,
+  onLockMatch,
   startingMatchId,
+  lockingMatchId,
   forfeitBusyId,
 }) {
   const nameA =
@@ -44,9 +48,11 @@ function MatchScheduleRow({
     pairById.get(m.pairBId)?.displayName ??
     pairDisplayName(pairById.get(m.pairBId) ?? {});
   const live = isMatchLive(m);
+  const locked = isRoundRobinMatchLocked(m);
   const done =
-    isRoundRobinMatchDone(m) || matchCountsForStandings(m);
+    locked || isRoundRobinMatchDone(m) || matchCountsForStandings(m);
   const playable = isMatchPlayable(m);
+  const canLock = canLockRoundRobinMatch(m);
   const rematch = !done && needsRematch(m);
   const forfeit = isForfeitMatch(m);
   const canStart = playable && !live;
@@ -58,8 +64,10 @@ function MatchScheduleRow({
       className={`rounded-lg border p-3 text-sm transition-colors ${
         live
           ? "border-green-500/40 bg-green-500/5"
-          : done
-            ? "border-slate-800/80 bg-slate-900/30 opacity-55"
+          : locked
+            ? "border-amber-500/40 bg-amber-500/5 opacity-90"
+            : done
+              ? "border-slate-800/80 bg-slate-900/30 opacity-55"
             : canStart || rematch
               ? "border-cyan-500/40 bg-cyan-500/5"
               : "border-slate-800 bg-slate-900/50"
@@ -84,7 +92,12 @@ function MatchScheduleRow({
             Rematch
           </span>
         )}
-        {done && !live && (
+        {locked && !live && (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500 text-black">
+            Locked
+          </span>
+        )}
+        {done && !live && !locked && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-700 text-slate-400">
             Done
           </span>
@@ -105,8 +118,8 @@ function MatchScheduleRow({
       ) : done ? (
         <p className="text-slate-400 mt-1 tabular-nums">
           {m.scoreA ?? 0} – {m.scoreB ?? 0}
-          <span className="text-green-400 ml-2">
-            {forfeit ? "default win" : "final"}
+          <span className={locked ? "text-amber-400 ml-2" : "text-green-400 ml-2"}>
+            {locked ? "locked final" : forfeit ? "default win" : "final"}
           </span>
         </p>
       ) : rematch ? (
@@ -115,6 +128,21 @@ function MatchScheduleRow({
           <span className="text-amber-400 ml-2 text-xs">needs clear winner</span>
         </p>
       ) : null}
+      {!readOnly && host && canLock && onLockMatch && (
+        <div className="mt-2">
+          <button
+            type="button"
+            disabled={lockingMatchId === m.id}
+            onClick={() => onLockMatch(m.id)}
+            className="px-3 py-1.5 bg-amber-500 text-black text-xs font-semibold rounded disabled:opacity-50"
+          >
+            {lockingMatchId === m.id ? "Locking…" : "Lock result"}
+          </button>
+          <p className="text-[10px] text-slate-500 mt-1">
+            Lock when the score is correct — prevents rematch and overwrites.
+          </p>
+        </div>
+      )}
       {!readOnly && host && canStart && (
         <div className="mt-2 flex flex-wrap gap-2">
           {onStartMatch && (
@@ -161,7 +189,9 @@ export default function TournamentRoundRobin({
   host,
   onStartMatch,
   onForfeitWin,
+  onLockMatch,
   startingMatchId,
+  lockingMatchId,
   forfeitBusyId,
   readOnly = false,
 }) {
@@ -415,8 +445,8 @@ export default function TournamentRoundRobin({
                 : ""}
               {liveMatches.length > 0 ? ` · ${liveMatches.length} live` : ""}.{" "}
               {canHostStart
-                ? "Highlighted rows can be started — dimmed rows are already finished (each pairing once)."
-                : "Highlighted = still to play · dimmed = done."}
+                ? "Lock each finished match before starting the next. Locked = final, no rematch."
+                : "Highlighted = still to play · dimmed = done · amber = locked."}
             </p>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto pr-1">
@@ -431,7 +461,9 @@ export default function TournamentRoundRobin({
                   host={host}
                   onStartMatch={onStartMatch}
                   onForfeitWin={onForfeitWin}
+                  onLockMatch={onLockMatch}
                   startingMatchId={startingMatchId}
+                  lockingMatchId={lockingMatchId}
                   forfeitBusyId={forfeitBusyId}
                 />
               ))}

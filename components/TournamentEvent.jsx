@@ -96,6 +96,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const [setupBusy, setSetupBusy] = useState(false);
   const [divisionBusy, setDivisionBusy] = useState(false);
   const [startingMatchId, setStartingMatchId] = useState(null);
+  const [lockingMatchId, setLockingMatchId] = useState(null);
   const [forfeitBusyId, setForfeitBusyId] = useState(null);
   const [startingQuarterfinals, setStartingQuarterfinals] = useState(false);
   const [streamUrl, setStreamUrl] = useState("");
@@ -526,6 +527,30 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
       alert(err.message ?? "Could not start match");
     } finally {
       setStartingMatchId(null);
+    }
+  };
+
+  const handleLockMatch = async (bracketId, matchId) => {
+    if (
+      !window.confirm(
+        "Lock this match? The result will be final — no rematch and no score changes."
+      )
+    ) {
+      return;
+    }
+    setLockingMatchId(matchId);
+    try {
+      const ev = await patchTournamentMatch(eventId, {
+        divisionId: viewDivision,
+        bracketId,
+        matchId,
+        resultLocked: true,
+      });
+      setEvent(ev);
+    } catch (err) {
+      alert(err.message ?? "Could not lock match");
+    } finally {
+      setLockingMatchId(null);
     }
   };
 
@@ -1267,7 +1292,13 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
                     readOnly={!divisionCanScore || divisionKnockoutActive || divisionFinished}
                     host={divisionCanScore && !divisionKnockoutActive && !divisionFinished}
                     startingMatchId={startingMatchId}
+                    lockingMatchId={lockingMatchId}
                     forfeitBusyId={forfeitBusyId}
+                    onLockMatch={
+                      divisionCanScore && !divisionKnockoutActive && !divisionFinished
+                        ? (matchId) => handleLockMatch(bracket.id, matchId)
+                        : undefined
+                    }
                     onStartMatch={
                       divisionCanScore && !divisionKnockoutActive && !divisionFinished
                         ? (matchId) => handleStartMatch(bracket.id, matchId)
