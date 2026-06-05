@@ -5,7 +5,7 @@ import { pairDisplayName } from "@/lib/tournament-divisions";
 import {
   expectedRoundRobinMatchCount,
   findDuplicateRoundRobinPairings,
-  getBracketRoundRobinMatches,
+  stabilizeBracketMatches,
   matchesPerPairInRoundRobin,
   normalizeStoredMatch,
 } from "@/lib/tournament-brackets";
@@ -280,9 +280,9 @@ export default function TournamentRoundRobin({
     (pairCount >= 2 ? (pairCount * (pairCount - 1)) / 2 : 0);
   const scheduleMatches = useMemo(
     () =>
-      getBracketRoundRobinMatches(bracket, {
+      stabilizeBracketMatches(bracket, {
         scheduleResetAt: scheduleResetAt ?? bracket.scheduleResetAt,
-      }).map((m) => normalizeStoredMatch(m)),
+      }).matches.map((m) => normalizeStoredMatch(m)),
     [bracket, scheduleResetAt]
   );
   const duplicatePairings = useMemo(
