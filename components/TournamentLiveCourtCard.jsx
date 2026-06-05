@@ -22,6 +22,7 @@ import {
   getCourtTournamentState,
   mergeLiveScoresIntoEvent,
   pairToTeamPlayers,
+  resolveLiveMatchLayout,
 } from "@/lib/tournament-live";
 
 function PlayingPairs({ pairA, pairB }) {
@@ -139,9 +140,11 @@ export default function TournamentLiveCourtCard({
 
   const displayMatch = useMemo(() => {
     const base = localMatch ?? match;
-    if (!base) return null;
-    return { ...base, scoreA, scoreB };
-  }, [localMatch, match, scoreA, scoreB]);
+    if (!base || !live) return null;
+    const laid = resolveLiveMatchLayout(base, event, live.divisionId);
+    if (!laid.teamA?.length || !laid.teamB?.length) return null;
+    return { ...laid, scoreA, scoreB };
+  }, [localMatch, match, scoreA, scoreB, event, live]);
 
   const showActionError = (err, fallback) => {
     const msg = err?.message ?? fallback;
@@ -523,7 +526,26 @@ export default function TournamentLiveCourtCard({
         </div>
       )}
 
-      {live && displayMatch?.teamA && displayMatch?.teamB && (
+      {live && !displayMatch && (
+        <div className="mb-5 rounded-lg border border-amber-500/30 bg-amber-500/5 p-4">
+          <p className="text-xs text-amber-300/90 uppercase tracking-wide mb-2">
+            Live match — loading court layout
+          </p>
+          <PlayingPairs pairA={pairAName} pairB={pairBName} />
+          {host && (
+            <button
+              type="button"
+              disabled={actionBusy}
+              onClick={() => void onReload()}
+              className="mt-3 w-full py-2 text-sm font-medium rounded-lg border border-slate-600 bg-slate-800 hover:bg-slate-700 disabled:opacity-50"
+            >
+              Refresh court
+            </button>
+          )}
+        </div>
+      )}
+
+      {live && displayMatch && (
         <div className="mb-5">
           <p className="text-xs text-slate-500 uppercase tracking-wide mb-3">
             Now playing
