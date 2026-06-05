@@ -10,6 +10,7 @@ import {
   normalizeStoredMatch,
 } from "@/lib/tournament-brackets";
 import {
+  compareStandings,
   orderStandingsForDisplay,
   ROUND_ROBIN_WIN_POINTS,
 } from "@/lib/tournament-standings";
@@ -169,6 +170,17 @@ export default function TournamentRoundRobin({
     () => orderStandingsForDisplay(standings, bracket.pairIds, pairById),
     [standings, bracket.pairIds, pairById]
   );
+  const { top1PairId, top2PairId } = useMemo(() => {
+    const sorted = [...standings].sort(compareStandings);
+    const hasResults = sorted.some((r) => (r.matchesPlayed ?? 0) > 0);
+    if (!hasResults || sorted.length === 0) {
+      return { top1PairId: null, top2PairId: null };
+    }
+    return {
+      top1PairId: sorted[0]?.pairId ?? null,
+      top2PairId: sorted.length > 1 ? sorted[1]?.pairId ?? null : null,
+    };
+  }, [standings]);
   const advanced = new Set(bracket.advancedPairIds ?? []);
   const wildcardIds = new Set(
     (divisionAdvancement?.wildcards ?? [])
@@ -306,18 +318,39 @@ export default function TournamentRoundRobin({
               </tr>
             </thead>
             <tbody>
-              {displayStandings.map((row, i) => (
+              {displayStandings.map((row, i) => {
+                const isTop1 = row.pairId === top1PairId;
+                const isTop2 = row.pairId === top2PairId;
+                return (
                 <tr
                   key={row.pairId}
                   className={`border-b border-slate-800/80 ${
-                    advanced.has(row.pairId) ? "bg-green-500/10" : ""
+                    advanced.has(row.pairId)
+                      ? "bg-green-500/10"
+                      : isTop1
+                        ? "bg-amber-500/10"
+                        : isTop2
+                          ? "bg-slate-700/30"
+                          : ""
                   }`}
                 >
                   <td className="py-2 pr-2 font-bold text-slate-500">{i + 1}</td>
                   <td className="py-2 font-medium">
-                    <div>{row.name}</div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span>{row.name}</span>
+                      {isTop1 && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500 text-black">
+                          TOP 1
+                        </span>
+                      )}
+                      {isTop2 && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-500 text-white">
+                          TOP 2
+                        </span>
+                      )}
+                    </div>
                     {divisionReady && advanced.has(row.pairId) && (
-                      <span className="ml-2 text-xs text-green-400 font-bold">
+                      <span className="mt-1 inline-block text-xs text-green-400 font-bold">
                         {wildcardIds.has(row.pairId) ? "WILDCARD" : "ADVANCES"}
                       </span>
                     )}
@@ -332,25 +365,31 @@ export default function TournamentRoundRobin({
                   </td>
                   <td
                     className={`py-2 text-right pl-2 font-semibold tabular-nums ${
-                      (row.pointDiff ?? 0) > 0
-                        ? "text-cyan-300"
-                        : (row.pointDiff ?? 0) < 0
-                          ? "text-red-400/90"
-                          : "text-slate-400"
+                      isTop1
+                        ? "text-slate-600"
+                        : (row.pointDiff ?? 0) > 0
+                          ? "text-cyan-300"
+                          : (row.pointDiff ?? 0) < 0
+                            ? "text-red-400/90"
+                            : "text-slate-400"
                     }`}
                   >
-                    {formatPointDiff(row.pointDiff)}
+                    {isTop1 ? "" : formatPointDiff(row.pointDiff)}
                   </td>
                   <td className="py-2 text-right pl-2 font-bold text-cyan-300 tabular-nums">
-                    {row.tournamentPoints ?? row.wins * ROUND_ROBIN_WIN_POINTS}
+                    {isTop1
+                      ? ""
+                      : row.tournamentPoints ?? row.wins * ROUND_ROBIN_WIN_POINTS}
                   </td>
                 </tr>
-              ))}
+              );
+              })}
             </tbody>
           </table>
         </div>
         <p className="text-xs text-slate-500 mt-2">
-          Pair list stays in bracket order — only W/L/PF/PA/Diff/Pts change. Win ={" "}
+          Pair list stays in bracket order. TOP 1 / TOP 2 badges follow Pts → Diff →
+          PF (TOP 1 leaves Diff and Pts blank). Win ={" "}
           {ROUND_ROBIN_WIN_POINTS} pts, loss = 0 (default win = {ROUND_ROBIN_WIN_POINTS}
           ). Each pair plays {perPair} matches ({expectedTotal} total). Advancement:
           Pts → Diff → PF.{" "}
