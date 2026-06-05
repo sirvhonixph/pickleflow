@@ -9,6 +9,7 @@ import {
   matchesPerPairInRoundRobin,
   normalizeStoredMatch,
 } from "@/lib/tournament-brackets";
+import { orderStandingsForDisplay } from "@/lib/tournament-standings";
 import {
   isMatchComplete,
   isMatchLive,
@@ -156,6 +157,10 @@ export default function TournamentRoundRobin({
   readOnly = false,
 }) {
   const standings = bracket.standings ?? [];
+  const displayStandings = useMemo(
+    () => orderStandingsForDisplay(standings, bracket.pairIds, pairById),
+    [standings, bracket.pairIds, pairById]
+  );
   const advanced = new Set(bracket.advancedPairIds ?? []);
   const wildcardIds = new Set(
     (divisionAdvancement?.wildcards ?? [])
@@ -302,7 +307,7 @@ export default function TournamentRoundRobin({
               </tr>
             </thead>
             <tbody>
-              {standings.map((row, i) => (
+              {displayStandings.map((row, i) => (
                 <tr
                   key={row.pairId}
                   className={`border-b border-slate-800/80 ${
@@ -350,11 +355,7 @@ export default function TournamentRoundRobin({
                         {formatPointDiff(row.pointDiff)}
                       </td>
                       <td className="py-2 text-right pl-2 text-slate-400 tabular-nums">
-                        {i === 0
-                          ? "—"
-                          : typeof row.tieBreaker === "number"
-                            ? row.tieBreaker
-                            : "—"}
+                        {typeof row.tieBreaker === "number" ? row.tieBreaker : "—"}
                       </td>
                     </>
                   )}
@@ -366,8 +367,9 @@ export default function TournamentRoundRobin({
         <p className="text-xs text-slate-500 mt-2">
           {showTiebreakCols ? (
             <>
-              Rank order: wins → TB → +/−. GP must be {perPair}/{perPair} for every
-              pair before this bracket is final.{" "}
+              Pair list stays in bracket order; W/L/GP/Win % update as matches finish.
+              Advancement uses wins → TB → +/−. GP must be {perPair}/{perPair} for
+              every pair before this bracket is final.{" "}
               {divisionReady
                 ? "Green = advances to quarterfinals."
                 : "Finish all remaining matches to lock advancement."}
