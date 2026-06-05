@@ -9,7 +9,10 @@ import {
   matchesPerPairInRoundRobin,
   normalizeStoredMatch,
 } from "@/lib/tournament-brackets";
-import { orderStandingsForDisplay } from "@/lib/tournament-standings";
+import {
+  orderStandingsForDisplay,
+  ROUND_ROBIN_WIN_POINTS,
+} from "@/lib/tournament-standings";
 import {
   isMatchComplete,
   isMatchLive,
@@ -63,6 +66,11 @@ function MatchScheduleRow({
     >
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="font-medium">
+          {m.scheduleOrder != null && (
+            <span className="text-slate-500 font-normal mr-2">
+              #{m.scheduleOrder}
+            </span>
+          )}
           {nameA} <span className="text-slate-500">vs</span> {nameB}
         </p>
         {live && (
@@ -265,45 +273,36 @@ export default function TournamentRoundRobin({
               <tr className="text-slate-500 text-left border-b border-slate-800">
                 <th className="py-2 pr-2">#</th>
                 <th className="py-2">Pair</th>
-                <th className="py-2 text-center">W</th>
-                <th className="py-2 text-center">L</th>
+                <th className="py-2 text-center" title="Wins">
+                  W
+                </th>
+                <th className="py-2 text-center" title="Losses">
+                  L
+                </th>
                 <th
-                  className="py-2 text-center"
-                  title={`Games played (need ${perPair} per pair)`}
+                  className="py-2 text-right pl-2 tabular-nums"
+                  title="Points for (total scored)"
                 >
-                  GP
+                  PF
                 </th>
-                <th className="py-2 text-right" title="Win rate in completed games">
-                  Win %
+                <th
+                  className="py-2 text-right pl-2 tabular-nums"
+                  title="Points against (total allowed)"
+                >
+                  PA
                 </th>
-                {showTiebreakCols && (
-                  <>
-                    <th
-                      className="py-2 text-right pl-2 tabular-nums"
-                      title="Total points scored"
-                    >
-                      For
-                    </th>
-                    <th
-                      className="py-2 text-right pl-2 tabular-nums"
-                      title="Total points allowed"
-                    >
-                      Agst
-                    </th>
-                    <th
-                      className="py-2 text-right pl-2 tabular-nums"
-                      title="Point differential (For − Agst); breaks ties when TB matches"
-                    >
-                      +/−
-                    </th>
-                    <th
-                      className="py-2 text-right pl-2 tabular-nums"
-                      title="Wins + avg points in wins & losses (2nd-place tiebreak)"
-                    >
-                      TB
-                    </th>
-                  </>
-                )}
+                <th
+                  className="py-2 text-right pl-2 tabular-nums"
+                  title="Point differential (PF − PA)"
+                >
+                  Diff
+                </th>
+                <th
+                  className="py-2 text-right pl-2 tabular-nums font-semibold text-cyan-400/90"
+                  title={`Tournament points (win = ${ROUND_ROBIN_WIN_POINTS}, loss = 0, default win = ${ROUND_ROBIN_WIN_POINTS})`}
+                >
+                  Pts
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -325,63 +324,41 @@ export default function TournamentRoundRobin({
                   </td>
                   <td className="py-2 text-center text-green-400">{row.wins}</td>
                   <td className="py-2 text-center text-red-400/80">{row.losses}</td>
+                  <td className="py-2 text-right pl-2 text-slate-300 tabular-nums">
+                    {row.pointsFor ?? 0}
+                  </td>
+                  <td className="py-2 text-right pl-2 text-slate-400 tabular-nums">
+                    {row.pointsAgainst ?? 0}
+                  </td>
                   <td
-                    className={`py-2 text-center tabular-nums ${
-                      (row.matchesPlayed ?? 0) >= perPair
-                        ? "text-green-400"
-                        : "text-amber-400"
+                    className={`py-2 text-right pl-2 font-semibold tabular-nums ${
+                      (row.pointDiff ?? 0) > 0
+                        ? "text-cyan-300"
+                        : (row.pointDiff ?? 0) < 0
+                          ? "text-red-400/90"
+                          : "text-slate-400"
                     }`}
                   >
-                    {row.matchesPlayed ?? 0}/{perPair}
+                    {formatPointDiff(row.pointDiff)}
                   </td>
-                  <td className="py-2 text-right">{row.winPct}%</td>
-                  {showTiebreakCols && (
-                    <>
-                      <td className="py-2 text-right pl-2 text-slate-300 tabular-nums">
-                        {row.pointsFor ?? 0}
-                      </td>
-                      <td className="py-2 text-right pl-2 text-slate-400 tabular-nums">
-                        {row.pointsAgainst ?? 0}
-                      </td>
-                      <td
-                        className={`py-2 text-right pl-2 font-semibold tabular-nums ${
-                          (row.pointDiff ?? 0) > 0
-                            ? "text-cyan-300"
-                            : (row.pointDiff ?? 0) < 0
-                              ? "text-red-400/90"
-                              : "text-slate-400"
-                        }`}
-                      >
-                        {formatPointDiff(row.pointDiff)}
-                      </td>
-                      <td className="py-2 text-right pl-2 text-slate-400 tabular-nums">
-                        {typeof row.tieBreaker === "number" ? row.tieBreaker : "—"}
-                      </td>
-                    </>
-                  )}
+                  <td className="py-2 text-right pl-2 font-bold text-cyan-300 tabular-nums">
+                    {row.tournamentPoints ?? row.wins * ROUND_ROBIN_WIN_POINTS}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
         <p className="text-xs text-slate-500 mt-2">
-          {showTiebreakCols ? (
-            <>
-              Pair list stays in bracket order; W/L/GP/Win % update as matches finish.
-              Advancement uses wins → TB → +/−. GP must be {perPair}/{perPair} for
-              every pair before this bracket is final.{" "}
-              {divisionReady
-                ? "Green = advances to quarterfinals."
-                : "Finish all remaining matches to lock advancement."}
-            </>
-          ) : (
-            <>
-              Pool play rules: each pair plays every other pair in this bracket once (
-              {perPair} games each). End each match with a winner on the court. GP
-              shows games played; tiebreak columns appear when the bracket is fully
-              done.
-            </>
-          )}
+          Pair list stays in bracket order — only W/L/PF/PA/Diff/Pts change. Win ={" "}
+          {ROUND_ROBIN_WIN_POINTS} pts, loss = 0 (default win = {ROUND_ROBIN_WIN_POINTS}
+          ). Each pair plays {perPair} matches ({expectedTotal} total). Advancement:
+          Pts → Diff → PF.{" "}
+          {divisionReady
+            ? "Green = advances to quarterfinals."
+            : showTiebreakCols
+              ? "Finish all matches to lock advancement."
+              : "Play matches in schedule order (1…" + expectedTotal + ")."}
         </p>
       </div>
 
