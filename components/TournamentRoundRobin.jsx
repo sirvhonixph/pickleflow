@@ -12,13 +12,12 @@ import {
   isMatchComplete,
   isMatchLive,
   isMatchPlayable,
+  isRoundRobinMatchDone,
   matchCountsForStandings,
 } from "@/lib/tournament-live";
 import {
   isForfeitMatch,
-  isVoidMatchResult,
   needsRematch,
-  reopenMatchForRematch,
 } from "@/lib/tournament-match-outcome";
 
 function MatchScheduleRow({
@@ -38,24 +37,24 @@ function MatchScheduleRow({
   const nameB =
     pairById.get(m.pairBId)?.displayName ??
     pairDisplayName(pairById.get(m.pairBId) ?? {});
-  const done = isMatchComplete(m);
   const live = isMatchLive(m);
+  const done = isRoundRobinMatchDone(m);
   const playable = isMatchPlayable(m);
   const rematch = needsRematch(m);
   const forfeit = isForfeitMatch(m);
-  const canStart = (playable || rematch) && !live;
+  const canStart = playable && !live && !done;
   const nameAShort = nameA.split(" / ")[0] ?? "Pair A";
   const nameBShort = nameB.split(" / ")[0] ?? "Pair B";
 
   return (
     <li
-      className={`rounded-lg border p-3 text-sm ${
+      className={`rounded-lg border p-3 text-sm transition-colors ${
         live
           ? "border-green-500/40 bg-green-500/5"
-          : canStart
+          : canStart || rematch
             ? "border-cyan-500/40 bg-cyan-500/5"
             : done
-              ? "border-slate-700 bg-slate-800/40"
+              ? "border-slate-800/80 bg-slate-900/30 opacity-60"
               : "border-slate-800 bg-slate-900/50"
       }`}
     >
@@ -73,9 +72,14 @@ function MatchScheduleRow({
             Rematch
           </span>
         )}
-        {playable && !live && !rematch && (
+        {done && !live && (
+          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-700 text-slate-400">
+            Done
+          </span>
+        )}
+        {playable && !live && !rematch && !done && (
           <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
-            Up next
+            To play
           </span>
         )}
       </div>
@@ -169,7 +173,7 @@ export default function TournamentRoundRobin({
     () =>
       getBracketRoundRobinMatches(bracket, {
         scheduleResetAt: scheduleResetAt ?? bracket.scheduleResetAt,
-      }).map((m) => (isVoidMatchResult(m) ? reopenMatchForRematch(m) : m)),
+      }),
     [bracket, scheduleResetAt]
   );
   const duplicatePairings = useMemo(
@@ -186,19 +190,9 @@ export default function TournamentRoundRobin({
   ).length;
   const matchesLeft = Math.max(0, expectedTotal - finished);
   const liveMatches = scheduleMatches.filter((m) => isMatchLive(m));
-  const playableMatches = scheduleMatches.filter((m) => isMatchPlayable(m));
-  const matchesToPlay = scheduleMatches.filter(
-    (m) => !matchCountsForStandings(m) && !isMatchLive(m)
-  );
-  const completedMatches = scheduleMatches.filter(
-    (m) => matchCountsForStandings(m) && !isMatchPlayable(m)
-  );
+  const doneMatches = scheduleMatches.filter((m) => isRoundRobinMatchDone(m));
   const canHostStart = !readOnly && host && onStartMatch;
-  const showMatchesToPlaySection =
-    !bracket.poolComplete && (matchesLeft > 0 || liveMatches.length > 0);
-  const hasMatchesToPlayList =
-    liveMatches.length > 0 || matchesToPlay.length > 0;
-  const showFullSchedule = !showMatchesToPlaySection || !hasMatchesToPlayList;
+  const showMatchSchedule = scheduleMatches.length > 0;
 
   function formatPointDiff(diff) {
     if (typeof diff !== "number" || Number.isNaN(diff)) return "—";
@@ -387,93 +381,41 @@ export default function TournamentRoundRobin({
         </p>
       </div>
 
-      {showMatchesToPlaySection && (
-        <div className="rounded-lg border border-cyan-500/30 bg-cyan-500/5 p-4 flex flex-col max-h-72">
+      {showMatchSchedule && (
+        <div className="rounded-lg border border-slate-800 bg-slate-900/50 p-4 flex flex-col max-h-96">
           <div className="shrink-0 mb-2">
-            <h4 className="text-sm font-semibold text-cyan-200">
-              {readOnly ? "Matches remaining" : "Matches to play"}
+            <h4 className="text-sm font-semibold text-slate-200">
+              {readOnly ? "Match schedule" : "Matches to play"}
             </h4>
             <p className="text-xs text-slate-400 mt-0.5">
-              {matchesLeft} match{matchesLeft === 1 ? "" : "es"} left on{" "}
-              {bracket.courtName}.{" "}
+              {matchesLeft} left on {bracket.courtName}
+              {doneMatches.length > 0
+                ? ` · ${doneMatches.length} done`
+                : ""}
+              {liveMatches.length > 0 ? ` · ${liveMatches.length} live` : ""}.{" "}
               {canHostStart
-                ? "Start each pairing below (or use the live court card)."
-                : "Host starts these on the assigned court."}
+                ? "Highlighted rows can be started — dimmed rows are already finished (each pairing once)."
+                : "Highlighted = still to play · dimmed = done."}
             </p>
           </div>
           <div className="min-h-0 flex-1 overflow-y-auto pr-1">
-            {scheduleMatches.length === 0 ? (
-              <p className="text-sm text-amber-400/90">
-                Schedule not loaded. Regenerate this division or refresh the page.
-              </p>
-            ) : matchesToPlay.length === 0 && liveMatches.length === 0 ? (
-              <p className="text-sm text-amber-400/90">
-                No startable matchups in the list. Regenerate this division to rebuild
-                the schedule.
-              </p>
-            ) : (
-              <ul className="space-y-2">
-                {(() => {
-                  const liveIds = new Set(liveMatches.map((x) => x.id));
-                  return [
-                    ...liveMatches,
-                    ...matchesToPlay.filter((x) => !liveIds.has(x.id)),
-                  ];
-                })().map((m) => (
-                  <MatchScheduleRow
-                    key={m.id}
-                    m={m}
-                    bracket={bracket}
-                    pairById={pairById}
-                    readOnly={readOnly}
-                    host={host}
-                    onStartMatch={onStartMatch}
-                    onForfeitWin={onForfeitWin}
-                    startingMatchId={startingMatchId}
-                    forfeitBusyId={forfeitBusyId}
-                  />
-                ))}
-              </ul>
-            )}
+            <ul className="space-y-2">
+              {scheduleMatches.map((m) => (
+                <MatchScheduleRow
+                  key={m.id}
+                  m={m}
+                  bracket={bracket}
+                  pairById={pairById}
+                  readOnly={readOnly}
+                  host={host}
+                  onStartMatch={onStartMatch}
+                  onForfeitWin={onForfeitWin}
+                  startingMatchId={startingMatchId}
+                  forfeitBusyId={forfeitBusyId}
+                />
+              ))}
+            </ul>
           </div>
-        </div>
-      )}
-
-      {showFullSchedule && (
-        <div>
-          <h4 className="text-sm font-semibold text-slate-400 mb-2">
-            {readOnly ? "All match results" : "Full schedule"}
-          </h4>
-          {scheduleMatches.length === 0 ? (
-            <p className="text-sm text-slate-500">No matchups in this bracket yet.</p>
-          ) : (
-            <>
-              {completedMatches.length > 0 && (
-                <p className="text-xs text-slate-500 mb-2">
-                  {completedMatches.length} completed
-                  {playableMatches.length > 0
-                    ? ` · ${playableMatches.length} remaining`
-                    : ""}
-                </p>
-              )}
-              <ul className="space-y-2 max-h-80 overflow-y-auto pr-1">
-                {scheduleMatches.map((m) => (
-                  <MatchScheduleRow
-                    key={m.id}
-                    m={m}
-                    bracket={bracket}
-                    pairById={pairById}
-                    readOnly={readOnly}
-                    host={host}
-                    onStartMatch={onStartMatch}
-                    onForfeitWin={onForfeitWin}
-                    startingMatchId={startingMatchId}
-                    forfeitBusyId={forfeitBusyId}
-                  />
-                ))}
-              </ul>
-            </>
-          )}
         </div>
       )}
     </div>
