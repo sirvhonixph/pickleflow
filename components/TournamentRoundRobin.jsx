@@ -139,7 +139,7 @@ function MatchScheduleRow({
             {lockingMatchId === m.id ? "Locking…" : "Lock result"}
           </button>
           <p className="text-[10px] text-slate-500 mt-1">
-            Lock when the score is correct — prevents rematch and overwrites.
+            Older finished matches only — new results lock automatically when you end the match on court.
           </p>
         </div>
       )}
@@ -445,7 +445,7 @@ export default function TournamentRoundRobin({
                 : ""}
               {liveMatches.length > 0 ? ` · ${liveMatches.length} live` : ""}.{" "}
               {canHostStart
-                ? "Lock each finished match before starting the next. Locked = final, no rematch."
+                ? "End each match on court — it locks automatically. Amber = locked final."
                 : "Highlighted = still to play · dimmed = done · amber = locked."}
             </p>
           </div>
