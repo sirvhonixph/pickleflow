@@ -47,19 +47,31 @@ export default function EventPage() {
         {loading ? (
           <p className="text-slate-400">Loading…</p>
         ) : loadError ? (
-          <p className="text-red-400">
-            {loadError}.{" "}
-            <Link href="/dashboard" className="text-cyan-400">
+          <div className="space-y-2 max-w-lg">
+            <p className="text-red-400">{loadError}</p>
+            {(loadError === "Not found" || loadError === "Event not found") && (
+              <p className="text-sm text-slate-400">
+                Your tournament file may still be on this computer under{" "}
+                <code className="text-slate-300">data/events/{id}.json</code>.
+                Run <code className="text-slate-300">npm run dev</code> locally,
+                or redeploy to Vercel with that file committed.
+              </p>
+            )}
+            <Link href="/dashboard" className="text-cyan-400 text-sm">
               Back to dashboard
             </Link>
-          </p>
+          </div>
         ) : !event ? (
-          <p className="text-slate-400">
-            Event not found.{" "}
-            <Link href="/dashboard" className="text-cyan-400">
+          <div className="space-y-2 max-w-lg">
+            <p className="text-slate-400">Event not found.</p>
+            <p className="text-sm text-slate-500">
+              Check the dashboard for the correct event link, or run{" "}
+              <code className="text-slate-300">npm run dev</code> if testing locally.
+            </p>
+            <Link href="/dashboard" className="text-cyan-400 text-sm">
               Back to dashboard
             </Link>
-          </p>
+          </div>
         ) : isOpenPlay ? (
           <ClientErrorBoundary>
             <OpenPlayEvent eventId={event.id} />
