@@ -24,6 +24,17 @@ import {
   pairToTeamPlayers,
   resolveLiveMatchLayout,
 } from "@/lib/tournament-live";
+import {
+  hasRecordedRoundRobinResult,
+  sealRoundRobinMatchRow,
+} from "@/lib/tournament-match-outcome";
+
+function storedBracketMatch(event, ctx) {
+  if (!event || !ctx) return null;
+  const div = event.tournamentDivisions?.[ctx.divisionId];
+  const bracket = div?.brackets?.find((b) => b.id === ctx.bracketId);
+  return (bracket?.matches ?? []).find((m) => m.id === ctx.match?.id) ?? null;
+}
 
 function PlayingPairs({ pairA, pairB }) {
   return (
@@ -76,6 +87,9 @@ export default function TournamentLiveCourtCard({
   const scoringSessionRef = useRef(null);
   const localMatchRef = useRef(null);
   const liveStartedAtRef = useRef(0);
+  const completedMatchIdsRef = useRef(new Set());
+  const eventRef = useRef(event);
+  eventRef.current = event;
   localMatchRef.current = localMatch;
 
   const liveScoringSessionKey = (m) =>
@@ -208,6 +222,17 @@ export default function TournamentLiveCourtCard({
 
     const run = async () => {
       try {
+        if (completedMatchIdsRef.current.has(ctx.match.id)) {
+          return;
+        }
+        const stored = storedBracketMatch(eventRef.current, ctx);
+        if (
+          stored &&
+          hasRecordedRoundRobinResult(sealRoundRobinMatchRow(stored))
+        ) {
+          completedMatchIdsRef.current.add(ctx.match.id);
+          return;
+        }
         const sa = scoreARef.current;
         const sb = scoreBRef.current;
         await patchTournamentMatch(eventId, {
@@ -234,7 +259,7 @@ export default function TournamentLiveCourtCard({
 
     saveChainRef.current = saveChainRef.current.then(run, run);
     await saveChainRef.current;
-  }, [eventId, onPauseAutoRefresh]);
+  }, [eventId, onPauseAutoRefresh, court.id]);
 
   const queueLiveSave = useCallback(
     (patch) => {
@@ -375,23 +400,26 @@ export default function TournamentLiveCourtCard({
       await flushLiveSave();
     }
     setActionBusy(true);
+    const finishedMatchId = live.match.id;
+    completedMatchIdsRef.current.add(finishedMatchId);
+    pendingPatchRef.current = null;
+    saveChainRef.current = Promise.resolve();
     try {
       const ev = await patchTournamentMatch(eventId, {
         divisionId: live.divisionId,
         bracketId: live.bracketId,
         roundId: live.roundId,
-        matchId: live.match.id,
+        matchId: finishedMatchId,
         scoreA,
         scoreB,
         status: "completed",
       });
       applyEvent(ev);
       clearLiveScoringState();
-      await onReload();
     } catch (err) {
+      completedMatchIdsRef.current.delete(finishedMatchId);
       showActionError(err, "Could not end match");
       clearLiveScoringState();
-      await onReload();
     } finally {
       setActionBusy(false);
     }
@@ -417,22 +445,25 @@ export default function TournamentLiveCourtCard({
     }
     clearTimeout(saveTimerRef.current);
     setActionBusy(true);
+    const finishedMatchId = live.match.id;
+    completedMatchIdsRef.current.add(finishedMatchId);
+    pendingPatchRef.current = null;
+    saveChainRef.current = Promise.resolve();
     try {
       const ev = await patchTournamentMatch(eventId, {
         divisionId: live.divisionId,
         bracketId: live.bracketId,
         roundId: live.roundId,
-        matchId: live.match.id,
+        matchId: finishedMatchId,
         status: "completed",
         forfeitWinnerPairId: winnerPairId,
       });
       applyEvent(ev);
       clearLiveScoringState();
-      await onReload();
     } catch (err) {
+      completedMatchIdsRef.current.delete(finishedMatchId);
       showActionError(err, "Could not record default win");
       clearLiveScoringState();
-      await onReload();
     } finally {
       setActionBusy(false);
     }
