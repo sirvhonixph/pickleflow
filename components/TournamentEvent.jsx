@@ -513,6 +513,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
 
   const handleStartMatch = async (bracketId, matchId) => {
     setStartingMatchId(matchId);
+    pauseAutoRefresh(120000);
     try {
       const ev = await patchTournamentMatch(eventId, {
         divisionId: viewDivision,

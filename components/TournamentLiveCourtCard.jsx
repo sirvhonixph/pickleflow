@@ -26,6 +26,7 @@ import {
 } from "@/lib/tournament-live";
 import {
   hasRecordedRoundRobinResult,
+  isPermanentRoundRobinResult,
   isRoundRobinMatchLocked,
   sealRoundRobinMatchRow,
 } from "@/lib/tournament-match-outcome";
@@ -34,7 +35,17 @@ function storedBracketMatch(event, ctx) {
   if (!event || !ctx) return null;
   const div = event.tournamentDivisions?.[ctx.divisionId];
   const bracket = div?.brackets?.find((b) => b.id === ctx.bracketId);
-  return (bracket?.matches ?? []).find((m) => m.id === ctx.match?.id) ?? null;
+  const row =
+    (bracket?.matches ?? []).find((m) => m.id === ctx.match?.id) ?? null;
+  if (!row) return null;
+  const pairingKey = [row.pairAId, row.pairBId].filter(Boolean).sort().join("|");
+  const confirmed = pairingKey
+    ? bracket?.confirmedResults?.[pairingKey]
+    : null;
+  if (confirmed && isPermanentRoundRobinResult(confirmed)) {
+    return confirmed;
+  }
+  return row;
 }
 
 function PlayingPairs({ pairA, pairB }) {
@@ -226,8 +237,21 @@ export default function TournamentLiveCourtCard({
         if (completedMatchIdsRef.current.has(ctx.match.id)) {
           return;
         }
-        const stored = storedBracketMatch(eventRef.current, ctx);
+        const currentEvent = eventRef.current;
+        const courtLive = getCourtTournamentState(currentEvent, court.id).live;
+        if (
+          !courtLive ||
+          courtLive.match?.id !== ctx.match.id ||
+          courtLive.match?.status !== "live"
+        ) {
+          return;
+        }
+        const stored = storedBracketMatch(currentEvent, ctx);
         if (stored && isRoundRobinMatchLocked(stored)) {
+          completedMatchIdsRef.current.add(ctx.match.id);
+          return;
+        }
+        if (stored && isPermanentRoundRobinResult(stored)) {
           completedMatchIdsRef.current.add(ctx.match.id);
           return;
         }
@@ -235,6 +259,10 @@ export default function TournamentLiveCourtCard({
           stored &&
           hasRecordedRoundRobinResult(sealRoundRobinMatchRow(stored))
         ) {
+          completedMatchIdsRef.current.add(ctx.match.id);
+          return;
+        }
+        if (stored?.status === "completed") {
           completedMatchIdsRef.current.add(ctx.match.id);
           return;
         }
