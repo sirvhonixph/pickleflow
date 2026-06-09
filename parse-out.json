@@ -1,0 +1,757 @@
+{
+  "status": "ended",
+  "phase": "ended",
+  "total": 120,
+  "byDivision": {
+    "novice_mens_doubles": 20,
+    "novice_womens_doubles": 20,
+    "novice_mixed_doubles": 20,
+    "intermediate_mens_doubles": 20,
+    "intermediate_womens_doubles": 20,
+    "intermediate_mixed_doubles": 20
+  },
+  "noviceMens": [
+    {
+      "n1": "Juan Dela Cruz",
+      "n2": "Jesus Dela Cruz",
+      "id": "pair-1780424095751-o4mfuz",
+      "p1": "p1-juan-dela-cruz@tournament.local",
+      "p2": "p2-jesus-dela-cruz@tournament.local"
+    },
+    {
+      "n1": "Chiz Escudero",
+      "n2": "Jingoy Estrada",
+      "id": "pair-1780424133263-diz5uk",
+      "p1": "p1-chiz-escudero@tournament.local",
+      "p2": "p2-jingoy-estrada@tournament.local"
+    },
+    {
+      "n1": "Bato Dela Rosa",
+      "n2": "Bong Go",
+      "id": "pair-1780424153543-aul88i",
+      "p1": "p1-bato-dela-rosa@tournament.local",
+      "p2": "p2-bong-go@tournament.local"
+    },
+    {
+      "n1": "Robin Padilla",
+      "n2": "Allan Cayetano",
+      "id": "pair-1780424205176-smnmbh",
+      "p1": "p1-robin-padilla@tournament.local",
+      "p2": "p2-allan-cayetano@tournament.local"
+    },
+    {
+      "n1": "Mark Villar",
+      "n2": "Marcoleta",
+      "id": "pair-1780424231025-ia8acv",
+      "p1": "p1-mark-villar@tournament.local",
+      "p2": "p2-marcoleta@tournament.local"
+    },
+    {
+      "n1": "Joel Villanueva",
+      "n2": "Raffy Tulfo",
+      "id": "pair-1780424262325-p2qa55",
+      "p1": "p1-joel-villanueva@tournament.local",
+      "p2": "p2-raffy-tulfo@tournament.local"
+    },
+    {
+      "n1": "Erwin Tulfo",
+      "n2": "Kiko Pangilinan",
+      "id": "pair-1780424293299-vkrnlx",
+      "p1": "p1-erwin-tulfo@tournament.local",
+      "p2": "p2-kiko-pangilinan@tournament.local"
+    },
+    {
+      "n1": "Bam Aquino",
+      "n2": "Zubiri",
+      "id": "pair-1780424304510-9mq2mu",
+      "p1": "p1-bam-aquino@tournament.local",
+      "p2": "p2-zubiri@tournament.local"
+    },
+    {
+      "n1": "Ejercito",
+      "n2": "Tito Sotto",
+      "id": "pair-1780424331275-ue4alp",
+      "p1": "p1-ejercito@tournament.local",
+      "p2": "p2-tito-sotto@tournament.local"
+    },
+    {
+      "n1": "Lito Lapid",
+      "n2": "Win Gatchalian",
+      "id": "pair-1780424359666-kikae1",
+      "p1": "p1-lito-lapid@tournament.local",
+      "p2": "p2-win-gatchalian@tournament.local"
+    },
+    {
+      "n1": "Jayjay Suarez",
+      "n2": "Kiko Barzaga",
+      "id": "pair-1780424395145-e435pz",
+      "p1": "p1-jayjay-suarez@tournament.local",
+      "p2": "p2-kiko-barzaga@tournament.local"
+    },
+    {
+      "n1": "Martin Romualdez",
+      "n2": "BBM",
+      "id": "pair-1780424412454-v2ctrk",
+      "p1": "p1-martin-romualdez@tournament.local",
+      "p2": "p2-bbm@tournament.local"
+    },
+    {
+      "n1": "Baste Duterte",
+      "n2": "PRRD",
+      "id": "pair-1780424461322-o3tfq9",
+      "p1": "p1-baste-duterte@tournament.local",
+      "p2": "p2-meriam-defensor-santiago@tournament.local"
+    },
+    {
+      "n1": "Sandro Marcos",
+      "n2": "Mans Carpio",
+      "id": "pair-1780424505706-quayty",
+      "p1": "p1-sandro-marcos@tournament.local",
+      "p2": "p2-sara-duterte@tournament.local"
+    },
+    {
+      "n1": "Bojie Dy",
+      "n2": "Jude Acidre",
+      "id": "pair-1780424621633-h51qfw",
+      "p1": "p1-bojie-dy@tournament.local",
+      "p2": "p2-jude-acidre@tournament.local"
+    },
+    {
+      "n1": "Paolo P. Ortega V",
+      "n2": "BIENVENIDO ABANTE",
+      "id": "pair-1780424699883-hjbsrx",
+      "p1": "p1-paolo-p.-ortega-v@tournament.local",
+      "p2": "p2-bienvenido-abante@tournament.local"
+    },
+    {
+      "n1": "Zian Adiong",
+      "n2": "James Ang",
+      "id": "pair-1780424749253-d13e5p",
+      "p1": "p1-zian-adiong@tournament.local",
+      "p2": "p2-james-ang@tournament.local"
+    },
+    {
+      "n1": "Perci Cendaña",
+      "n2": "Joel Chua",
+      "id": "pair-1780424817463-nwi6qd",
+      "p1": "p1-perci-cendaña@tournament.local",
+      "p2": "p2-joel-chua@tournament.local"
+    },
+    {
+      "n1": "Lorenz Defensor",
+      "n2": "Paolo Duterte",
+      "id": "pair-1780424871925-ovszxr",
+      "p1": "p1-lorenz-defensor@tournament.local",
+      "p2": "p2-paolo-duterte@tournament.local"
+    },
+    {
+      "n1": "Edgar Erice",
+      "n2": "Richard Gomez",
+      "id": "pair-1780424931071-gi3wcv",
+      "p1": "p1-edgar-erice@tournament.local",
+      "p2": "p2-richard-gomez@tournament.local"
+    }
+  ],
+  "allPairs": [
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Juan Dela Cruz",
+      "n2": "Jesus Dela Cruz"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Chiz Escudero",
+      "n2": "Jingoy Estrada"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Bato Dela Rosa",
+      "n2": "Bong Go"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Robin Padilla",
+      "n2": "Allan Cayetano"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Mark Villar",
+      "n2": "Marcoleta"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Joel Villanueva",
+      "n2": "Raffy Tulfo"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Erwin Tulfo",
+      "n2": "Kiko Pangilinan"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Bam Aquino",
+      "n2": "Zubiri"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Ejercito",
+      "n2": "Tito Sotto"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Lito Lapid",
+      "n2": "Win Gatchalian"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Jayjay Suarez",
+      "n2": "Kiko Barzaga"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Martin Romualdez",
+      "n2": "BBM"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Baste Duterte",
+      "n2": "PRRD"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Sandro Marcos",
+      "n2": "Mans Carpio"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Bojie Dy",
+      "n2": "Jude Acidre"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Paolo P. Ortega V",
+      "n2": "BIENVENIDO ABANTE"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Zian Adiong",
+      "n2": "James Ang"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Perci Cendaña",
+      "n2": "Joel Chua"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Lorenz Defensor",
+      "n2": "Paolo Duterte"
+    },
+    {
+      "div": "novice_mens_doubles",
+      "n1": "Edgar Erice",
+      "n2": "Richard Gomez"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Juan Dela Cruz",
+      "n2": "Jesus Dela Cruz"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Chiz Escudero",
+      "n2": "Jingoy Estrada"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Bato Dela Rosa",
+      "n2": "Bong Go"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Robin Padilla",
+      "n2": "Allan Cayetano"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Mark Villar",
+      "n2": "Marcoleta"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Joel Villanueva",
+      "n2": "Raffy Tulfo"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Erwin Tulfo",
+      "n2": "Kiko Pangilinan"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Bam Aquino",
+      "n2": "Zubiri"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Ejercito",
+      "n2": "Tito Sotto"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Lito Lapid",
+      "n2": "Win Gatchalian"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Jayjay Suarez",
+      "n2": "Kiko Barzaga"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Martin Romualdez",
+      "n2": "BBM"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Baste Duterte",
+      "n2": "PRRD"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Sandro Marcos",
+      "n2": "Mans Carpio"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Bojie Dy",
+      "n2": "Jude Acidre"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Paolo P. Ortega V",
+      "n2": "BIENVENIDO ABANTE"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Zian Adiong",
+      "n2": "James Ang"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Perci Cendaña",
+      "n2": "Joel Chua"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Lorenz Defensor",
+      "n2": "Paolo Duterte"
+    },
+    {
+      "div": "novice_womens_doubles",
+      "n1": "Edgar Erice",
+      "n2": "Richard Gomez"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Juan Dela Cruz",
+      "n2": "Jesus Dela Cruz"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Chiz Escudero",
+      "n2": "Jingoy Estrada"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Bato Dela Rosa",
+      "n2": "Bong Go"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Robin Padilla",
+      "n2": "Allan Cayetano"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Mark Villar",
+      "n2": "Marcoleta"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Joel Villanueva",
+      "n2": "Raffy Tulfo"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Erwin Tulfo",
+      "n2": "Kiko Pangilinan"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Bam Aquino",
+      "n2": "Zubiri"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Ejercito",
+      "n2": "Tito Sotto"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Lito Lapid",
+      "n2": "Win Gatchalian"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Jayjay Suarez",
+      "n2": "Kiko Barzaga"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Martin Romualdez",
+      "n2": "BBM"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Baste Duterte",
+      "n2": "PRRD"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Sandro Marcos",
+      "n2": "Mans Carpio"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Bojie Dy",
+      "n2": "Jude Acidre"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Paolo P. Ortega V",
+      "n2": "BIENVENIDO ABANTE"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Zian Adiong",
+      "n2": "James Ang"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Perci Cendaña",
+      "n2": "Joel Chua"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Lorenz Defensor",
+      "n2": "Paolo Duterte"
+    },
+    {
+      "div": "novice_mixed_doubles",
+      "n1": "Edgar Erice",
+      "n2": "Richard Gomez"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Juan Dela Cruz",
+      "n2": "Jesus Dela Cruz"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Chiz Escudero",
+      "n2": "Jingoy Estrada"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Bato Dela Rosa",
+      "n2": "Bong Go"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Robin Padilla",
+      "n2": "Allan Cayetano"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Mark Villar",
+      "n2": "Marcoleta"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Joel Villanueva",
+      "n2": "Raffy Tulfo"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Erwin Tulfo",
+      "n2": "Kiko Pangilinan"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Bam Aquino",
+      "n2": "Zubiri"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Ejercito",
+      "n2": "Tito Sotto"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Lito Lapid",
+      "n2": "Win Gatchalian"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Jayjay Suarez",
+      "n2": "Kiko Barzaga"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Martin Romualdez",
+      "n2": "BBM"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Baste Duterte",
+      "n2": "PRRD"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Sandro Marcos",
+      "n2": "Mans Carpio"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Bojie Dy",
+      "n2": "Jude Acidre"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Paolo P. Ortega V",
+      "n2": "BIENVENIDO ABANTE"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Zian Adiong",
+      "n2": "James Ang"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Perci Cendaña",
+      "n2": "Joel Chua"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Lorenz Defensor",
+      "n2": "Paolo Duterte"
+    },
+    {
+      "div": "intermediate_mens_doubles",
+      "n1": "Edgar Erice",
+      "n2": "Richard Gomez"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Juan Dela Cruz",
+      "n2": "Jesus Dela Cruz"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Chiz Escudero",
+      "n2": "Jingoy Estrada"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Bato Dela Rosa",
+      "n2": "Bong Go"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Robin Padilla",
+      "n2": "Allan Cayetano"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Mark Villar",
+      "n2": "Marcoleta"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Joel Villanueva",
+      "n2": "Raffy Tulfo"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Erwin Tulfo",
+      "n2": "Kiko Pangilinan"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Bam Aquino",
+      "n2": "Zubiri"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Ejercito",
+      "n2": "Tito Sotto"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Lito Lapid",
+      "n2": "Win Gatchalian"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Jayjay Suarez",
+      "n2": "Kiko Barzaga"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Martin Romualdez",
+      "n2": "BBM"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Baste Duterte",
+      "n2": "PRRD"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Sandro Marcos",
+      "n2": "Mans Carpio"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Bojie Dy",
+      "n2": "Jude Acidre"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Paolo P. Ortega V",
+      "n2": "BIENVENIDO ABANTE"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Zian Adiong",
+      "n2": "James Ang"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Perci Cendaña",
+      "n2": "Joel Chua"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Lorenz Defensor",
+      "n2": "Paolo Duterte"
+    },
+    {
+      "div": "intermediate_womens_doubles",
+      "n1": "Edgar Erice",
+      "n2": "Richard Gomez"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Juan Dela Cruz",
+      "n2": "Jesus Dela Cruz"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Chiz Escudero",
+      "n2": "Jingoy Estrada"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Bato Dela Rosa",
+      "n2": "Bong Go"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Robin Padilla",
+      "n2": "Allan Cayetano"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Mark Villar",
+      "n2": "Marcoleta"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Joel Villanueva",
+      "n2": "Raffy Tulfo"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Erwin Tulfo",
+      "n2": "Kiko Pangilinan"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Bam Aquino",
+      "n2": "Zubiri"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Ejercito",
+      "n2": "Tito Sotto"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Lito Lapid",
+      "n2": "Win Gatchalian"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Jayjay Suarez",
+      "n2": "Kiko Barzaga"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Martin Romualdez",
+      "n2": "BBM"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Baste Duterte",
+      "n2": "PRRD"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Sandro Marcos",
+      "n2": "Mans Carpio"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Bojie Dy",
+      "n2": "Jude Acidre"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Paolo P. Ortega V",
+      "n2": "BIENVENIDO ABANTE"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Zian Adiong",
+      "n2": "James Ang"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Perci Cendaña",
+      "n2": "Joel Chua"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Lorenz Defensor",
+      "n2": "Paolo Duterte"
+    },
+    {
+      "div": "intermediate_mixed_doubles",
+      "n1": "Edgar Erice",
+      "n2": "Richard Gomez"
+    }
+  ]
+}
