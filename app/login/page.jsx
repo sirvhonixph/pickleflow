@@ -4,19 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createSupabaseClient, isSupabaseConfigured } from "@/lib/supabase";
-import { saveCurrentUser, clearCurrentUser } from "@/lib/session";
-import { ensureRegisteredPlayer } from "@/lib/players";
-
-function sessionFromPlayer(player, mode) {
-  return {
-    email: player.email,
-    name: player.name ?? player.email,
-    category: player.category ?? "",
-    dupr: player.dupr ?? "",
-    avatarDataUrl: player.avatarDataUrl ?? "",
-    mode,
-  };
-}
+import { getCurrentUser, saveCurrentUser } from "@/lib/session";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -30,55 +18,37 @@ export default function LoginPage() {
     setLoading(true);
     setError("");
 
-    const normalizedEmail = email.trim().toLowerCase();
-    if (!normalizedEmail) {
-      setError("Enter your email");
-      setLoading(false);
-      return;
+    if (isSupabaseConfigured()) {
+      const supabase = createSupabaseClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (authError) {
+        setError(authError.message);
+        setLoading(false);
+        return;
+      }
+    } else {
+      if (!email.trim()) {
+        setError("Enter your email");
+        setLoading(false);
+        return;
+      }
+      const existing = getCurrentUser();
+      saveCurrentUser({
+        email: email.trim(),
+        name:
+          existing?.email === email.trim() && existing?.name
+            ? existing.name
+            : "",
+        category: existing?.email === email.trim() ? existing.category : "",
+        mode: "demo",
+      });
     }
 
-    try {
-      if (isSupabaseConfigured()) {
-        if (!password) {
-          setError("Enter your password");
-          setLoading(false);
-          return;
-        }
-        const supabase = createSupabaseClient();
-        const { error: authError } = await supabase.auth.signInWithPassword({
-          email: normalizedEmail,
-          password,
-        });
-        if (authError) {
-          setError(authError.message);
-          setLoading(false);
-          return;
-        }
-
-        const player = await ensureRegisteredPlayer(normalizedEmail, {
-          supabase,
-        });
-        saveCurrentUser(sessionFromPlayer(player, "supabase"));
-      } else {
-        const player = await ensureRegisteredPlayer(normalizedEmail);
-        saveCurrentUser(sessionFromPlayer(player, "demo"));
-      }
-
-      setLoading(false);
-      router.push("/dashboard");
-    } catch (err) {
-      if (isSupabaseConfigured()) {
-        const supabase = createSupabaseClient();
-        await supabase.auth.signOut();
-      }
-      clearCurrentUser();
-      setError(
-        err.code === "NOT_REGISTERED" || err.message?.includes("Register")
-          ? "No PickleFlow account for this email. Create one on the Register page first."
-          : err.message ?? "Could not sign in"
-      );
-      setLoading(false);
-    }
+    setLoading(false);
+    router.push("/dashboard");
   };
 
   return (
@@ -90,8 +60,8 @@ export default function LoginPage() {
         <h1 className="text-3xl font-bold text-center mb-2">Login</h1>
         <p className="text-center text-slate-400 text-sm mb-8">
           {isSupabaseConfigured()
-            ? "Sign in with the email you used to register"
-            : "Demo mode — use the email from your registration"}
+            ? "Sign in with your account"
+            : "Demo mode — local app, email only"}
         </p>
 
         {error && (
