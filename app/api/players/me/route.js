@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { upsertPlayer } from "@/lib/store-server";
+import { isValidCategory } from "@/lib/player-category";
 
 export async function PATCH(request) {
   try {
@@ -13,7 +14,15 @@ export async function PATCH(request) {
       email: playerId,
     };
     if (body.name !== undefined) patch.name = body.name?.trim();
-    if (body.category !== undefined) patch.category = body.category;
+    if (body.category !== undefined) {
+      if (!isValidCategory(body.category)) {
+        return NextResponse.json(
+          { error: "Choose a valid skill level." },
+          { status: 400 }
+        );
+      }
+      patch.category = body.category;
+    }
     if (body.dupr !== undefined) patch.dupr = body.dupr?.trim?.() ?? body.dupr;
 
     if (body.avatarDataUrl !== undefined) {

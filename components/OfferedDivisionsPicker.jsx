@@ -73,7 +73,12 @@ export default function OfferedDivisionsPicker({
   );
 }
 
-export function OfferedDivisionsList({ event, compact = false }) {
+export function OfferedDivisionsList({
+  event,
+  compact = false,
+  selectedDivisionId,
+  onSelectDivision,
+}) {
   const divisions = event ? getOfferedDivisions(event) : [];
 
   if (!divisions.length) {
@@ -90,11 +95,20 @@ export function OfferedDivisionsList({ event, compact = false }) {
     >
       {divisions.map((d) => {
         const slot = getDivisionSlotStatus(event, d.id);
-        return (
-          <li
-            key={d.id}
-            className="rounded-lg border border-slate-700 px-3 py-2 bg-slate-950/40"
-          >
+        const selected = selectedDivisionId === d.id;
+        const interactive = typeof onSelectDivision === "function";
+        const className = [
+          "rounded-lg border px-3 py-2 transition",
+          interactive
+            ? "cursor-pointer hover:border-purple-500/60 hover:bg-slate-900/60 text-left w-full"
+            : "bg-slate-950/40",
+          selected
+            ? "border-purple-500 bg-purple-500/10"
+            : "border-slate-700",
+        ].join(" ");
+
+        const content = (
+          <>
             <span className="font-medium text-purple-300/90">
               {divisionLabel(d.id, event)}
             </span>
@@ -103,6 +117,22 @@ export function OfferedDivisionsList({ event, compact = false }) {
                 ? "Full"
                 : `${slot.remaining} slot${slot.remaining === 1 ? "" : "s"} left`}
             </span>
+          </>
+        );
+
+        return (
+          <li key={d.id}>
+            {interactive ? (
+              <button
+                type="button"
+                className={className}
+                onClick={() => onSelectDivision(d)}
+              >
+                {content}
+              </button>
+            ) : (
+              <div className={className}>{content}</div>
+            )}
           </li>
         );
       })}

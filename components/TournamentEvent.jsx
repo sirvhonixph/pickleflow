@@ -339,7 +339,12 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const handleRegisterPair = async (e) => {
     e.preventDefault();
     if (!user || !host) return;
+    if (!pairForm.divisionId) {
+      alert("Choose a division first.");
+      return;
+    }
     setRegistering(true);
+    pauseAutoRefresh(60000);
     try {
       const ev = await registerPair(eventId, pairForm, getPlayerId(user));
       setEvent(ev);
@@ -347,6 +352,8 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
         ...f,
         player1Name: "",
         player2Name: "",
+        player1Email: "",
+        player2Email: "",
         teamName: "",
       }));
     } catch (err) {

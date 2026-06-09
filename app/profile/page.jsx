@@ -26,6 +26,7 @@ export default function ProfilePage() {
   const [displayName, setDisplayName] = useState("");
   const [category, setCategory] = useState("");
   const [categoryBusy, setCategoryBusy] = useState(false);
+  const [categoryError, setCategoryError] = useState("");
 
   const syncProfile = useCallback(async (u, id, data, profile) => {
     const resolved =
@@ -122,6 +123,7 @@ export default function ProfilePage() {
     const nextCategory = e.target.value;
     if (!isValidCategory(nextCategory)) return;
     setCategoryBusy(true);
+    setCategoryError("");
     try {
       const player = await updateMyProfile({ category: nextCategory });
       const next = { ...getCurrentUser(), category: player.category };
@@ -129,7 +131,7 @@ export default function ProfilePage() {
       setUser(next);
       setCategory(player.category);
     } catch (err) {
-      setAvatarError(err.message ?? "Could not update skill level");
+      setCategoryError(err.message ?? "Could not update skill level");
     } finally {
       setCategoryBusy(false);
     }
@@ -222,6 +224,11 @@ export default function ProfilePage() {
                         <span className="text-xs text-slate-500">
                           {categoryLabel(category)}
                         </span>
+                      )}
+                      {categoryError && (
+                        <p className="text-xs text-red-400 w-full">
+                          {categoryError}
+                        </p>
                       )}
                     </div>
                   </div>
