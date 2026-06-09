@@ -20,7 +20,9 @@ export async function POST(_request, { params }) {
         tournamentPhase: "ended",
       };
     }
-    const saved = await updateEventRecord(params.id, () => ended);
+    const saved = await updateEventRecord(params.id, () => ended, {
+      refreshTournament: false,
+    });
 
     return NextResponse.json({ event: saved });
   } catch (e) {
