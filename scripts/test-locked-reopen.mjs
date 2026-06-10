@@ -117,5 +117,63 @@ const ok =
   m2?.status === "live" &&
   staleM1?.resultLocked === true &&
   staleM1?.status === "completed";
-console.log(ok ? "PASS" : "FAIL");
-process.exit(ok ? 0 : 1);
+
+let pass = ok;
+
+if (pass) {
+  const completed = updateTournamentMatch(event, "div1", "bracket-1", "rr-2", {
+    status: "completed",
+    scoreA: 11,
+    scoreB: 9,
+  });
+  const doneM2 = completed.tournamentDivisions.div1.brackets[0].matches.find(
+    (m) => m.pairAId === pairC && m.pairBId === pairD
+  );
+  pass =
+    doneM2?.status === "completed" &&
+    doneM2?.resultLocked === true &&
+    doneM2?.scoreA === 11 &&
+    doneM2?.scoreB === 9;
+  console.log("after complete match 2:", doneM2?.status, `${doneM2?.scoreA}-${doneM2?.scoreB}`);
+}
+
+if (pass) {
+  const liveOnCourt = {
+    id: "rr-1",
+    pairAId: pairA,
+    pairBId: pairB,
+    scheduleOrder: 1,
+    status: "live",
+    scoreA: 11,
+    scoreB: 7,
+    startedAt: 4000,
+  };
+  let prematureEvent = makeEvent([liveOnCourt, match2Scheduled]);
+  prematureEvent.tournamentDivisions.div1.brackets[0].confirmedResults = {
+    [`${[pairA, pairB].sort().join("|")}`]: match1Locked,
+  };
+  prematureEvent = updateTournamentMatch(
+    prematureEvent,
+    "div1",
+    "bracket-1",
+    "rr-1",
+    { status: "completed", scoreA: 11, scoreB: 7 }
+  );
+  const sealed = prematureEvent.tournamentDivisions.div1.brackets[0].matches.find(
+    (m) => m.pairAId === pairA && m.pairBId === pairB
+  );
+  pass =
+    sealed?.status === "completed" &&
+    sealed?.resultLocked === true &&
+    sealed?.scoreA === 11 &&
+    sealed?.scoreB === 7;
+  console.log(
+    "after complete live row with locked canonical:",
+    sealed?.status,
+    sealed?.resultLocked,
+    `${sealed?.scoreA}-${sealed?.scoreB}`
+  );
+}
+
+console.log(pass ? "PASS" : "FAIL");
+process.exit(pass ? 0 : 1);

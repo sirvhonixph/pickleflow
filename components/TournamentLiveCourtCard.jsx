@@ -452,7 +452,6 @@ export default function TournamentLiveCourtCard({
     } catch (err) {
       completedMatchIdsRef.current.delete(finishedMatchId);
       showActionError(err, "Could not end match");
-      clearLiveScoringState();
     } finally {
       setActionBusy(false);
     }
@@ -496,7 +495,6 @@ export default function TournamentLiveCourtCard({
     } catch (err) {
       completedMatchIdsRef.current.delete(finishedMatchId);
       showActionError(err, "Could not record default win");
-      clearLiveScoringState();
     } finally {
       setActionBusy(false);
     }
