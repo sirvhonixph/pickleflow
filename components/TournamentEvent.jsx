@@ -1,9 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import TournamentPairList from "@/components/TournamentPairList";
-import BracketCalculator from "@/components/BracketCalculator";
+import TournamentDivisionWorkspace from "@/components/TournamentDivisionWorkspace";
 import DivisionAdvancementPanel from "@/components/DivisionAdvancementPanel";
 import EliminationResultsPanel from "@/components/EliminationResultsPanel";
 import TournamentLiveCourtCard from "@/components/TournamentLiveCourtCard";
@@ -48,7 +47,6 @@ import TournamentRegisterForm from "@/components/TournamentRegisterForm";
 import HostRegistrationRemoveButton from "@/components/HostRegistrationRemoveButton";
 import { paymentMethodLabel } from "@/lib/tournament-payment";
 import {
-  getDivisionSlotStatus,
   isRegistrationClosed,
 } from "@/lib/tournament-registration";
 import {
@@ -90,9 +88,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const [event, setEvent] = useState(initialEvent);
   const [user, setUser] = useState(null);
   const [loadError, setLoadError] = useState(null);
-  const [courtLabel, setCourtLabel] = useState("");
   const [courtBusy, setCourtBusy] = useState({ adding: false, removingId: null });
-  const [calcDivision, setCalcDivision] = useState("");
   const [viewDivision, setViewDivision] = useState("");
   const [setupBusy, setSetupBusy] = useState(false);
   const [divisionBusy, setDivisionBusy] = useState(false);
@@ -116,7 +112,6 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const [offeredBusy, setOfferedBusy] = useState(false);
   const [offeredIds, setOfferedIds] = useState([]);
   const [playerRegisterBusy, setPlayerRegisterBusy] = useState(false);
-  const bracketCalcRef = useRef(null);
   const playViewRef = useRef(null);
   const refreshPausedUntilRef = useRef(0);
   const registeringRef = useRef(false);
@@ -186,29 +181,16 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     [divisions, event?.tournamentDivisions]
   );
 
-  const bracketedIdsKey = useMemo(
-    () => bracketedDivisions.map((d) => d.id).join(","),
-    [bracketedDivisions]
-  );
-
   useEffect(() => {
     if (!divisions.length || !event?.id) return;
     const first = divisions[0].id;
-    setCalcDivision((id) => (id && divisions.some((d) => d.id === id) ? id : first));
+    setViewDivision((id) => (id && divisions.some((d) => d.id === id) ? id : first));
     setPairForm((f) =>
       divisions.some((d) => d.id === f.divisionId)
         ? f
         : { ...f, divisionId: first }
     );
   }, [event?.id, divisions]);
-
-  useEffect(() => {
-    if (!bracketedDivisions.length) return;
-    setViewDivision((id) => {
-      if (id && bracketedDivisions.some((d) => d.id === id)) return id;
-      return bracketedDivisions[0].id;
-    });
-  }, [event?.id, bracketedIdsKey, bracketedDivisions]);
 
   useEffect(() => {
     reload();
@@ -243,7 +225,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
             </button>
           </>
         ) : (
-          "Loading tournament…"
+          "Loading tournament..."
         )}
       </p>
     );
@@ -265,29 +247,9 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     (r) => r.tournamentEntry?.paymentProofDataUrl
   );
   const hasBrackets = Object.keys(event.tournamentDivisions ?? {}).length > 0;
-  const courtCount = event.courts?.length ?? 0;
   const activeCourtDivisionLabel = activeCourtDivisionId
     ? divisionLabel(activeCourtDivisionId, event)
     : null;
-  const canBracketAnyDivision = divisions.some((d) => {
-    const setup = event.tournamentDivisions?.[d.id];
-    if (isDivisionComplete(setup)) return false;
-    if (setup?.brackets?.length) return false;
-    const count = pairsInDivision(event, d.id).length;
-    return (
-      count >= 2 &&
-      courtCount >= 1 &&
-      !divisionHasMatchProgress(setup)
-    );
-  });
-  const hasRegeneratableBrackets = divisions.some((d) => {
-    const setup = event.tournamentDivisions?.[d.id];
-    return !!setup?.brackets?.length && !isDivisionComplete(setup);
-  });
-  const showBracketCalculator =
-    host &&
-    !isEnded &&
-    (phase === "registration" || canBracketAnyDivision || hasRegeneratableBrackets);
   const showPlayView =
     hasBrackets || phase === "pool_play" || phase === "knockout";
 
@@ -296,7 +258,6 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     try {
       const ev = await addCourt(eventId, label);
       setEvent((prev) => mergeEventSnapshots(prev, ev));
-      setCourtLabel("");
     } catch (err) {
       alert(err.message ?? "Could not add court");
     } finally {
@@ -324,27 +285,9 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     }
   };
 
-  const handleDivisionCardClick = (divisionId) => {
-    const pairs = pairsInDivision(event, divisionId).length;
-    const hasSetup = !!event.tournamentDivisions?.[divisionId];
-
-    if (hasSetup) {
-      setViewDivision(divisionId);
-      playViewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      return;
-    }
-
-    if (courtCount < 1) {
-      alert("Add courts before running brackets.");
-      return;
-    }
-
-    if (pairs < 2) {
-      return;
-    }
-
-    setCalcDivision(divisionId);
-    bracketCalcRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  const handleSelectDivision = (divisionId) => {
+    setViewDivision(divisionId);
+    setPairForm((f) => ({ ...f, divisionId }));
   };
 
   const handleRegisterPair = async (e) => {
@@ -359,7 +302,8 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     setPairRegisterError("");
     pauseAutoRefresh(60000);
     try {
-      const ev = await registerPair(eventId, pairForm, getPlayerId(user));
+      const payload = { ...pairForm, divisionId: viewDivision || pairForm.divisionId };
+      const ev = await registerPair(eventId, payload, getPlayerId(user));
       setEvent((prev) => mergeEventSnapshots(prev, ev));
       setPairForm((f) => ({
         ...f,
@@ -420,7 +364,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
             <input
               type="url"
               className="flex-1 min-w-[200px] p-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-white"
-              placeholder="YouTube link (youtube.com/watch?v=… or youtu.be/…)"
+              placeholder="YouTube link (youtube.com/watch?v=â€¦ or youtu.be/â€¦)"
               value={streamUrl}
               disabled={streamBusy}
               onChange={(e) => setStreamUrl(e.target.value)}
@@ -446,7 +390,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
               disabled={streamBusy}
               onClick={() => void saveLiveStream({ liveStreamUrl: streamUrl })}
             >
-              {streamBusy ? "Saving…" : "Save URL"}
+              {streamBusy ? "Savingâ€¦" : "Save URL"}
             </button>
           </div>
         </section>
@@ -486,7 +430,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
           <h2 className="text-xl font-bold">Live courts</h2>
           {courtPools.length > 1 && (
             <p className="text-slate-500 text-sm mt-1">
-              {courtPools.map((p) => `${p.label}: ${p.courtNames}`).join(" · ")}
+              {courtPools.map((p) => `${p.label}: ${p.courtNames}`).join(" Â· ")}
             </p>
           )}
           {activeCourtDivisionLabel ? (
@@ -495,7 +439,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
               {viewDivision !== activeCourtDivisionId && (
                 <span className="text-slate-500">
                   {" "}
-                  — switch division tabs below to score other divisions
+                  â€” switch division tabs below to score other divisions
                 </span>
               )}
             </p>
@@ -503,11 +447,11 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
             <p className="text-slate-500 text-sm mt-1">
               {host
                 ? knockoutPhase
-                  ? "Finals matches auto-fill courts. Score with +/− — loser is out."
-                  : "Start a match, then score with +/− or type scores — same as open play."
+                  ? "Finals matches auto-fill courts. Score with +/âˆ’ â€” loser is out."
+                  : "Start a match, then score with +/âˆ’ or type scores â€” same as open play."
                 : knockoutPhase
-                  ? "Finals — live scores, read only."
-                  : "Live scores for each court — read only."}
+                  ? "Finals â€” live scores, read only."
+                  : "Live scores for each court â€” read only."}
             </p>
           )}
         </div>
@@ -555,7 +499,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const handleLockMatch = async (bracketId, matchId) => {
     if (
       !window.confirm(
-        "Lock this match? The result will be final — no rematch and no score changes."
+        "Lock this match? The result will be final â€” no rematch and no score changes."
       )
     ) {
       return;
@@ -582,7 +526,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
       winner?.displayName ?? pairDisplayName(winner ?? {});
     if (
       !window.confirm(
-        `Default win for ${label}? Records as 11–0 (other pair did not show).`
+        `Default win for ${label}? Records as 11â€“0 (other pair did not show).`
       )
     ) {
       return;
@@ -640,7 +584,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const handleRegenerateAllBrackets = async () => {
     if (
       !window.confirm(
-        "Regenerate all bracketed divisions that have no scores yet? Divisions with match progress are skipped — regenerate those individually with erase scores."
+        "Regenerate all bracketed divisions that have no scores yet? Divisions with match progress are skipped â€” regenerate those individually with erase scores."
       )
     ) {
       return;
@@ -656,6 +600,124 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     }
   };
 
+  const divisionLiveEmbed =
+    event.liveStreamEnabled && embed ? (
+      <section className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
+        <h3 className="px-4 py-3 border-b border-slate-800 font-semibold text-sm">
+          Live video
+        </h3>
+        <div className="aspect-video w-full">
+          <iframe
+            title="Live stream"
+            src={embed}
+            className="w-full h-full"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        </div>
+      </section>
+    ) : null;
+
+  const divisionSchedulePanel =
+    brackets.length > 0 ? (
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-bold">Brackets & schedule</h3>
+          <p className="text-slate-500 text-sm mt-1">
+            Round-robin standings and match schedule for{" "}
+            {divisionLabel(viewDivision, event)}.
+          </p>
+        </div>
+
+        {divisionSetup?.plan && !divisionKnockoutActive && !divisionFinished && (
+          <p className="text-sm text-slate-500">
+            {divisionSetup.plan.formulaText} â€” round robin per court; top teams
+            advance to quarterfinals.
+          </p>
+        )}
+
+        {activeCourtDivisionId &&
+          viewDivision !== activeCourtDivisionId &&
+          !divisionFinished && (
+            <p className="text-sm text-cyan-300/90">
+              Full match schedule for this division. Courts open here when earlier
+              divisions in this skill tier finish.
+            </p>
+          )}
+
+        <div className="grid xl:grid-cols-2 gap-6">
+          {brackets.map((bracket) => (
+            <TournamentRoundRobin
+              key={bracket.id}
+              bracket={bracket}
+              pairById={pairById}
+              divisionAdvancement={divisionSetup?.advancement}
+              scheduleResetAt={divisionSetup?.scheduleResetAt}
+              readOnly={!divisionCanScore || divisionKnockoutActive || divisionFinished}
+              host={divisionCanScore && !divisionKnockoutActive && !divisionFinished}
+              startingMatchId={startingMatchId}
+              lockingMatchId={lockingMatchId}
+              forfeitBusyId={forfeitBusyId}
+              onLockMatch={
+                divisionCanScore && !divisionKnockoutActive && !divisionFinished
+                  ? (matchId) => handleLockMatch(bracket.id, matchId)
+                  : undefined
+              }
+              onStartMatch={
+                divisionCanScore && !divisionKnockoutActive && !divisionFinished
+                  ? (matchId) => handleStartMatch(bracket.id, matchId)
+                  : undefined
+              }
+              onForfeitWin={
+                divisionCanScore && !divisionKnockoutActive && !divisionFinished
+                  ? (matchId, winnerPairId) =>
+                      handleForfeitWin(bracket.id, matchId, winnerPairId)
+                  : undefined
+              }
+            />
+          ))}
+        </div>
+
+        <DivisionAdvancementPanel
+          advancement={divisionSetup?.advancement}
+          knockout={divisionSetup?.knockout}
+          pairById={pairById}
+          host={host && !isEnded && !divisionFinished}
+          startingQuarterfinals={startingQuarterfinals}
+          onStartQuarterfinals={handleStartQuarterfinals}
+          hideKnockoutRounds={!!divisionSetup?.knockout?.initialized}
+        />
+
+        {divisionSetup?.knockout?.initialized && !divisionFinished && (
+          <p className="text-sm text-red-400/90">
+            Finals â€” start matches on the courts, then set base players on the live
+            court diagram. Only winners advance.
+          </p>
+        )}
+
+        {divisionSetup?.knockout?.initialized && (
+          <EliminationResultsPanel
+            knockout={divisionSetup.knockout}
+            pairById={pairById}
+            host={host && !isEnded}
+            divisionId={viewDivision}
+            eventId={eventId}
+            onReload={reload}
+          />
+        )}
+
+        {(championName || silverName || bronzeName) && (
+          <MedalPodium
+            goldName={championName}
+            silverName={silverName}
+            bronzeName={bronzeName}
+            subtitle={divisionLabel(viewDivision, event)}
+            compact={!!championName && !silverName && !bronzeName}
+          />
+        )}
+      </div>
+    ) : null;
+
   return (
     <div className="min-w-0 max-w-full space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -664,7 +726,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
             href="/dashboard"
             className="text-sm text-slate-500 hover:text-cyan-400"
           >
-            ← Dashboard
+            â† Dashboard
           </Link>
           <h1 className="text-3xl font-bold mt-2">{event.name}</h1>
           <p className="text-slate-400 mt-1">
@@ -686,15 +748,15 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
                 {phase === "registration"
                   ? " Use the calculator before play starts."
                   : phase === "pool_play"
-                    ? " Live court scoring — top teams advance to quarterfinals."
+                    ? " Live court scoring â€” top teams advance to quarterfinals."
                     : phase === "knockout"
                       ? championName
-                        ? ` Champion: ${championName} — scroll for full finals results.`
-                        : " Finals — quarterfinals through championship."
+                        ? ` Champion: ${championName} â€” scroll for full finals results.`
+                        : " Finals â€” quarterfinals through championship."
                       : " Event finished."}
               </>
             ) : showPlayView ? (
-              "Live scores, brackets, and match schedule — read only."
+              "Live scores, brackets, and match schedule â€” read only."
             ) : isEnded ? (
               "This tournament has ended."
             ) : (
@@ -786,7 +848,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
               }
             }}
           >
-            {offeredBusy ? "Saving…" : "Save offered divisions"}
+            {offeredBusy ? "Savingâ€¦" : "Save offered divisions"}
           </button>
         </section>
       )}
@@ -818,7 +880,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
           <h2 className="text-lg font-bold mb-1">Registration submissions</h2>
           <p className="text-slate-500 text-sm mb-4">
             Paid registrations are added to their division automatically. Review
-            payment proof below — remove if payment is invalid or fraudulent.
+            payment proof below â€” remove if payment is invalid or fraudulent.
           </p>
           <ul className="space-y-4">
             {pendingEntries.map((entry) => (
@@ -830,14 +892,14 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold">{entry.tournamentEntry.pairName}</p>
                     <p className="text-sm text-slate-400">
-                      {entry.name} & {entry.tournamentEntry.partnerName} ·{" "}
+                      {entry.name} & {entry.tournamentEntry.partnerName} Â·{" "}
                       {entry.tournamentEntry.clubName}
                     </p>
                     <p className="text-sm text-purple-300/90 mt-1">
                       {entry.tournamentEntry.divisionLabel}
                     </p>
                     <p className="text-xs text-slate-500 mt-1">
-                      Paid via {paymentMethodLabel(entry.tournamentEntry.paymentMethod)} ·{" "}
+                      Paid via {paymentMethodLabel(entry.tournamentEntry.paymentMethod)} Â·{" "}
                       {entry.tournamentEntry.pairId ? "In division" : entry.tournamentEntry.status}
                     </p>
                     {!isEnded && (
@@ -878,114 +940,143 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
         </section>
       )}
 
-      {host && phase === "registration" && !isEnded && !showBracketCalculator && (
-        <section className="flex flex-wrap gap-2 items-end">
-          <input
-            className="p-2 rounded-lg bg-slate-800 border border-slate-700 text-sm"
-            placeholder="Court name"
-            value={courtLabel}
-            onChange={(e) => setCourtLabel(e.target.value)}
+      {host && !isEnded && divisions.length > 0 && (
+        <div ref={playViewRef}>
+          <TournamentDivisionWorkspace
+            event={event}
+            eventId={eventId}
+            host={host}
+            isEnded={isEnded}
+            activeDivisionId={viewDivision}
+            onSelectDivision={handleSelectDivision}
+            canRegister={canRegister}
+            pairForm={pairForm}
+            setPairForm={setPairForm}
+            onRegisterPair={handleRegisterPair}
+            registering={registering}
+            pairRegisterError={pairRegisterError}
+            onAddCourt={handleAddCourt}
+            onRemoveCourt={handleRemoveCourt}
+            courtBusy={courtBusy}
+            streamUrl={streamUrl}
+            onStreamUrlChange={setStreamUrl}
+            streamBusy={streamBusy}
+            onSaveLiveStream={saveLiveStream}
+            setupBusy={setupBusy}
+            onApplyDivision={async (divisionId) => {
+              if (
+                !confirm(
+                  `Apply brackets for ${divisionLabel(divisionId, event)}? This division uses its skill tier's courts until a champion is crowned.`
+                )
+              ) {
+                return;
+              }
+              setSetupBusy(true);
+              try {
+                const ev = await runBracketSetup(eventId, { divisionId });
+                setEvent(ev);
+                handleSelectDivision(divisionId);
+              } catch (err) {
+                alert(err.message ?? "Setup failed");
+              } finally {
+                setSetupBusy(false);
+              }
+            }}
+            onApplyAll={async () => {
+              if (
+                !confirm(
+                  `Generate brackets for all ready divisions?\n\nSchedules are built for every division with at least 2 pairs. Each skill tier uses its own court pool.\n\nNovice and intermediate tiers can run in parallel.`
+                )
+              ) {
+                return;
+              }
+              setSetupBusy(true);
+              try {
+                const ev = await runBracketSetup(eventId, { all: true });
+                setEvent(ev);
+                if (ev.activeDivisionId) {
+                  handleSelectDivision(ev.activeDivisionId);
+                }
+              } catch (err) {
+                alert(err.message ?? "Setup failed");
+              } finally {
+                setSetupBusy(false);
+              }
+            }}
+            onRegenerateDivision={handleRegenerateBracket}
+            onRegenerateAll={handleRegenerateAllBrackets}
+            onEventUpdate={setEvent}
+            liveEmbedPanel={showPlayView ? divisionLiveEmbed : null}
+            liveCourtsPanel={showPlayView ? liveCourtsSection() : null}
+            schedulePanel={divisionSchedulePanel}
           />
-          <button
-            type="button"
-            className="px-4 py-2 bg-cyan-500 text-black font-semibold rounded-lg text-sm"
-            disabled={courtBusy.adding}
-            onClick={() => handleAddCourt(courtLabel)}
-          >
-            {courtBusy.adding ? "Adding…" : "Add court"}
-          </button>
-          <span className="text-xs text-slate-500">
-            {event.courts?.length ?? 0} court(s) — brackets map A→Court 1, B→Court 2…
-          </span>
-        </section>
+        </div>
       )}
 
-      {host && canRegister && (
-        <section className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-          <h2 className="text-lg font-bold mb-1">Register a pair</h2>
-          <p className="text-slate-500 text-sm mb-3">
-            Host only — manually add walk-in pairs (online registrations join
-            their division automatically). Use unique player names for each pair
-            (each name allows up to 2 entries per skill category).
-          </p>
-          {pairRegisterError && (
-            <p className="mb-3 rounded-lg bg-red-500/20 px-3 py-2 text-sm text-red-300">
-              {pairRegisterError}
-            </p>
-          )}
-          <form onSubmit={handleRegisterPair} className="grid sm:grid-cols-2 gap-4">
-            <div className="sm:col-span-2">
-              <label className="text-xs text-slate-500">Division</label>
-              <select
-                className="w-full mt-1 p-2 rounded-lg bg-slate-800 border border-slate-700"
-                value={pairForm.divisionId}
-                onChange={(e) =>
-                  setPairForm({ ...pairForm, divisionId: e.target.value })
-                }
-              >
-                {divisions.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {divisionLabel(d.id, event)}
-                    {(() => {
-                      const slot = getDivisionSlotStatus(event, d.id);
-                      return slot.isFull
-                        ? " — Full"
-                        : ` — ${slot.remaining} slot${slot.remaining === 1 ? "" : "s"} left`;
-                    })()}
-                  </option>
-                ))}
-              </select>
+      {!host && showPlayView && (
+        <section ref={playViewRef} className="space-y-6">
+          {event.liveStreamEnabled && embed ? liveVideoPanel(true) : null}
+          {liveCourtsSection()}
+
+          {bracketedDivisions.length > 0 && (
+          <div className="space-y-4">
+            <div>
+              <h2 className="text-xl font-bold">Brackets & schedule</h2>
+              <p className="text-slate-500 text-sm mt-1">
+                Standings and round-robin match schedule by division â€” switch tabs
+                to see every bracketed category.
+              </p>
             </div>
-            <input
-              required
-              placeholder="Player 1 name"
-              className="p-2 rounded-lg bg-slate-800 border border-slate-700"
-              value={pairForm.player1Name}
-              onChange={(e) =>
-                setPairForm({ ...pairForm, player1Name: e.target.value })
-              }
-            />
-            <input
-              required
-              placeholder="Player 2 name"
-              className="p-2 rounded-lg bg-slate-800 border border-slate-700"
-              value={pairForm.player2Name}
-              onChange={(e) =>
-                setPairForm({ ...pairForm, player2Name: e.target.value })
-              }
-            />
-            <input
-              placeholder="Player 1 email (optional)"
-              className="p-2 rounded-lg bg-slate-800 border border-slate-700"
-              value={pairForm.player1Email}
-              onChange={(e) =>
-                setPairForm({ ...pairForm, player1Email: e.target.value })
-              }
-            />
-            <input
-              placeholder="Player 2 email (optional)"
-              className="p-2 rounded-lg bg-slate-800 border border-slate-700"
-              value={pairForm.player2Email}
-              onChange={(e) =>
-                setPairForm({ ...pairForm, player2Email: e.target.value })
-              }
-            />
-            <input
-              placeholder="Team name (optional)"
-              className="sm:col-span-2 p-2 rounded-lg bg-slate-800 border border-slate-700"
-              value={pairForm.teamName}
-              onChange={(e) =>
-                setPairForm({ ...pairForm, teamName: e.target.value })
-              }
-            />
-            <button
-              type="submit"
-              disabled={registering}
-              className="sm:col-span-2 py-2.5 bg-purple-500 font-semibold rounded-lg disabled:opacity-50"
-            >
-              {registering ? "Registering…" : "Register pair"}
-            </button>
-          </form>
+            <div className="flex flex-wrap gap-2">
+              {bracketedDivisions.map((d) => (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={() => setViewDivision(d.id)}
+                  className={`px-3 py-1.5 rounded-lg text-sm ${
+                    viewDivision === d.id
+                      ? "bg-purple-500 text-white"
+                      : "bg-slate-800 text-slate-400"
+                  }`}
+                >
+                  {divisionLabel(d.id, event)}
+                </button>
+              ))}
+            </div>
+
+            {divisionSetup?.plan && !divisionKnockoutActive && !divisionFinished && (
+              <p className="text-sm text-slate-500">
+                {divisionSetup.plan.formulaText} â€” round robin per court; top teams
+                advance to quarterfinals.
+              </p>
+            )}
+
+            {activeCourtDivisionId &&
+              viewDivision !== activeCourtDivisionId &&
+              brackets.length > 0 &&
+              !divisionFinished && (
+                <p className="text-sm text-cyan-300/90">
+                  Full match schedule for this division. Courts open here when earlier
+                  divisions in this skill tier finish.
+                </p>
+              )}
+
+            {divisionFinished && !championPairId && (
+              <p className="text-sm text-amber-400/90">
+                This division is marked complete. Pool play and finals history are
+                preserved â€” use the tabs to review results.
+              </p>
+            )}
+
+            {!brackets.length && bracketedDivisions.length > 0 && (
+              <p className="text-sm text-slate-400">
+                Select a division tab above to view brackets and the match schedule.
+              </p>
+            )}
+
+            {divisionSchedulePanel}
+          </div>
+          )}
         </section>
       )}
 
@@ -1053,341 +1144,6 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
             will see live matches, standings, and the schedule here once play
             begins.
           </p>
-        </section>
-      )}
-
-      {host && (
-      <section className="bg-slate-900 border border-slate-800 rounded-xl p-6">
-        <h2 className="text-lg font-bold mb-1">Registered pairs</h2>
-        <p className="text-slate-500 text-sm mb-3">
-          Click a division to set up brackets or open its schedule.
-        </p>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {divisions.map((d) => {
-            const pairs = pairsInDivision(event, d.id);
-            const slot = getDivisionSlotStatus(event, d.id);
-            const hasSetup = !!event.tournamentDivisions?.[d.id];
-            const setup = event.tournamentDivisions?.[d.id];
-            const champion = getDivisionChampionPairId(setup);
-            const championLabel = champion
-              ? pairDisplayName(
-                  enrichPair(pairs.find((p) => p.id === champion) ?? {})
-                )
-              : null;
-            const finished = isDivisionComplete(setup);
-            const activeInPool = getActiveDivisionForDivision(event, d.id);
-            const canBracket =
-              pairs.length >= 2 &&
-              courtCount >= 1 &&
-              (!hasSetup || !divisionHasMatchProgress(setup));
-            const isActive =
-              hasSetup ? viewDivision === d.id : calcDivision === d.id;
-            const clickable = hasSetup || canBracket;
-            const usingCourts = activeInPool === d.id;
-
-            return (
-              <button
-                key={d.id}
-                type="button"
-                disabled={!clickable}
-                onClick={() => handleDivisionCardClick(d.id)}
-                className={`text-left rounded-lg border p-3 transition ${
-                  isActive
-                    ? "border-purple-500 bg-purple-500/15"
-                    : clickable
-                      ? "border-slate-800 hover:border-purple-500/50 hover:bg-slate-800/60 cursor-pointer"
-                      : "border-slate-800 opacity-50 cursor-not-allowed"
-                }`}
-              >
-                <p className="text-sm font-medium text-purple-300/90">
-                  {divisionLabel(d.id, event)}
-                </p>
-                <p className="text-2xl font-bold mt-1">{pairs.length}</p>
-                {phase === "registration" && !finished && (
-                  <p className="text-xs mt-1">
-                    {slot.isFull ? (
-                      <span className="text-amber-400">Full ({slot.limit} pairs)</span>
-                    ) : (
-                      <span className="text-green-400">
-                        {slot.remaining} slot{slot.remaining === 1 ? "" : "s"} available
-                      </span>
-                    )}
-                  </p>
-                )}
-                <p className="text-xs mt-1">
-                  {champion ? (
-                    <span className="text-amber-400">Champion crowned — view history</span>
-                  ) : finished ? (
-                    <span className="text-amber-400">Complete — view history</span>
-                  ) : usingCourts ? (
-                    <span className="text-cyan-400">Using all courts now</span>
-                  ) : hasSetup ? (
-                    activeInPool === d.id ? (
-                      <span className="text-cyan-400">Using courts now</span>
-                    ) : (
-                      <span className="text-slate-400">Schedule ready — waiting for courts</span>
-                    )
-                  ) : canBracket ? (
-                    <span className="text-cyan-400">Ready — click to set up brackets</span>
-                  ) : courtCount < 1 && pairs.length >= 2 ? (
-                    <span className="text-amber-400/90">Add courts to bracket</span>
-                  ) : pairs.length < 2 ? (
-                    <span className="text-slate-500">Need at least 2 pairs</span>
-                  ) : null}
-                </p>
-                {champion && championLabel && (
-                  <p className="mt-2 text-base font-bold text-amber-200">
-                    🏆 {championLabel}
-                  </p>
-                )}
-                {!hasSetup && pairs.length > 0 && (
-                  <ul className="mt-2 text-xs text-slate-500 space-y-0.5 max-h-24 overflow-y-auto">
-                    {pairs.slice(0, 6).map((p) => (
-                      <li key={p.id}>{pairDisplayName(p)}</li>
-                    ))}
-                    {pairs.length > 6 && (
-                      <li className="text-slate-600">+{pairs.length - 6} more</li>
-                    )}
-                  </ul>
-                )}
-                {hasSetup && !champion && (
-                  <p className="mt-2 text-xs text-slate-500">
-                    {pairs.length} pair{pairs.length === 1 ? "" : "s"} registered
-                  </p>
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-      )}
-
-      <TournamentPairList
-        event={event}
-        eventId={eventId}
-        host={host}
-        isEnded={isEnded}
-        onEventUpdate={setEvent}
-      />
-
-      {showBracketCalculator && (
-        <div ref={bracketCalcRef}>
-        <BracketCalculator
-          event={event}
-          selectedDivisionId={calcDivision}
-          onSelectDivision={setCalcDivision}
-          busy={setupBusy}
-          canManageCourts
-          onAddCourt={handleAddCourt}
-          onRemoveCourt={handleRemoveCourt}
-          courtBusy={courtBusy}
-          onEventUpdate={setEvent}
-          eventId={eventId}
-          onApplyDivision={async (divisionId) => {
-            if (
-              !confirm(
-                `Apply brackets for ${divisionLabel(divisionId, event)}? This division uses its skill tier's courts until a champion is crowned.`
-              )
-            ) {
-              return;
-            }
-            setSetupBusy(true);
-            try {
-              const ev = await runBracketSetup(eventId, { divisionId });
-              setEvent(ev);
-              setViewDivision(divisionId);
-            } catch (err) {
-              alert(err.message ?? "Setup failed");
-            } finally {
-              setSetupBusy(false);
-            }
-          }}
-          onApplyAll={async () => {
-            if (
-              !confirm(
-                `Generate brackets for all ready divisions?\n\nSchedules are built for every division with at least 2 pairs. Each skill tier uses its own court pool. Use division play order below to choose which category plays first on those courts.\n\nNovice and intermediate tiers can run in parallel.`
-              )
-            ) {
-              return;
-            }
-            setSetupBusy(true);
-            try {
-              const ev = await runBracketSetup(eventId, { all: true });
-              setEvent(ev);
-              if (ev.activeDivisionId) {
-                setViewDivision(ev.activeDivisionId);
-              }
-            } catch (err) {
-              alert(err.message ?? "Setup failed");
-            } finally {
-              setSetupBusy(false);
-            }
-          }}
-          onRegenerateDivision={handleRegenerateBracket}
-          onRegenerateAll={handleRegenerateAllBrackets}
-        />
-        </div>
-      )}
-
-      {host && !isEnded && !showPlayView && liveVideoPanel(false)}
-
-      {showPlayView && (
-        <section ref={playViewRef} className="space-y-6">
-          {host && (
-            <>
-              {(host && !isEnded) || (event.liveStreamEnabled && embed)
-                ? liveVideoPanel(true)
-                : null}
-              {liveCourtsSection()}
-            </>
-          )}
-
-          {bracketedDivisions.length > 0 && (
-          <div className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <h2 className="text-xl font-bold">Brackets & schedule</h2>
-                <p className="text-slate-500 text-sm mt-1">
-                  Standings and round-robin match schedule by division — switch tabs
-                  to see every bracketed category.
-                </p>
-              </div>
-              {host &&
-                !isEnded &&
-                brackets.length > 0 &&
-                !divisionFinished && (
-                  <button
-                    type="button"
-                    disabled={setupBusy}
-                    onClick={() => handleRegenerateBracket(viewDivision)}
-                    className="px-3 py-1.5 text-sm rounded-lg border border-amber-500/50 text-amber-200 hover:bg-amber-500/10 disabled:opacity-50 shrink-0"
-                  >
-                    {setupBusy ? "Working…" : "Regenerate division"}
-                  </button>
-                )}
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {bracketedDivisions.map((d) => (
-                <button
-                  key={d.id}
-                  type="button"
-                  onClick={() => setViewDivision(d.id)}
-                  className={`px-3 py-1.5 rounded-lg text-sm ${
-                    viewDivision === d.id
-                      ? "bg-purple-500 text-white"
-                      : "bg-slate-800 text-slate-400"
-                  }`}
-                >
-                  {divisionLabel(d.id, event)}
-                </button>
-              ))}
-            </div>
-
-            {divisionSetup?.plan && !divisionKnockoutActive && !divisionFinished && (
-              <p className="text-sm text-slate-500">
-                {divisionSetup.plan.formulaText} — round robin per court; top teams
-                advance to quarterfinals.
-              </p>
-            )}
-
-            {activeCourtDivisionId &&
-              viewDivision !== activeCourtDivisionId &&
-              brackets.length > 0 &&
-              !divisionFinished && (
-                <p className="text-sm text-cyan-300/90">
-                  Full match schedule for this division. Courts open here when earlier
-                  divisions in this skill tier finish.
-                </p>
-              )}
-
-            {divisionFinished && !championPairId && (
-              <p className="text-sm text-amber-400/90">
-                This division is marked complete. Pool play and finals history are
-                preserved — use the tabs to review results.
-              </p>
-            )}
-
-            {!brackets.length && bracketedDivisions.length > 0 && (
-              <p className="text-sm text-slate-400">
-                Select a division tab above to view brackets and the match schedule.
-              </p>
-            )}
-
-            {brackets.length > 0 && (
-              <div className="grid xl:grid-cols-2 gap-6">
-                {brackets.map((bracket) => (
-                  <TournamentRoundRobin
-                    key={bracket.id}
-                    bracket={bracket}
-                    pairById={pairById}
-                    divisionAdvancement={divisionSetup?.advancement}
-                    scheduleResetAt={divisionSetup?.scheduleResetAt}
-                    readOnly={!divisionCanScore || divisionKnockoutActive || divisionFinished}
-                    host={divisionCanScore && !divisionKnockoutActive && !divisionFinished}
-                    startingMatchId={startingMatchId}
-                    lockingMatchId={lockingMatchId}
-                    forfeitBusyId={forfeitBusyId}
-                    onLockMatch={
-                      divisionCanScore && !divisionKnockoutActive && !divisionFinished
-                        ? (matchId) => handleLockMatch(bracket.id, matchId)
-                        : undefined
-                    }
-                    onStartMatch={
-                      divisionCanScore && !divisionKnockoutActive && !divisionFinished
-                        ? (matchId) => handleStartMatch(bracket.id, matchId)
-                        : undefined
-                    }
-                    onForfeitWin={
-                      divisionCanScore && !divisionKnockoutActive && !divisionFinished
-                        ? (matchId, winnerPairId) =>
-                            handleForfeitWin(bracket.id, matchId, winnerPairId)
-                        : undefined
-                    }
-                  />
-                ))}
-              </div>
-            )}
-
-            <DivisionAdvancementPanel
-              advancement={divisionSetup?.advancement}
-              knockout={divisionSetup?.knockout}
-              pairById={pairById}
-              host={host && !isEnded && !divisionFinished}
-              startingQuarterfinals={startingQuarterfinals}
-              onStartQuarterfinals={handleStartQuarterfinals}
-              hideKnockoutRounds={!!divisionSetup?.knockout?.initialized}
-            />
-
-            {divisionSetup?.knockout?.initialized && !divisionFinished && (
-              <p className="text-sm text-red-400/90">
-                Finals — start matches on the courts, then set base players on
-                the live court diagram. Only winners advance.
-              </p>
-            )}
-
-            {divisionSetup?.knockout?.initialized && (
-              <EliminationResultsPanel
-                knockout={divisionSetup.knockout}
-                pairById={pairById}
-                host={host && !isEnded}
-                divisionId={viewDivision}
-                eventId={eventId}
-                onReload={reload}
-              />
-            )}
-          </div>
-          )}
-
-          {(championName || silverName || bronzeName) && (
-            <MedalPodium
-              goldName={championName}
-              silverName={silverName}
-              bronzeName={bronzeName}
-              subtitle={divisionLabel(viewDivision, event)}
-              compact={!!championName && !silverName && !bronzeName}
-            />
-          )}
-
         </section>
       )}
     </div>

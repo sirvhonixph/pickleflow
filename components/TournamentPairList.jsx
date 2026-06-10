@@ -76,18 +76,22 @@ export default function TournamentPairList({
   host,
   isEnded,
   onEventUpdate,
+  divisionId = null,
 }) {
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(!divisionId);
   const [editingId, setEditingId] = useState(null);
   const [busyId, setBusyId] = useState(null);
 
   if (!host || isEnded) return null;
 
   const pairs = event?.pairRegistrations ?? [];
-  if (pairs.length === 0) return null;
+  const visiblePairs = divisionId
+    ? pairs.filter((p) => p.divisionId === divisionId)
+    : pairs;
+  if (visiblePairs.length === 0) return null;
 
   const byDivision = new Map();
-  for (const pair of pairs) {
+  for (const pair of visiblePairs) {
     const list = byDivision.get(pair.divisionId) ?? [];
     list.push(pair);
     byDivision.set(pair.divisionId, list);
@@ -115,32 +119,38 @@ export default function TournamentPairList({
   };
 
   return (
-    <section className="bg-slate-900 border border-slate-800 rounded-xl p-6">
+    <section className="rounded-lg border border-slate-700 bg-slate-800/40 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold mb-1">Pairs — base player</h2>
-          <p className="text-slate-500 text-sm">
-            Optional: pre-set each pair&apos;s base player here. You can also
-            start the match first, then tap &quot;Set as base&quot; on the live
-            court after players are announced.
+          <h3 className="text-sm font-semibold text-slate-300">
+            {divisionId
+              ? `Registered pairs — ${divisionLabel(divisionId, event)}`
+              : "Pairs — base player"}
+          </h3>
+          <p className="text-slate-500 text-xs mt-0.5">
+            {divisionId
+              ? "Edit names or set each pair's base player."
+              : "Optional: pre-set each pair's base player here. You can also start the match first, then tap Set as base on the live court."}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setCollapsed((c) => !c);
-            if (!collapsed) setEditingId(null);
-          }}
-          className="px-3 py-1.5 text-sm rounded-lg bg-slate-800 border border-slate-700 hover:border-purple-500/50 shrink-0"
-        >
-          {collapsed ? "Expand" : "Minimize"}
-        </button>
+        {!divisionId && (
+          <button
+            type="button"
+            onClick={() => {
+              setCollapsed((c) => !c);
+              if (!collapsed) setEditingId(null);
+            }}
+            className="px-3 py-1.5 text-sm rounded-lg bg-slate-800 border border-slate-700 hover:border-purple-500/50 shrink-0"
+          >
+            {collapsed ? "Expand" : "Minimize"}
+          </button>
+        )}
       </div>
 
-      {collapsed ? (
+      {collapsed && !divisionId ? (
         <p className="text-sm text-slate-400 mt-3">
-          {pairs.length} pair{pairs.length === 1 ? "" : "s"} — expand to set
-          each pair&apos;s base player (and edit names).
+          {visiblePairs.length} pair{visiblePairs.length === 1 ? "" : "s"} — expand
+          to set each pair&apos;s base player (and edit names).
         </p>
       ) : (
         <div className="space-y-5 mt-4">

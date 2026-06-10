@@ -9591,6 +9591,14 @@
       "dupr": "",
       "registeredAt": 1781059160623,
       "avatarDataUrl": ""
+    },
+    {
+      "email": "test-profile-1781063939485@example.com",
+      "name": "Profile Test",
+      "category": "novice",
+      "dupr": "",
+      "registeredAt": 1781063939491,
+      "avatarDataUrl": ""
     }
   ],
   "globalChatMessages": [
