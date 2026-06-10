@@ -523,6 +523,7 @@ export default function OpenPlayEvent({ eventId }) {
             onAddPlayer={
               !isEnded
                 ? async (player) => {
+                    pauseAutoRefresh(60000);
                     const ev = await hostAddWalkInPlayer(eventId, player);
                     setEvent(ev);
                   }
