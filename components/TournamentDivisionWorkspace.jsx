@@ -324,9 +324,9 @@ export default function TournamentDivisionWorkspace({
           {!isEnded && (
             <div className="space-y-2">
               <p className="text-xs text-slate-500">
-                Courts are shared across divisions in the same skill tier
-                {tierLabel ? ` (${tierLabel})` : ""}. Brackets map A → Court 1,
-                B → Court 2, etc.
+                {courtPools.length > 1
+                  ? `Courts split between skill tiers that have registered pairs${tierLabel ? ` (${tierLabel} uses ${divisionCourts.length})` : ""}. Brackets map A → Court 1, B → Court 2, etc.`
+                  : `Brackets map to courts in order — A → Court 1, B → Court 2, etc.`}
               </p>
               <TournamentCourtsManager
                 courts={event.courts ?? []}
