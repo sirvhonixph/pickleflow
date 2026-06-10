@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "echo Lint skipped — add eslint-config-next to enable",
-    "test": "node --experimental-loader ./scripts/alias-loader.mjs scripts/test-registration-helpers.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-registration-status.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-host-pair.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-player-registration.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-profile-category.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-open-play-flow.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-tournament-e2e.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-locked-reopen.mjs"
+    "test": "node --experimental-loader ./scripts/alias-loader.mjs scripts/test-registration-helpers.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-registration-status.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-host-pair.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-player-registration.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-profile-category.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-concurrent-pairs.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-open-play-flow.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-tournament-e2e.mjs && node --experimental-loader ./scripts/alias-loader.mjs scripts/test-locked-reopen.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

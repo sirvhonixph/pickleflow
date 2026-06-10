@@ -58,6 +58,7 @@ import {
   divisionHasMatchProgress,
 } from "@/lib/tournament-division-schedule";
 import { describeCourtPools } from "@/lib/tournament-court-pools";
+import { mergeEventSnapshots } from "@/lib/event-merge";
 
 function embedVideoUrl(url) {
   if (!url?.trim()) return null;
@@ -130,7 +131,16 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     }
     try {
       const ev = await fetchEventById(eventId);
-      setEvent(ev);
+      setEvent((prev) => {
+        if (!ev) return ev;
+        if (
+          Date.now() < refreshPausedUntilRef.current ||
+          registeringRef.current
+        ) {
+          return mergeEventSnapshots(prev, ev);
+        }
+        return ev;
+      });
       setUser(getCurrentUser());
       setLoadError(ev ? null : "Event not found");
     } catch (err) {
@@ -353,7 +363,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     pauseAutoRefresh(60000);
     try {
       const ev = await registerPair(eventId, pairForm, getPlayerId(user));
-      setEvent(ev);
+      setEvent((prev) => mergeEventSnapshots(prev, ev));
       setPairForm((f) => ({
         ...f,
         player1Name: "",
