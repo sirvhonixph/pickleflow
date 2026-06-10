@@ -562,8 +562,32 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
 
   const handleRegenerateBracket = async (divisionId) => {
     const label = divisionLabel(divisionId, event);
-    const msg = `Regenerate ${label}? All pool and knockout matches for this division will be removed and scores erased. Other divisions are not changed.`;
-    if (!window.confirm(msg)) return;
+    const setup = event.tournamentDivisions?.[divisionId];
+    const hasProgress = divisionHasMatchProgress(setup);
+    const finished = isDivisionComplete(setup);
+
+    if (hasProgress || finished) {
+      if (
+        !window.confirm(
+          `Erase ALL results for ${label}?\n\nThis permanently deletes every match score, live court state, standings, knockout bracket, and locked results for this division. Brackets are rebuilt from current registered pairs.\n\nOther divisions are not changed.\n\nThis cannot be undone.`
+        )
+      ) {
+        return;
+      }
+      if (
+        !window.confirm(
+          `Last chance: start ${label} completely over with a fresh bracket and zero scores?`
+        )
+      ) {
+        return;
+      }
+    } else if (
+      !window.confirm(
+        `Regenerate ${label}? The current schedule will be rebuilt from registered pairs and courts.`
+      )
+    ) {
+      return;
+    }
 
     setSetupBusy(true);
     try {
@@ -582,16 +606,34 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   };
 
   const handleRegenerateAllBrackets = async () => {
+    const bracketed = divisions.filter(
+      (d) => (event.tournamentDivisions?.[d.id]?.brackets?.length ?? 0) > 0
+    );
+    if (bracketed.length === 0) {
+      alert("No divisions have brackets yet.");
+      return;
+    }
     if (
       !window.confirm(
-        "Regenerate all bracketed divisions that have no scores yet? Divisions with match progress are skipped â€” regenerate those individually with erase scores."
+        `Erase ALL results and regenerate brackets for ${bracketed.length} division${bracketed.length === 1 ? "" : "s"}?\n\nEvery score, live match, standings row, and knockout result in those divisions will be permanently deleted. Brackets are rebuilt from current registered pairs.\n\nThis cannot be undone.`
+      )
+    ) {
+      return;
+    }
+    if (
+      !window.confirm(
+        "Last chance: wipe all bracket progress and start those divisions over?"
       )
     ) {
       return;
     }
     setSetupBusy(true);
     try {
-      const ev = await runBracketSetup(eventId, { all: true, regenerate: true });
+      const ev = await runBracketSetup(eventId, {
+        all: true,
+        regenerate: true,
+        force: true,
+      });
       setEvent(ev);
     } catch (err) {
       alert(err.message ?? "Regenerate failed");

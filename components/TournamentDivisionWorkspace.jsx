@@ -119,8 +119,8 @@ export default function TournamentDivisionWorkspace({
     !divisionHasMatchProgress(setup) &&
     !hasBrackets;
 
-  const canRegenerate =
-    !!divisionId && !finished && hasBrackets && !divisionHasMatchProgress(setup);
+  const hasMatchProgress = divisionHasMatchProgress(setup);
+  const canRegenerate = !!divisionId && hasBrackets;
 
   const tierLabel =
     courtPools.find((p) =>
@@ -150,14 +150,16 @@ export default function TournamentDivisionWorkspace({
               {setupBusy ? "Applying…" : `Generate all (${eligibleForAll.length})`}
             </button>
           )}
-          {onRegenerateAll && !isEnded && (
+          {onRegenerateAll &&
+            !isEnded &&
+            openDivisions.some((d) => event.tournamentDivisions?.[d.id]?.brackets?.length) && (
             <button
               type="button"
               disabled={setupBusy}
               onClick={onRegenerateAll}
               className="px-4 py-2 border border-amber-500/50 text-amber-200 font-semibold rounded-lg text-sm disabled:opacity-50 hover:bg-amber-500/10"
             >
-              {setupBusy ? "Working…" : "Regenerate all"}
+              {setupBusy ? "Working…" : "Regenerate all & erase"}
             </button>
           )}
         </div>
@@ -426,19 +428,35 @@ export default function TournamentDivisionWorkspace({
                   </button>
                 </>
               ) : hasBrackets ? (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {setup?.plan && !finished && (
                     <p className="text-sm text-slate-400">{setup.plan.formulaText}</p>
                   )}
                   {canRegenerate && onRegenerateDivision && (
-                    <button
-                      type="button"
-                      disabled={setupBusy}
-                      onClick={() => onRegenerateDivision(divisionId)}
-                      className="px-4 py-2 border border-amber-500/50 text-amber-200 font-semibold rounded-lg text-sm disabled:opacity-50 hover:bg-amber-500/10"
-                    >
-                      {setupBusy ? "Working…" : "Regenerate division"}
-                    </button>
+                    <div className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 space-y-2">
+                      <p className="text-sm font-medium text-amber-200">
+                        Start this division over
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        Rebuilds brackets from current registered pairs and courts.
+                        {hasMatchProgress || finished
+                          ? " All match scores, live courts, standings, knockout results, and locked results for this division are permanently erased."
+                          : " Clears the current schedule so you can run the bracket again."}
+                        {" "}Other divisions are not changed.
+                      </p>
+                      <button
+                        type="button"
+                        disabled={setupBusy}
+                        onClick={() => onRegenerateDivision(divisionId)}
+                        className="px-4 py-2 border border-amber-500/50 text-amber-200 font-semibold rounded-lg text-sm disabled:opacity-50 hover:bg-amber-500/10"
+                      >
+                        {setupBusy
+                          ? "Working…"
+                          : hasMatchProgress || finished
+                            ? "Regenerate & erase all scores"
+                            : "Regenerate division"}
+                      </button>
+                    </div>
                   )}
                 </div>
               ) : (

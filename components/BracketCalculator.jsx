@@ -512,8 +512,8 @@ export default function BracketCalculator({
                 <p className="text-xs text-slate-400 mt-1">
                   {eligibleForRegenerateAll.length} division
                   {eligibleForRegenerateAll.length === 1 ? "" : "s"} — rebuilds
-                  brackets from current pairs and court pools. Divisions with
-                  scores need force confirm separately per division.
+                  every bracket from current pairs and courts and erases all
+                  scores, live matches, and knockout results in those divisions.
                 </p>
               </div>
               <button
@@ -522,7 +522,7 @@ export default function BracketCalculator({
                 onClick={onRegenerateAll}
                 className="px-4 py-2 border border-amber-500/50 text-amber-200 font-semibold rounded-lg text-sm disabled:opacity-50 shrink-0 hover:bg-amber-500/10"
               >
-                {busy ? "Working…" : "Regenerate all"}
+                {busy ? "Working…" : "Regenerate all & erase"}
               </button>
             </div>
           )}
@@ -615,9 +615,12 @@ export default function BracketCalculator({
               {selectedCanRegenerate && onRegenerateDivision && (
                 <div className="pt-2 border-t border-slate-700 space-y-2">
                   <p className="text-xs text-slate-500">
-                    Rebuilds brackets from current pairs and courts. Removes all
-                    pool and knockout matches for this division and clears scores.
-                    Other divisions are unchanged.
+                    Rebuilds brackets from current pairs and courts.
+                    {divisionHasMatchProgress(selectedSetup) ||
+                    divisionIsFinished(event, selectedDivisionId)
+                      ? " Erases all match scores, live courts, standings, and knockout results for this division."
+                      : " Clears the current schedule so you can run the bracket again."}
+                    {" "}Other divisions are unchanged.
                   </p>
                   <button
                     type="button"
@@ -625,7 +628,12 @@ export default function BracketCalculator({
                     onClick={() => onRegenerateDivision(selectedDivisionId)}
                     className="px-4 py-2 border border-amber-500/50 text-amber-200 font-semibold rounded-lg text-sm disabled:opacity-50 hover:bg-amber-500/10"
                   >
-                    {busy ? "Regenerating…" : "Regenerate division"}
+                    {busy
+                      ? "Regenerating…"
+                      : divisionHasMatchProgress(selectedSetup) ||
+                          divisionIsFinished(event, selectedDivisionId)
+                        ? "Regenerate & erase all scores"
+                        : "Regenerate division"}
                   </button>
                 </div>
               )}
