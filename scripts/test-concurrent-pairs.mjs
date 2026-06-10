@@ -1,5 +1,6 @@
-import { mergeConcurrentEventWrites, applyEventFetch } from "../lib/event-merge.js";
+import { mergeConcurrentEventWrites, applyEventFetch, mergeCourts } from "../lib/event-merge.js";
 import { addPairRegistration } from "../lib/tournament-pairs.js";
+import { addCourtToEvent } from "../lib/tournament-courts.js";
 
 const baseEvent = {
   type: "tournament",
@@ -69,6 +70,21 @@ assert(
   applyEventFetch(uiEvent, staleFetch).pairRegistrations.some(
     (p) => p.player1?.name === "11A"
   )
+);
+
+let courtEvent = { ...baseEvent, courts: [] };
+for (let i = 0; i < 3; i++) {
+  courtEvent = addCourtToEvent(courtEvent, `Court ${i + 1}`);
+}
+const withFourth = addCourtToEvent(courtEvent, "Court 4");
+const staleCourts = { ...withFourth, courts: courtEvent.courts };
+assert(
+  "merge keeps court 4 when saved from stale read",
+  mergeCourts(staleCourts.courts, withFourth.courts).length === 4
+);
+assert(
+  "applyEventFetch keeps courts missing from stale poll",
+  applyEventFetch(withFourth, staleCourts).courts.length === 4
 );
 
 console.log(

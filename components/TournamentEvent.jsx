@@ -295,7 +295,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     setCourtBusy((b) => ({ ...b, adding: true }));
     try {
       const ev = await addCourt(eventId, label);
-      setEvent(ev);
+      setEvent((prev) => mergeEventSnapshots(prev, ev));
       setCourtLabel("");
     } catch (err) {
       alert(err.message ?? "Could not add court");

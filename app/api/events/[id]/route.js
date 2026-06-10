@@ -5,6 +5,7 @@ import {
   updateEventRecord,
   deleteEventRecord,
 } from "@/lib/store-server";
+import { mergeConcurrentEventWrites } from "@/lib/event-merge";
 import {
   assertRequestHost,
   courtsPayloadChanged,
@@ -56,7 +57,9 @@ export async function PATCH(request, { params }) {
       }
     }
 
-    const updated = await updateEventRecord(params.id, () => merged);
+    const updated = await updateEventRecord(params.id, (fresh) =>
+      mergeConcurrentEventWrites(fresh, { ...fresh, ...patch })
+    );
     if (!updated) {
       return NextResponse.json({ error: "Not found" }, { status: 404 });
     }

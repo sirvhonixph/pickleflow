@@ -22,6 +22,7 @@ import {
   updateEventPaymentConfig,
   hostRemoveRegistration,
 } from "@/lib/events";
+import { applyEventFetch } from "@/lib/event-merge";
 import { getCurrentUser, isEventHost, getPlayerId } from "@/lib/session";
 import { isPlayerRegistered } from "@/lib/registration-status";
 import OpenPlayRegisterForm from "@/components/OpenPlayRegisterForm";
@@ -176,9 +177,13 @@ export default function OpenPlayEvent({ eventId }) {
   };
 
   const handleAddCourt = async () => {
-    const ev = await addCourt(eventId, courtLabel);
-    setCourtLabel("");
-    setEvent(ev);
+    try {
+      const ev = await addCourt(eventId, courtLabel);
+      setCourtLabel("");
+      setEvent((prev) => applyEventFetch(prev, ev));
+    } catch (err) {
+      alert(err.message ?? "Could not add court");
+    }
   };
 
   const handleRemoveCourt = async (courtId) => {
