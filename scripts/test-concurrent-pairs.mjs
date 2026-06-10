@@ -1,4 +1,4 @@
-import { mergeConcurrentEventWrites } from "../lib/event-merge.js";
+import { mergeConcurrentEventWrites, applyEventFetch } from "../lib/event-merge.js";
 import { addPairRegistration } from "../lib/tournament-pairs.js";
 
 const baseEvent = {
@@ -55,6 +55,20 @@ const merged12Then11 = mergeConcurrentEventWrites(concurrentAdd12, concurrentAdd
 assert(
   "merge order independent",
   merged12Then11.pairRegistrations.length === 12
+);
+
+const uiEvent = merged11Then12;
+const staleFetch = {
+  ...uiEvent,
+  pairRegistrations: uiEvent.pairRegistrations.filter(
+    (p) => p.player1?.name !== "11A"
+  ),
+};
+assert(
+  "applyEventFetch keeps pairs missing from stale poll",
+  applyEventFetch(uiEvent, staleFetch).pairRegistrations.some(
+    (p) => p.player1?.name === "11A"
+  )
 );
 
 console.log(

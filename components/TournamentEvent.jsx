@@ -58,7 +58,7 @@ import {
   divisionHasMatchProgress,
 } from "@/lib/tournament-division-schedule";
 import { describeCourtPools } from "@/lib/tournament-court-pools";
-import { mergeEventSnapshots } from "@/lib/event-merge";
+import { applyEventFetch, mergeEventSnapshots } from "@/lib/event-merge";
 
 function embedVideoUrl(url) {
   if (!url?.trim()) return null;
@@ -133,13 +133,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
       const ev = await fetchEventById(eventId);
       setEvent((prev) => {
         if (!ev) return ev;
-        if (
-          Date.now() < refreshPausedUntilRef.current ||
-          registeringRef.current
-        ) {
-          return mergeEventSnapshots(prev, ev);
-        }
-        return ev;
+        return applyEventFetch(prev, ev);
       });
       setUser(getCurrentUser());
       setLoadError(ev ? null : "Event not found");
@@ -226,10 +220,13 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     if (isHost && (poolPlay || knockoutPhase)) {
       return undefined;
     }
+    if (isHost && event.tournamentPhase === "registration") {
+      return undefined;
+    }
     const ms = poolPlay || knockoutPhase ? 20000 : 8000;
     const t = setInterval(reload, ms);
     return () => clearInterval(t);
-  }, [eventId, reload, poolPlay, knockoutPhase, user, event?.id]);
+  }, [eventId, reload, poolPlay, knockoutPhase, user, event?.id, event?.tournamentPhase]);
 
   if (!event) {
     return (
