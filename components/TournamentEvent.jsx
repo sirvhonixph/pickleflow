@@ -110,6 +110,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     teamName: "",
   });
   const [registering, setRegistering] = useState(false);
+  const [pairRegisterError, setPairRegisterError] = useState("");
   const [paymentBusy, setPaymentBusy] = useState(false);
   const [offeredBusy, setOfferedBusy] = useState(false);
   const [offeredIds, setOfferedIds] = useState([]);
@@ -117,13 +118,16 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const bracketCalcRef = useRef(null);
   const playViewRef = useRef(null);
   const refreshPausedUntilRef = useRef(0);
+  const registeringRef = useRef(false);
 
   const pauseAutoRefresh = useCallback((ms = 15000) => {
     refreshPausedUntilRef.current = Date.now() + ms;
   }, []);
 
   const reload = useCallback(async () => {
-    if (Date.now() < refreshPausedUntilRef.current) return;
+    if (Date.now() < refreshPausedUntilRef.current || registeringRef.current) {
+      return;
+    }
     try {
       const ev = await fetchEventById(eventId);
       setEvent(ev);
@@ -247,7 +251,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
   const canRegisterMore = canPlayerRegisterForTournament(
     event,
     playerId,
-    user?.name
+    user?.name ?? user?.email
   );
   const tournamentEntryCount = getTournamentRegistrationCount(event, playerId);
   const pendingEntries = (event.registrations ?? []).filter(
@@ -340,10 +344,12 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
     e.preventDefault();
     if (!user || !host) return;
     if (!pairForm.divisionId) {
-      alert("Choose a division first.");
+      setPairRegisterError("Choose a division first.");
       return;
     }
     setRegistering(true);
+    registeringRef.current = true;
+    setPairRegisterError("");
     pauseAutoRefresh(60000);
     try {
       const ev = await registerPair(eventId, pairForm, getPlayerId(user));
@@ -357,8 +363,9 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
         teamName: "",
       }));
     } catch (err) {
-      alert(err.message ?? "Registration failed");
+      setPairRegisterError(err.message ?? "Registration failed");
     } finally {
+      registeringRef.current = false;
       setRegistering(false);
     }
   };
@@ -891,8 +898,14 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
           <h2 className="text-lg font-bold mb-1">Register a pair</h2>
           <p className="text-slate-500 text-sm mb-3">
             Host only — manually add walk-in pairs (online registrations join
-            their division automatically).
+            their division automatically). Use unique player names for each pair
+            (each name allows up to 2 entries per skill category).
           </p>
+          {pairRegisterError && (
+            <p className="mb-3 rounded-lg bg-red-500/20 px-3 py-2 text-sm text-red-300">
+              {pairRegisterError}
+            </p>
+          )}
           <form onSubmit={handleRegisterPair} className="grid sm:grid-cols-2 gap-4">
             <div className="sm:col-span-2">
               <label className="text-xs text-slate-500">Division</label>
@@ -998,6 +1011,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
                 busy={playerRegisterBusy}
                 onSubmit={async (form) => {
                   setPlayerRegisterBusy(true);
+                  pauseAutoRefresh(60000);
                   try {
                     const ev = await registerForEvent(eventId, user, form);
                     setEvent(ev);
@@ -1009,7 +1023,11 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
             </>
           ) : (
             <p className="text-amber-400 text-sm">
-              Registration is not available for your account.
+              You already have {tournamentEntryCount}/
+              {tournamentRegistrationLimitLabel()} entries in this tournament.
+              Each player can register at most{" "}
+              {tournamentRegistrationLimitLabel()} pairs in the same skill
+              category.
             </p>
           )}
           <TournamentDivisionSlots

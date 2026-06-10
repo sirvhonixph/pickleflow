@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import AppShell from "@/components/AppShell";
 import CategoryBadge from "@/components/CategoryBadge";
@@ -27,6 +27,11 @@ export default function ProfilePage() {
   const [category, setCategory] = useState("");
   const [categoryBusy, setCategoryBusy] = useState(false);
   const [categoryError, setCategoryError] = useState("");
+  const categoryBusyRef = useRef(false);
+
+  useEffect(() => {
+    categoryBusyRef.current = categoryBusy;
+  }, [categoryBusy]);
 
   const syncProfile = useCallback(async (u, id, data, profile) => {
     const resolved =
@@ -45,13 +50,15 @@ export default function ProfilePage() {
       (isValidCategory(u?.category) ? u.category : "");
 
     setDisplayName(resolved);
-    setCategory(resolvedCategory);
+    if (!categoryBusyRef.current) {
+      setCategory(resolvedCategory);
+    }
 
     const patch = {};
     if (resolved && resolved !== "Player" && u?.name !== resolved) {
       patch.name = resolved;
     }
-    if (resolvedCategory && u?.category !== resolvedCategory) {
+    if (resolvedCategory && u?.category !== resolvedCategory && !categoryBusyRef.current) {
       patch.category = resolvedCategory;
     }
 

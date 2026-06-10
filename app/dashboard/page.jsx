@@ -274,7 +274,11 @@ export default function DashboardPage() {
                     : 0;
                 const tournamentCanRegister =
                   event.type === "tournament" &&
-                  canPlayerRegisterForTournament(event, playerId, user?.name);
+                  canPlayerRegisterForTournament(
+                    event,
+                    playerId,
+                    user?.name ?? user?.email
+                  );
 
                 return (
                   <li
