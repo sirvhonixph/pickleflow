@@ -440,9 +440,9 @@ export default function TournamentDivisionWorkspace({
                       <p className="text-xs text-slate-400">
                         Rebuilds brackets from current registered pairs and courts.
                         {hasMatchProgress || finished
-                          ? " All match scores, live courts, standings, knockout results, and locked results for this division are permanently erased."
+                          ? " Permanently erases every match, score, live court state, standings, locked result, knockout round, and advancement record for this division only."
                           : " Clears the current schedule so you can run the bracket again."}
-                        {" "}Other divisions are not changed.
+                        {" "}Registered pairs and other divisions are not changed.
                       </p>
                       <button
                         type="button"

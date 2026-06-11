@@ -596,6 +596,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
         regenerate: true,
         force: true,
       });
+      pauseAutoRefresh(120000);
       setEvent(ev);
       setViewDivision(divisionId);
     } catch (err) {
@@ -634,6 +635,7 @@ export default function TournamentEvent({ eventId, initialEvent = null }) {
         regenerate: true,
         force: true,
       });
+      pauseAutoRefresh(120000);
       setEvent(ev);
     } catch (err) {
       alert(err.message ?? "Regenerate failed");
