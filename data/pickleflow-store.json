@@ -11455,6 +11455,30 @@
       "dupr": "",
       "registeredAt": 1781147362210,
       "avatarDataUrl": ""
+    },
+    {
+      "email": "test-profile-1781148431794@example.com",
+      "name": "Profile Test",
+      "category": "novice",
+      "dupr": "",
+      "registeredAt": 1781148431798,
+      "avatarDataUrl": ""
+    },
+    {
+      "email": "test-profile-1781148529571@example.com",
+      "name": "Profile Test",
+      "category": "novice",
+      "dupr": "",
+      "registeredAt": 1781148529575,
+      "avatarDataUrl": ""
+    },
+    {
+      "email": "test-profile-1781151624469@example.com",
+      "name": "Profile Test",
+      "category": "novice",
+      "dupr": "",
+      "registeredAt": 1781151624476,
+      "avatarDataUrl": ""
     }
   ],
   "globalChatMessages": [
