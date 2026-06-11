@@ -9170,6 +9170,1814 @@
           "novice_mixed_doubles"
         ]
       }
+    },
+    {
+      "registrations": [
+        {
+          "playerId": "api-trial-host@test.com",
+          "name": "API Trial Host",
+          "email": "api-trial-host@test.com",
+          "category": "novice",
+          "joinedAt": 1781146203654
+        }
+      ],
+      "courts": [
+        {
+          "autoMatch": true,
+          "aiAnnounce": true,
+          "lastMatch": false,
+          "liveVideoUrl": "",
+          "liveVideoEnabled": false,
+          "status": "idle",
+          "currentMatch": null,
+          "pendingMatch": null,
+          "queue": [],
+          "id": "court-1781146205467-ok87fl",
+          "name": "Court 1"
+        }
+      ],
+      "matchHistory": [],
+      "pairRegistrations": [
+        {
+          "id": "pair-1781146205958-aou8ca",
+          "divisionId": "novice_mens_doubles",
+          "player1": {
+            "playerId": "p1-pair1a@tournament.local",
+            "name": "Pair1A",
+            "email": "p1-pair1a@tournament.local"
+          },
+          "player2": {
+            "playerId": "p2-pair1b@tournament.local",
+            "name": "Pair1B",
+            "email": "p2-pair1b@tournament.local"
+          },
+          "teamName": "",
+          "clubName": "",
+          "basePlayerId": null,
+          "registeredAt": 1781146205958,
+          "sourceRegistrationId": null
+        },
+        {
+          "id": "pair-1781146205986-ydiusl",
+          "divisionId": "novice_mens_doubles",
+          "player1": {
+            "playerId": "p1-pair2a@tournament.local",
+            "name": "Pair2A",
+            "email": "p1-pair2a@tournament.local"
+          },
+          "player2": {
+            "playerId": "p2-pair2b@tournament.local",
+            "name": "Pair2B",
+            "email": "p2-pair2b@tournament.local"
+          },
+          "teamName": "",
+          "clubName": "",
+          "basePlayerId": null,
+          "registeredAt": 1781146205986,
+          "sourceRegistrationId": null
+        },
+        {
+          "id": "pair-1781146206016-48badc",
+          "divisionId": "novice_mens_doubles",
+          "player1": {
+            "playerId": "p1-pair3a@tournament.local",
+            "name": "Pair3A",
+            "email": "p1-pair3a@tournament.local"
+          },
+          "player2": {
+            "playerId": "p2-pair3b@tournament.local",
+            "name": "Pair3B",
+            "email": "p2-pair3b@tournament.local"
+          },
+          "teamName": "",
+          "clubName": "",
+          "basePlayerId": null,
+          "registeredAt": 1781146206016,
+          "sourceRegistrationId": null
+        },
+        {
+          "id": "pair-1781146206055-m2cs0u",
+          "divisionId": "novice_mens_doubles",
+          "player1": {
+            "playerId": "p1-pair4a@tournament.local",
+            "name": "Pair4A",
+            "email": "p1-pair4a@tournament.local"
+          },
+          "player2": {
+            "playerId": "p2-pair4b@tournament.local",
+            "name": "Pair4B",
+            "email": "p2-pair4b@tournament.local"
+          },
+          "teamName": "",
+          "clubName": "",
+          "basePlayerId": null,
+          "registeredAt": 1781146206055,
+          "sourceRegistrationId": null
+        },
+        {
+          "id": "pair-1781146206080-w3gd8o",
+          "divisionId": "novice_mens_doubles",
+          "player1": {
+            "playerId": "p1-pair5a@tournament.local",
+            "name": "Pair5A",
+            "email": "p1-pair5a@tournament.local"
+          },
+          "player2": {
+            "playerId": "p2-pair5b@tournament.local",
+            "name": "Pair5B",
+            "email": "p2-pair5b@tournament.local"
+          },
+          "teamName": "",
+          "clubName": "",
+          "basePlayerId": null,
+          "registeredAt": 1781146206080,
+          "sourceRegistrationId": null
+        }
+      ],
+      "tournamentDivisions": {
+        "novice_mens_doubles": {
+          "divisionId": "novice_mens_doubles",
+          "plan": {
+            "pairCount": 5,
+            "courtCount": 1,
+            "bracketCount": 1,
+            "pairsPerBracket": 5,
+            "distribution": [
+              5
+            ],
+            "formulaText": "5 ÷ 1 = 5 pairs per bracket (1 brackets)"
+          },
+          "brackets": [
+            {
+              "id": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+              "label": "Bracket A",
+              "courtId": "court-1781146205467-ok87fl",
+              "courtName": "Court 1",
+              "pairIds": [
+                "pair-1781146205958-aou8ca",
+                "pair-1781146205986-ydiusl",
+                "pair-1781146206016-48badc",
+                "pair-1781146206055-m2cs0u",
+                "pair-1781146206080-w3gd8o"
+              ],
+              "pairs": [
+                {
+                  "id": "pair-1781146205958-aou8ca",
+                  "name": "Pair1A / Pair1B"
+                },
+                {
+                  "id": "pair-1781146205986-ydiusl",
+                  "name": "Pair2A / Pair2B"
+                },
+                {
+                  "id": "pair-1781146206016-48badc",
+                  "name": "Pair3A / Pair3B"
+                },
+                {
+                  "id": "pair-1781146206055-m2cs0u",
+                  "name": "Pair4A / Pair4B"
+                },
+                {
+                  "id": "pair-1781146206080-w3gd8o",
+                  "name": "Pair5A / Pair5B"
+                }
+              ],
+              "matches": [
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205958-aou8ca-pair-1781146205986-ydiusl",
+                  "pairAId": "pair-1781146205958-aou8ca",
+                  "pairBId": "pair-1781146205986-ydiusl",
+                  "scheduleOrder": 1,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146205958-aou8ca",
+                  "status": "completed",
+                  "playedAt": 1781146207201,
+                  "startedAt": 1781146207140,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207201
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146206055-m2cs0u-pair-1781146206080-w3gd8o",
+                  "pairAId": "pair-1781146206055-m2cs0u",
+                  "pairBId": "pair-1781146206080-w3gd8o",
+                  "scheduleOrder": 2,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146206055-m2cs0u",
+                  "status": "completed",
+                  "playedAt": 1781146207283,
+                  "startedAt": 1781146207228,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207283
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205986-ydiusl-pair-1781146206080-w3gd8o",
+                  "pairAId": "pair-1781146205986-ydiusl",
+                  "pairBId": "pair-1781146206080-w3gd8o",
+                  "scheduleOrder": 3,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146205986-ydiusl",
+                  "status": "completed",
+                  "playedAt": 1781146207360,
+                  "startedAt": 1781146207312,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207360
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146206016-48badc-pair-1781146206055-m2cs0u",
+                  "pairAId": "pair-1781146206016-48badc",
+                  "pairBId": "pair-1781146206055-m2cs0u",
+                  "scheduleOrder": 4,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146206016-48badc",
+                  "status": "completed",
+                  "playedAt": 1781146207441,
+                  "startedAt": 1781146207387,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207441
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205958-aou8ca-pair-1781146206080-w3gd8o",
+                  "pairAId": "pair-1781146205958-aou8ca",
+                  "pairBId": "pair-1781146206080-w3gd8o",
+                  "scheduleOrder": 5,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146205958-aou8ca",
+                  "status": "completed",
+                  "playedAt": 1781146207521,
+                  "startedAt": 1781146207470,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207521
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205986-ydiusl-pair-1781146206016-48badc",
+                  "pairAId": "pair-1781146205986-ydiusl",
+                  "pairBId": "pair-1781146206016-48badc",
+                  "scheduleOrder": 6,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146205986-ydiusl",
+                  "status": "completed",
+                  "playedAt": 1781146207605,
+                  "startedAt": 1781146207550,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207605
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205958-aou8ca-pair-1781146206055-m2cs0u",
+                  "pairAId": "pair-1781146205958-aou8ca",
+                  "pairBId": "pair-1781146206055-m2cs0u",
+                  "scheduleOrder": 7,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146205958-aou8ca",
+                  "status": "completed",
+                  "playedAt": 1781146207685,
+                  "startedAt": 1781146207634,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207685
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146206016-48badc-pair-1781146206080-w3gd8o",
+                  "pairAId": "pair-1781146206080-w3gd8o",
+                  "pairBId": "pair-1781146206016-48badc",
+                  "scheduleOrder": 8,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146206080-w3gd8o",
+                  "status": "completed",
+                  "playedAt": 1781146207805,
+                  "startedAt": 1781146207719,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207805
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205958-aou8ca-pair-1781146206016-48badc",
+                  "pairAId": "pair-1781146205958-aou8ca",
+                  "pairBId": "pair-1781146206016-48badc",
+                  "scheduleOrder": 9,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146205958-aou8ca",
+                  "status": "completed",
+                  "playedAt": 1781146207935,
+                  "startedAt": 1781146207854,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207935
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205986-ydiusl-pair-1781146206055-m2cs0u",
+                  "pairAId": "pair-1781146206055-m2cs0u",
+                  "pairBId": "pair-1781146205986-ydiusl",
+                  "scheduleOrder": 10,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146206055-m2cs0u",
+                  "status": "completed",
+                  "playedAt": 1781146208061,
+                  "startedAt": 1781146207981,
+                  "resultLocked": true,
+                  "lockedAt": 1781146208061
+                }
+              ],
+              "roundRobinMeta": {
+                "pairCount": 5,
+                "matchCount": 10,
+                "matchesPerPair": 4,
+                "finishedMatches": 10,
+                "matchesRemaining": 0
+              },
+              "standings": [
+                {
+                  "pairId": "pair-1781146205958-aou8ca",
+                  "name": "Pair1A / Pair1B",
+                  "wins": 4,
+                  "losses": 0,
+                  "ties": 0,
+                  "pointsFor": 44,
+                  "pointsAgainst": 35,
+                  "pointsInWins": 44,
+                  "pointsInLosses": 0,
+                  "matchesPlayed": 4,
+                  "expectedMatches": 4,
+                  "matchesRemaining": 0,
+                  "winPct": 100,
+                  "schedulePct": 100,
+                  "pointDiff": 9,
+                  "tournamentPoints": 8,
+                  "avgWinPoints": 11,
+                  "avgLossPoints": 0,
+                  "tieBreaker": 9.5
+                },
+                {
+                  "pairId": "pair-1781146206055-m2cs0u",
+                  "name": "Pair4A / Pair4B",
+                  "wins": 2,
+                  "losses": 2,
+                  "ties": 0,
+                  "pointsFor": 38,
+                  "pointsAgainst": 39,
+                  "pointsInWins": 22,
+                  "pointsInLosses": 16,
+                  "matchesPlayed": 4,
+                  "expectedMatches": 4,
+                  "matchesRemaining": 0,
+                  "winPct": 50,
+                  "schedulePct": 100,
+                  "pointDiff": -1,
+                  "tournamentPoints": 4,
+                  "avgWinPoints": 11,
+                  "avgLossPoints": 8,
+                  "tieBreaker": 11.5
+                },
+                {
+                  "pairId": "pair-1781146205986-ydiusl",
+                  "name": "Pair2A / Pair2B",
+                  "wins": 2,
+                  "losses": 2,
+                  "ties": 0,
+                  "pointsFor": 38,
+                  "pointsAgainst": 42,
+                  "pointsInWins": 22,
+                  "pointsInLosses": 16,
+                  "matchesPlayed": 4,
+                  "expectedMatches": 4,
+                  "matchesRemaining": 0,
+                  "winPct": 50,
+                  "schedulePct": 100,
+                  "pointDiff": -4,
+                  "tournamentPoints": 4,
+                  "avgWinPoints": 11,
+                  "avgLossPoints": 8,
+                  "tieBreaker": 11.5
+                },
+                {
+                  "pairId": "pair-1781146206016-48badc",
+                  "name": "Pair3A / Pair3B",
+                  "wins": 1,
+                  "losses": 3,
+                  "ties": 0,
+                  "pointsFor": 40,
+                  "pointsAgainst": 41,
+                  "pointsInWins": 11,
+                  "pointsInLosses": 29,
+                  "matchesPlayed": 4,
+                  "expectedMatches": 4,
+                  "matchesRemaining": 0,
+                  "winPct": 25,
+                  "schedulePct": 100,
+                  "pointDiff": -1,
+                  "tournamentPoints": 2,
+                  "avgWinPoints": 11,
+                  "avgLossPoints": 9.7,
+                  "tieBreaker": 11.33
+                },
+                {
+                  "pairId": "pair-1781146206080-w3gd8o",
+                  "name": "Pair5A / Pair5B",
+                  "wins": 1,
+                  "losses": 3,
+                  "ties": 0,
+                  "pointsFor": 39,
+                  "pointsAgainst": 42,
+                  "pointsInWins": 11,
+                  "pointsInLosses": 28,
+                  "matchesPlayed": 4,
+                  "expectedMatches": 4,
+                  "matchesRemaining": 0,
+                  "winPct": 25,
+                  "schedulePct": 100,
+                  "pointDiff": -3,
+                  "tournamentPoints": 2,
+                  "avgWinPoints": 11,
+                  "avgLossPoints": 9.3,
+                  "tieBreaker": 11.17
+                }
+              ],
+              "advancedPairIds": [
+                "pair-1781146205958-aou8ca",
+                "pair-1781146206055-m2cs0u",
+                "pair-1781146205986-ydiusl",
+                "pair-1781146206016-48badc",
+                "pair-1781146206080-w3gd8o"
+              ],
+              "poolComplete": true,
+              "scheduleResetAt": null,
+              "confirmedResults": {
+                "pair-1781146205958-aou8ca|pair-1781146205986-ydiusl": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205958-aou8ca-pair-1781146205986-ydiusl",
+                  "pairAId": "pair-1781146205958-aou8ca",
+                  "pairBId": "pair-1781146205986-ydiusl",
+                  "scheduleOrder": 1,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146205958-aou8ca",
+                  "status": "completed",
+                  "playedAt": 1781146207201,
+                  "startedAt": 1781146207140,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207201
+                },
+                "pair-1781146206055-m2cs0u|pair-1781146206080-w3gd8o": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146206055-m2cs0u-pair-1781146206080-w3gd8o",
+                  "pairAId": "pair-1781146206055-m2cs0u",
+                  "pairBId": "pair-1781146206080-w3gd8o",
+                  "scheduleOrder": 2,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146206055-m2cs0u",
+                  "status": "completed",
+                  "playedAt": 1781146207283,
+                  "startedAt": 1781146207228,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207283
+                },
+                "pair-1781146205986-ydiusl|pair-1781146206080-w3gd8o": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205986-ydiusl-pair-1781146206080-w3gd8o",
+                  "pairAId": "pair-1781146205986-ydiusl",
+                  "pairBId": "pair-1781146206080-w3gd8o",
+                  "scheduleOrder": 3,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146205986-ydiusl",
+                  "status": "completed",
+                  "playedAt": 1781146207360,
+                  "startedAt": 1781146207312,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207360
+                },
+                "pair-1781146206016-48badc|pair-1781146206055-m2cs0u": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146206016-48badc-pair-1781146206055-m2cs0u",
+                  "pairAId": "pair-1781146206016-48badc",
+                  "pairBId": "pair-1781146206055-m2cs0u",
+                  "scheduleOrder": 4,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146206016-48badc",
+                  "status": "completed",
+                  "playedAt": 1781146207441,
+                  "startedAt": 1781146207387,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207441
+                },
+                "pair-1781146205958-aou8ca|pair-1781146206080-w3gd8o": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205958-aou8ca-pair-1781146206080-w3gd8o",
+                  "pairAId": "pair-1781146205958-aou8ca",
+                  "pairBId": "pair-1781146206080-w3gd8o",
+                  "scheduleOrder": 5,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146205958-aou8ca",
+                  "status": "completed",
+                  "playedAt": 1781146207521,
+                  "startedAt": 1781146207470,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207521
+                },
+                "pair-1781146205986-ydiusl|pair-1781146206016-48badc": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205986-ydiusl-pair-1781146206016-48badc",
+                  "pairAId": "pair-1781146205986-ydiusl",
+                  "pairBId": "pair-1781146206016-48badc",
+                  "scheduleOrder": 6,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146205986-ydiusl",
+                  "status": "completed",
+                  "playedAt": 1781146207605,
+                  "startedAt": 1781146207550,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207605
+                },
+                "pair-1781146205958-aou8ca|pair-1781146206055-m2cs0u": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205958-aou8ca-pair-1781146206055-m2cs0u",
+                  "pairAId": "pair-1781146205958-aou8ca",
+                  "pairBId": "pair-1781146206055-m2cs0u",
+                  "scheduleOrder": 7,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146205958-aou8ca",
+                  "status": "completed",
+                  "playedAt": 1781146207685,
+                  "startedAt": 1781146207634,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207685
+                },
+                "pair-1781146206016-48badc|pair-1781146206080-w3gd8o": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146206016-48badc-pair-1781146206080-w3gd8o",
+                  "pairAId": "pair-1781146206080-w3gd8o",
+                  "pairBId": "pair-1781146206016-48badc",
+                  "scheduleOrder": 8,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146206080-w3gd8o",
+                  "status": "completed",
+                  "playedAt": 1781146207805,
+                  "startedAt": 1781146207719,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207805
+                },
+                "pair-1781146205958-aou8ca|pair-1781146206016-48badc": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205958-aou8ca-pair-1781146206016-48badc",
+                  "pairAId": "pair-1781146205958-aou8ca",
+                  "pairBId": "pair-1781146206016-48badc",
+                  "scheduleOrder": 9,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146205958-aou8ca",
+                  "status": "completed",
+                  "playedAt": 1781146207935,
+                  "startedAt": 1781146207854,
+                  "resultLocked": true,
+                  "lockedAt": 1781146207935
+                },
+                "pair-1781146205986-ydiusl|pair-1781146206055-m2cs0u": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146205467-ok87fl-0-pair-1781146205986-ydiusl-pair-1781146206055-m2cs0u",
+                  "pairAId": "pair-1781146206055-m2cs0u",
+                  "pairBId": "pair-1781146205986-ydiusl",
+                  "scheduleOrder": 10,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146206055-m2cs0u",
+                  "status": "completed",
+                  "playedAt": 1781146208061,
+                  "startedAt": 1781146207981,
+                  "resultLocked": true,
+                  "lockedAt": 1781146208061
+                }
+              }
+            }
+          ],
+          "updatedAt": 1781146206597,
+          "advancement": {
+            "ready": true,
+            "bracketCount": 1,
+            "ruleSummary": "1 bracket → Top 8 overall (8 teams).",
+            "autoQualifiers": [
+              {
+                "pairId": "pair-1781146205958-aou8ca",
+                "name": "Pair1A / Pair1B",
+                "rank": 1,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+                "bracketLabel": "Bracket A",
+                "wins": 4,
+                "losses": 0,
+                "pointDiff": 9,
+                "tournamentPoints": 8,
+                "tieBreaker": 9.5,
+                "winPct": 100,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146206055-m2cs0u",
+                "name": "Pair4A / Pair4B",
+                "rank": 2,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+                "bracketLabel": "Bracket A",
+                "wins": 2,
+                "losses": 2,
+                "pointDiff": -1,
+                "tournamentPoints": 4,
+                "tieBreaker": 11.5,
+                "winPct": 50,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146205986-ydiusl",
+                "name": "Pair2A / Pair2B",
+                "rank": 3,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+                "bracketLabel": "Bracket A",
+                "wins": 2,
+                "losses": 2,
+                "pointDiff": -4,
+                "tournamentPoints": 4,
+                "tieBreaker": 11.5,
+                "winPct": 50,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146206016-48badc",
+                "name": "Pair3A / Pair3B",
+                "rank": 4,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+                "bracketLabel": "Bracket A",
+                "wins": 1,
+                "losses": 3,
+                "pointDiff": -1,
+                "tournamentPoints": 2,
+                "tieBreaker": 11.33,
+                "winPct": 25,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146206080-w3gd8o",
+                "name": "Pair5A / Pair5B",
+                "rank": 5,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+                "bracketLabel": "Bracket A",
+                "wins": 1,
+                "losses": 3,
+                "pointDiff": -3,
+                "tournamentPoints": 2,
+                "tieBreaker": 11.17,
+                "winPct": 25,
+                "slot": "auto"
+              }
+            ],
+            "wildcards": [],
+            "allQualified": [
+              {
+                "pairId": "pair-1781146205958-aou8ca",
+                "name": "Pair1A / Pair1B",
+                "rank": 1,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+                "bracketLabel": "Bracket A",
+                "wins": 4,
+                "losses": 0,
+                "pointDiff": 9,
+                "tournamentPoints": 8,
+                "tieBreaker": 9.5,
+                "winPct": 100,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146206055-m2cs0u",
+                "name": "Pair4A / Pair4B",
+                "rank": 2,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+                "bracketLabel": "Bracket A",
+                "wins": 2,
+                "losses": 2,
+                "pointDiff": -1,
+                "tournamentPoints": 4,
+                "tieBreaker": 11.5,
+                "winPct": 50,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146205986-ydiusl",
+                "name": "Pair2A / Pair2B",
+                "rank": 3,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+                "bracketLabel": "Bracket A",
+                "wins": 2,
+                "losses": 2,
+                "pointDiff": -4,
+                "tournamentPoints": 4,
+                "tieBreaker": 11.5,
+                "winPct": 50,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146206016-48badc",
+                "name": "Pair3A / Pair3B",
+                "rank": 4,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+                "bracketLabel": "Bracket A",
+                "wins": 1,
+                "losses": 3,
+                "pointDiff": -1,
+                "tournamentPoints": 2,
+                "tieBreaker": 11.33,
+                "winPct": 25,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146206080-w3gd8o",
+                "name": "Pair5A / Pair5B",
+                "rank": 5,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146205467-ok87fl-0",
+                "bracketLabel": "Bracket A",
+                "wins": 1,
+                "losses": 3,
+                "pointDiff": -3,
+                "tournamentPoints": 2,
+                "tieBreaker": 11.17,
+                "winPct": 25,
+                "slot": "auto"
+              }
+            ],
+            "quarterfinals": []
+          },
+          "divisionPoolComplete": true,
+          "knockout": {
+            "initialized": true,
+            "phase": "quarterfinals",
+            "rounds": [
+              {
+                "id": "qf",
+                "label": "Quarterfinals",
+                "matches": [
+                  {
+                    "id": "qf-4",
+                    "roundId": "qf",
+                    "label": "#4 vs #5",
+                    "pairAId": "pair-1781146206016-48badc",
+                    "pairBId": "pair-1781146206080-w3gd8o",
+                    "courtId": "court-1781146205467-ok87fl",
+                    "courtName": "Court 1",
+                    "status": "scheduled",
+                    "scoreA": 0,
+                    "scoreB": 0,
+                    "winnerPairId": null,
+                    "playedAt": null,
+                    "feedsMatchId": "sf-1",
+                    "feedsSlot": "pairAId",
+                    "feedsLoserMatchId": null,
+                    "feedsLoserSlot": null,
+                    "feederIds": [],
+                    "elimination": true
+                  }
+                ]
+              },
+              {
+                "id": "sf",
+                "label": "Semifinals",
+                "matches": [
+                  {
+                    "id": "sf-1",
+                    "roundId": "sf",
+                    "label": "Semifinal 1",
+                    "pairAId": null,
+                    "pairBId": null,
+                    "courtId": "court-1781146205467-ok87fl",
+                    "courtName": "Court 1",
+                    "status": "scheduled",
+                    "scoreA": 0,
+                    "scoreB": 0,
+                    "winnerPairId": null,
+                    "playedAt": null,
+                    "feedsMatchId": "final-1",
+                    "feedsSlot": "pairAId",
+                    "feedsLoserMatchId": "bronze-1",
+                    "feedsLoserSlot": "pairAId",
+                    "feederIds": [
+                      "qf-4"
+                    ],
+                    "elimination": true
+                  },
+                  {
+                    "id": "sf-2",
+                    "roundId": "sf",
+                    "label": "Semifinal 2",
+                    "pairAId": null,
+                    "pairBId": null,
+                    "courtId": "court-1781146205467-ok87fl",
+                    "courtName": "Court 1",
+                    "status": "scheduled",
+                    "scoreA": 0,
+                    "scoreB": 0,
+                    "winnerPairId": null,
+                    "playedAt": null,
+                    "feedsMatchId": "final-1",
+                    "feedsSlot": "pairBId",
+                    "feedsLoserMatchId": "bronze-1",
+                    "feedsLoserSlot": "pairBId",
+                    "feederIds": [],
+                    "elimination": true
+                  }
+                ]
+              },
+              {
+                "id": "final",
+                "label": "Gold medal match",
+                "matches": [
+                  {
+                    "id": "final-1",
+                    "roundId": "final",
+                    "label": "Gold medal match",
+                    "pairAId": null,
+                    "pairBId": null,
+                    "courtId": "court-1781146205467-ok87fl",
+                    "courtName": "Court 1",
+                    "status": "scheduled",
+                    "scoreA": 0,
+                    "scoreB": 0,
+                    "winnerPairId": null,
+                    "playedAt": null,
+                    "feedsMatchId": null,
+                    "feedsSlot": null,
+                    "feedsLoserMatchId": null,
+                    "feedsLoserSlot": null,
+                    "feederIds": [
+                      "sf-1",
+                      "sf-2"
+                    ],
+                    "elimination": true
+                  }
+                ]
+              },
+              {
+                "id": "bronze",
+                "label": "Bronze medal match",
+                "matches": [
+                  {
+                    "id": "bronze-1",
+                    "roundId": "bronze",
+                    "label": "Bronze medal match",
+                    "pairAId": null,
+                    "pairBId": null,
+                    "courtId": "court-1781146205467-ok87fl",
+                    "courtName": "Court 1",
+                    "status": "scheduled",
+                    "scoreA": 0,
+                    "scoreB": 0,
+                    "winnerPairId": null,
+                    "playedAt": null,
+                    "feedsMatchId": null,
+                    "feedsSlot": null,
+                    "feedsLoserMatchId": null,
+                    "feedsLoserSlot": null,
+                    "feederIds": [
+                      "sf-1",
+                      "sf-2"
+                    ],
+                    "elimination": true
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "extraTournamentDivisions": [],
+      "tournamentPhase": "knockout",
+      "activeDivisionId": "novice_mens_doubles",
+      "liveStreamUrl": "",
+      "liveStreamEnabled": false,
+      "registrationClosesAt": null,
+      "divisionPairLimit": 20,
+      "offeredDivisionIds": [
+        "novice_mens_doubles"
+      ],
+      "paymentConfig": {
+        "entryFee": "",
+        "gcash": {
+          "enabled": false,
+          "number": ""
+        },
+        "bankQr": {
+          "enabled": false,
+          "imageDataUrl": ""
+        }
+      },
+      "status": "active",
+      "endedAt": null,
+      "id": "1781146204836",
+      "createdAt": "2026-06-11T02:50:04.836Z",
+      "hostId": "api-trial-host@test.com",
+      "hostName": "API Trial Host",
+      "type": "tournament",
+      "name": "API Trial 1781146203654",
+      "tierDivisionOrder": {}
+    },
+    {
+      "registrations": [
+        {
+          "playerId": "api-trial-host@test.com",
+          "name": "API Trial Host",
+          "email": "api-trial-host@test.com",
+          "category": "novice",
+          "joinedAt": 1781146442054
+        }
+      ],
+      "courts": [
+        {
+          "autoMatch": true,
+          "aiAnnounce": true,
+          "lastMatch": false,
+          "liveVideoUrl": "",
+          "liveVideoEnabled": false,
+          "status": "idle",
+          "currentMatch": null,
+          "pendingMatch": null,
+          "queue": [],
+          "id": "court-1781146442167-5fzaey",
+          "name": "Court 1"
+        }
+      ],
+      "matchHistory": [],
+      "pairRegistrations": [
+        {
+          "id": "pair-1781146442205-5316sg",
+          "divisionId": "novice_mens_doubles",
+          "player1": {
+            "playerId": "p1-pair1a@tournament.local",
+            "name": "Pair1A",
+            "email": "p1-pair1a@tournament.local"
+          },
+          "player2": {
+            "playerId": "p2-pair1b@tournament.local",
+            "name": "Pair1B",
+            "email": "p2-pair1b@tournament.local"
+          },
+          "teamName": "",
+          "clubName": "",
+          "basePlayerId": null,
+          "registeredAt": 1781146442205,
+          "sourceRegistrationId": null
+        },
+        {
+          "id": "pair-1781146442244-j5mg5f",
+          "divisionId": "novice_mens_doubles",
+          "player1": {
+            "playerId": "p1-pair2a@tournament.local",
+            "name": "Pair2A",
+            "email": "p1-pair2a@tournament.local"
+          },
+          "player2": {
+            "playerId": "p2-pair2b@tournament.local",
+            "name": "Pair2B",
+            "email": "p2-pair2b@tournament.local"
+          },
+          "teamName": "",
+          "clubName": "",
+          "basePlayerId": null,
+          "registeredAt": 1781146442244,
+          "sourceRegistrationId": null
+        },
+        {
+          "id": "pair-1781146442275-uxmoin",
+          "divisionId": "novice_mens_doubles",
+          "player1": {
+            "playerId": "p1-pair3a@tournament.local",
+            "name": "Pair3A",
+            "email": "p1-pair3a@tournament.local"
+          },
+          "player2": {
+            "playerId": "p2-pair3b@tournament.local",
+            "name": "Pair3B",
+            "email": "p2-pair3b@tournament.local"
+          },
+          "teamName": "",
+          "clubName": "",
+          "basePlayerId": null,
+          "registeredAt": 1781146442275,
+          "sourceRegistrationId": null
+        },
+        {
+          "id": "pair-1781146442304-avyjyn",
+          "divisionId": "novice_mens_doubles",
+          "player1": {
+            "playerId": "p1-pair4a@tournament.local",
+            "name": "Pair4A",
+            "email": "p1-pair4a@tournament.local"
+          },
+          "player2": {
+            "playerId": "p2-pair4b@tournament.local",
+            "name": "Pair4B",
+            "email": "p2-pair4b@tournament.local"
+          },
+          "teamName": "",
+          "clubName": "",
+          "basePlayerId": null,
+          "registeredAt": 1781146442304,
+          "sourceRegistrationId": null
+        },
+        {
+          "id": "pair-1781146442331-iilp0b",
+          "divisionId": "novice_mens_doubles",
+          "player1": {
+            "playerId": "p1-pair5a@tournament.local",
+            "name": "Pair5A",
+            "email": "p1-pair5a@tournament.local"
+          },
+          "player2": {
+            "playerId": "p2-pair5b@tournament.local",
+            "name": "Pair5B",
+            "email": "p2-pair5b@tournament.local"
+          },
+          "teamName": "",
+          "clubName": "",
+          "basePlayerId": null,
+          "registeredAt": 1781146442331,
+          "sourceRegistrationId": null
+        }
+      ],
+      "tournamentDivisions": {
+        "novice_mens_doubles": {
+          "divisionId": "novice_mens_doubles",
+          "plan": {
+            "pairCount": 5,
+            "courtCount": 1,
+            "bracketCount": 1,
+            "pairsPerBracket": 5,
+            "distribution": [
+              5
+            ],
+            "formulaText": "5 ÷ 1 = 5 pairs per bracket (1 brackets)"
+          },
+          "brackets": [
+            {
+              "id": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+              "label": "Bracket A",
+              "courtId": "court-1781146442167-5fzaey",
+              "courtName": "Court 1",
+              "pairIds": [
+                "pair-1781146442205-5316sg",
+                "pair-1781146442244-j5mg5f",
+                "pair-1781146442275-uxmoin",
+                "pair-1781146442304-avyjyn",
+                "pair-1781146442331-iilp0b"
+              ],
+              "pairs": [
+                {
+                  "id": "pair-1781146442205-5316sg",
+                  "name": "Pair1A / Pair1B"
+                },
+                {
+                  "id": "pair-1781146442244-j5mg5f",
+                  "name": "Pair2A / Pair2B"
+                },
+                {
+                  "id": "pair-1781146442275-uxmoin",
+                  "name": "Pair3A / Pair3B"
+                },
+                {
+                  "id": "pair-1781146442304-avyjyn",
+                  "name": "Pair4A / Pair4B"
+                },
+                {
+                  "id": "pair-1781146442331-iilp0b",
+                  "name": "Pair5A / Pair5B"
+                }
+              ],
+              "matches": [
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442205-5316sg-pair-1781146442244-j5mg5f",
+                  "pairAId": "pair-1781146442205-5316sg",
+                  "pairBId": "pair-1781146442244-j5mg5f",
+                  "scheduleOrder": 1,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146442205-5316sg",
+                  "status": "completed",
+                  "playedAt": 1781146442494,
+                  "startedAt": 1781146442421,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442494
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442304-avyjyn-pair-1781146442331-iilp0b",
+                  "pairAId": "pair-1781146442304-avyjyn",
+                  "pairBId": "pair-1781146442331-iilp0b",
+                  "scheduleOrder": 2,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146442304-avyjyn",
+                  "status": "completed",
+                  "playedAt": 1781146442622,
+                  "startedAt": 1781146442529,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442622
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442244-j5mg5f-pair-1781146442331-iilp0b",
+                  "pairAId": "pair-1781146442244-j5mg5f",
+                  "pairBId": "pair-1781146442331-iilp0b",
+                  "scheduleOrder": 3,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146442244-j5mg5f",
+                  "status": "completed",
+                  "playedAt": 1781146442715,
+                  "startedAt": 1781146442655,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442715
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442275-uxmoin-pair-1781146442304-avyjyn",
+                  "pairAId": "pair-1781146442275-uxmoin",
+                  "pairBId": "pair-1781146442304-avyjyn",
+                  "scheduleOrder": 4,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146442275-uxmoin",
+                  "status": "completed",
+                  "playedAt": 1781146442808,
+                  "startedAt": 1781146442745,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442808
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442205-5316sg-pair-1781146442331-iilp0b",
+                  "pairAId": "pair-1781146442205-5316sg",
+                  "pairBId": "pair-1781146442331-iilp0b",
+                  "scheduleOrder": 5,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146442205-5316sg",
+                  "status": "completed",
+                  "playedAt": 1781146442888,
+                  "startedAt": 1781146442836,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442888
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442244-j5mg5f-pair-1781146442275-uxmoin",
+                  "pairAId": "pair-1781146442244-j5mg5f",
+                  "pairBId": "pair-1781146442275-uxmoin",
+                  "scheduleOrder": 6,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146442244-j5mg5f",
+                  "status": "completed",
+                  "playedAt": 1781146442973,
+                  "startedAt": 1781146442917,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442973
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442205-5316sg-pair-1781146442304-avyjyn",
+                  "pairAId": "pair-1781146442205-5316sg",
+                  "pairBId": "pair-1781146442304-avyjyn",
+                  "scheduleOrder": 7,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146442205-5316sg",
+                  "status": "completed",
+                  "playedAt": 1781146443054,
+                  "startedAt": 1781146442999,
+                  "resultLocked": true,
+                  "lockedAt": 1781146443054
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442275-uxmoin-pair-1781146442331-iilp0b",
+                  "pairAId": "pair-1781146442331-iilp0b",
+                  "pairBId": "pair-1781146442275-uxmoin",
+                  "scheduleOrder": 8,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146442331-iilp0b",
+                  "status": "completed",
+                  "playedAt": 1781146443135,
+                  "startedAt": 1781146443081,
+                  "resultLocked": true,
+                  "lockedAt": 1781146443135
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442205-5316sg-pair-1781146442275-uxmoin",
+                  "pairAId": "pair-1781146442205-5316sg",
+                  "pairBId": "pair-1781146442275-uxmoin",
+                  "scheduleOrder": 9,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146442205-5316sg",
+                  "status": "completed",
+                  "playedAt": 1781146443213,
+                  "startedAt": 1781146443161,
+                  "resultLocked": true,
+                  "lockedAt": 1781146443213
+                },
+                {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442244-j5mg5f-pair-1781146442304-avyjyn",
+                  "pairAId": "pair-1781146442304-avyjyn",
+                  "pairBId": "pair-1781146442244-j5mg5f",
+                  "scheduleOrder": 10,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146442304-avyjyn",
+                  "status": "completed",
+                  "playedAt": 1781146443299,
+                  "startedAt": 1781146443242,
+                  "resultLocked": true,
+                  "lockedAt": 1781146443299
+                }
+              ],
+              "roundRobinMeta": {
+                "pairCount": 5,
+                "matchCount": 10,
+                "matchesPerPair": 4,
+                "finishedMatches": 10,
+                "matchesRemaining": 0
+              },
+              "standings": [
+                {
+                  "pairId": "pair-1781146442205-5316sg",
+                  "name": "Pair1A / Pair1B",
+                  "wins": 4,
+                  "losses": 0,
+                  "ties": 0,
+                  "pointsFor": 44,
+                  "pointsAgainst": 35,
+                  "pointsInWins": 44,
+                  "pointsInLosses": 0,
+                  "matchesPlayed": 4,
+                  "expectedMatches": 4,
+                  "matchesRemaining": 0,
+                  "winPct": 100,
+                  "schedulePct": 100,
+                  "pointDiff": 9,
+                  "tournamentPoints": 8,
+                  "avgWinPoints": 11,
+                  "avgLossPoints": 0,
+                  "tieBreaker": 9.5
+                },
+                {
+                  "pairId": "pair-1781146442304-avyjyn",
+                  "name": "Pair4A / Pair4B",
+                  "wins": 2,
+                  "losses": 2,
+                  "ties": 0,
+                  "pointsFor": 38,
+                  "pointsAgainst": 39,
+                  "pointsInWins": 22,
+                  "pointsInLosses": 16,
+                  "matchesPlayed": 4,
+                  "expectedMatches": 4,
+                  "matchesRemaining": 0,
+                  "winPct": 50,
+                  "schedulePct": 100,
+                  "pointDiff": -1,
+                  "tournamentPoints": 4,
+                  "avgWinPoints": 11,
+                  "avgLossPoints": 8,
+                  "tieBreaker": 11.5
+                },
+                {
+                  "pairId": "pair-1781146442244-j5mg5f",
+                  "name": "Pair2A / Pair2B",
+                  "wins": 2,
+                  "losses": 2,
+                  "ties": 0,
+                  "pointsFor": 38,
+                  "pointsAgainst": 42,
+                  "pointsInWins": 22,
+                  "pointsInLosses": 16,
+                  "matchesPlayed": 4,
+                  "expectedMatches": 4,
+                  "matchesRemaining": 0,
+                  "winPct": 50,
+                  "schedulePct": 100,
+                  "pointDiff": -4,
+                  "tournamentPoints": 4,
+                  "avgWinPoints": 11,
+                  "avgLossPoints": 8,
+                  "tieBreaker": 11.5
+                },
+                {
+                  "pairId": "pair-1781146442275-uxmoin",
+                  "name": "Pair3A / Pair3B",
+                  "wins": 1,
+                  "losses": 3,
+                  "ties": 0,
+                  "pointsFor": 40,
+                  "pointsAgainst": 41,
+                  "pointsInWins": 11,
+                  "pointsInLosses": 29,
+                  "matchesPlayed": 4,
+                  "expectedMatches": 4,
+                  "matchesRemaining": 0,
+                  "winPct": 25,
+                  "schedulePct": 100,
+                  "pointDiff": -1,
+                  "tournamentPoints": 2,
+                  "avgWinPoints": 11,
+                  "avgLossPoints": 9.7,
+                  "tieBreaker": 11.33
+                },
+                {
+                  "pairId": "pair-1781146442331-iilp0b",
+                  "name": "Pair5A / Pair5B",
+                  "wins": 1,
+                  "losses": 3,
+                  "ties": 0,
+                  "pointsFor": 39,
+                  "pointsAgainst": 42,
+                  "pointsInWins": 11,
+                  "pointsInLosses": 28,
+                  "matchesPlayed": 4,
+                  "expectedMatches": 4,
+                  "matchesRemaining": 0,
+                  "winPct": 25,
+                  "schedulePct": 100,
+                  "pointDiff": -3,
+                  "tournamentPoints": 2,
+                  "avgWinPoints": 11,
+                  "avgLossPoints": 9.3,
+                  "tieBreaker": 11.17
+                }
+              ],
+              "advancedPairIds": [
+                "pair-1781146442205-5316sg",
+                "pair-1781146442304-avyjyn",
+                "pair-1781146442244-j5mg5f",
+                "pair-1781146442275-uxmoin",
+                "pair-1781146442331-iilp0b"
+              ],
+              "poolComplete": true,
+              "scheduleResetAt": null,
+              "confirmedResults": {
+                "pair-1781146442205-5316sg|pair-1781146442244-j5mg5f": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442205-5316sg-pair-1781146442244-j5mg5f",
+                  "pairAId": "pair-1781146442205-5316sg",
+                  "pairBId": "pair-1781146442244-j5mg5f",
+                  "scheduleOrder": 1,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146442205-5316sg",
+                  "status": "completed",
+                  "playedAt": 1781146442494,
+                  "startedAt": 1781146442421,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442494
+                },
+                "pair-1781146442304-avyjyn|pair-1781146442331-iilp0b": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442304-avyjyn-pair-1781146442331-iilp0b",
+                  "pairAId": "pair-1781146442304-avyjyn",
+                  "pairBId": "pair-1781146442331-iilp0b",
+                  "scheduleOrder": 2,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146442304-avyjyn",
+                  "status": "completed",
+                  "playedAt": 1781146442622,
+                  "startedAt": 1781146442529,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442622
+                },
+                "pair-1781146442244-j5mg5f|pair-1781146442331-iilp0b": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442244-j5mg5f-pair-1781146442331-iilp0b",
+                  "pairAId": "pair-1781146442244-j5mg5f",
+                  "pairBId": "pair-1781146442331-iilp0b",
+                  "scheduleOrder": 3,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146442244-j5mg5f",
+                  "status": "completed",
+                  "playedAt": 1781146442715,
+                  "startedAt": 1781146442655,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442715
+                },
+                "pair-1781146442275-uxmoin|pair-1781146442304-avyjyn": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442275-uxmoin-pair-1781146442304-avyjyn",
+                  "pairAId": "pair-1781146442275-uxmoin",
+                  "pairBId": "pair-1781146442304-avyjyn",
+                  "scheduleOrder": 4,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146442275-uxmoin",
+                  "status": "completed",
+                  "playedAt": 1781146442808,
+                  "startedAt": 1781146442745,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442808
+                },
+                "pair-1781146442205-5316sg|pair-1781146442331-iilp0b": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442205-5316sg-pair-1781146442331-iilp0b",
+                  "pairAId": "pair-1781146442205-5316sg",
+                  "pairBId": "pair-1781146442331-iilp0b",
+                  "scheduleOrder": 5,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146442205-5316sg",
+                  "status": "completed",
+                  "playedAt": 1781146442888,
+                  "startedAt": 1781146442836,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442888
+                },
+                "pair-1781146442244-j5mg5f|pair-1781146442275-uxmoin": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442244-j5mg5f-pair-1781146442275-uxmoin",
+                  "pairAId": "pair-1781146442244-j5mg5f",
+                  "pairBId": "pair-1781146442275-uxmoin",
+                  "scheduleOrder": 6,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146442244-j5mg5f",
+                  "status": "completed",
+                  "playedAt": 1781146442973,
+                  "startedAt": 1781146442917,
+                  "resultLocked": true,
+                  "lockedAt": 1781146442973
+                },
+                "pair-1781146442205-5316sg|pair-1781146442304-avyjyn": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442205-5316sg-pair-1781146442304-avyjyn",
+                  "pairAId": "pair-1781146442205-5316sg",
+                  "pairBId": "pair-1781146442304-avyjyn",
+                  "scheduleOrder": 7,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146442205-5316sg",
+                  "status": "completed",
+                  "playedAt": 1781146443054,
+                  "startedAt": 1781146442999,
+                  "resultLocked": true,
+                  "lockedAt": 1781146443054
+                },
+                "pair-1781146442275-uxmoin|pair-1781146442331-iilp0b": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442275-uxmoin-pair-1781146442331-iilp0b",
+                  "pairAId": "pair-1781146442331-iilp0b",
+                  "pairBId": "pair-1781146442275-uxmoin",
+                  "scheduleOrder": 8,
+                  "scoreA": 11,
+                  "scoreB": 9,
+                  "winnerPairId": "pair-1781146442331-iilp0b",
+                  "status": "completed",
+                  "playedAt": 1781146443135,
+                  "startedAt": 1781146443081,
+                  "resultLocked": true,
+                  "lockedAt": 1781146443135
+                },
+                "pair-1781146442205-5316sg|pair-1781146442275-uxmoin": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442205-5316sg-pair-1781146442275-uxmoin",
+                  "pairAId": "pair-1781146442205-5316sg",
+                  "pairBId": "pair-1781146442275-uxmoin",
+                  "scheduleOrder": 9,
+                  "scoreA": 11,
+                  "scoreB": 10,
+                  "winnerPairId": "pair-1781146442205-5316sg",
+                  "status": "completed",
+                  "playedAt": 1781146443213,
+                  "startedAt": 1781146443161,
+                  "resultLocked": true,
+                  "lockedAt": 1781146443213
+                },
+                "pair-1781146442244-j5mg5f|pair-1781146442304-avyjyn": {
+                  "id": "rr-bracket-novice_mens_doubles-court-1781146442167-5fzaey-0-pair-1781146442244-j5mg5f-pair-1781146442304-avyjyn",
+                  "pairAId": "pair-1781146442304-avyjyn",
+                  "pairBId": "pair-1781146442244-j5mg5f",
+                  "scheduleOrder": 10,
+                  "scoreA": 11,
+                  "scoreB": 8,
+                  "winnerPairId": "pair-1781146442304-avyjyn",
+                  "status": "completed",
+                  "playedAt": 1781146443299,
+                  "startedAt": 1781146443242,
+                  "resultLocked": true,
+                  "lockedAt": 1781146443299
+                }
+              }
+            }
+          ],
+          "updatedAt": 1781146442372,
+          "advancement": {
+            "ready": true,
+            "bracketCount": 1,
+            "ruleSummary": "1 bracket → Top 8 overall (8 teams).",
+            "autoQualifiers": [
+              {
+                "pairId": "pair-1781146442205-5316sg",
+                "name": "Pair1A / Pair1B",
+                "rank": 1,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+                "bracketLabel": "Bracket A",
+                "wins": 4,
+                "losses": 0,
+                "pointDiff": 9,
+                "tournamentPoints": 8,
+                "tieBreaker": 9.5,
+                "winPct": 100,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146442304-avyjyn",
+                "name": "Pair4A / Pair4B",
+                "rank": 2,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+                "bracketLabel": "Bracket A",
+                "wins": 2,
+                "losses": 2,
+                "pointDiff": -1,
+                "tournamentPoints": 4,
+                "tieBreaker": 11.5,
+                "winPct": 50,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146442244-j5mg5f",
+                "name": "Pair2A / Pair2B",
+                "rank": 3,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+                "bracketLabel": "Bracket A",
+                "wins": 2,
+                "losses": 2,
+                "pointDiff": -4,
+                "tournamentPoints": 4,
+                "tieBreaker": 11.5,
+                "winPct": 50,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146442275-uxmoin",
+                "name": "Pair3A / Pair3B",
+                "rank": 4,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+                "bracketLabel": "Bracket A",
+                "wins": 1,
+                "losses": 3,
+                "pointDiff": -1,
+                "tournamentPoints": 2,
+                "tieBreaker": 11.33,
+                "winPct": 25,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146442331-iilp0b",
+                "name": "Pair5A / Pair5B",
+                "rank": 5,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+                "bracketLabel": "Bracket A",
+                "wins": 1,
+                "losses": 3,
+                "pointDiff": -3,
+                "tournamentPoints": 2,
+                "tieBreaker": 11.17,
+                "winPct": 25,
+                "slot": "auto"
+              }
+            ],
+            "wildcards": [],
+            "allQualified": [
+              {
+                "pairId": "pair-1781146442205-5316sg",
+                "name": "Pair1A / Pair1B",
+                "rank": 1,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+                "bracketLabel": "Bracket A",
+                "wins": 4,
+                "losses": 0,
+                "pointDiff": 9,
+                "tournamentPoints": 8,
+                "tieBreaker": 9.5,
+                "winPct": 100,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146442304-avyjyn",
+                "name": "Pair4A / Pair4B",
+                "rank": 2,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+                "bracketLabel": "Bracket A",
+                "wins": 2,
+                "losses": 2,
+                "pointDiff": -1,
+                "tournamentPoints": 4,
+                "tieBreaker": 11.5,
+                "winPct": 50,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146442244-j5mg5f",
+                "name": "Pair2A / Pair2B",
+                "rank": 3,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+                "bracketLabel": "Bracket A",
+                "wins": 2,
+                "losses": 2,
+                "pointDiff": -4,
+                "tournamentPoints": 4,
+                "tieBreaker": 11.5,
+                "winPct": 50,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146442275-uxmoin",
+                "name": "Pair3A / Pair3B",
+                "rank": 4,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+                "bracketLabel": "Bracket A",
+                "wins": 1,
+                "losses": 3,
+                "pointDiff": -1,
+                "tournamentPoints": 2,
+                "tieBreaker": 11.33,
+                "winPct": 25,
+                "slot": "auto"
+              },
+              {
+                "pairId": "pair-1781146442331-iilp0b",
+                "name": "Pair5A / Pair5B",
+                "rank": 5,
+                "bracketId": "bracket-novice_mens_doubles-court-1781146442167-5fzaey-0",
+                "bracketLabel": "Bracket A",
+                "wins": 1,
+                "losses": 3,
+                "pointDiff": -3,
+                "tournamentPoints": 2,
+                "tieBreaker": 11.17,
+                "winPct": 25,
+                "slot": "auto"
+              }
+            ],
+            "quarterfinals": []
+          },
+          "divisionPoolComplete": true,
+          "knockout": {
+            "initialized": true,
+            "phase": "quarterfinals",
+            "rounds": [
+              {
+                "id": "qf",
+                "label": "Quarterfinals",
+                "matches": [
+                  {
+                    "id": "qf-4",
+                    "roundId": "qf",
+                    "label": "#4 vs #5",
+                    "pairAId": "pair-1781146442275-uxmoin",
+                    "pairBId": "pair-1781146442331-iilp0b",
+                    "courtId": "court-1781146442167-5fzaey",
+                    "courtName": "Court 1",
+                    "status": "scheduled",
+                    "scoreA": 0,
+                    "scoreB": 0,
+                    "winnerPairId": null,
+                    "playedAt": null,
+                    "feedsMatchId": "sf-1",
+                    "feedsSlot": "pairAId",
+                    "feedsLoserMatchId": null,
+                    "feedsLoserSlot": null,
+                    "feederIds": [],
+                    "elimination": true
+                  }
+                ]
+              },
+              {
+                "id": "sf",
+                "label": "Semifinals",
+                "matches": [
+                  {
+                    "id": "sf-1",
+                    "roundId": "sf",
+                    "label": "Semifinal 1",
+                    "pairAId": null,
+                    "pairBId": null,
+                    "courtId": "court-1781146442167-5fzaey",
+                    "courtName": "Court 1",
+                    "status": "scheduled",
+                    "scoreA": 0,
+                    "scoreB": 0,
+                    "winnerPairId": null,
+                    "playedAt": null,
+                    "feedsMatchId": "final-1",
+                    "feedsSlot": "pairAId",
+                    "feedsLoserMatchId": "bronze-1",
+                    "feedsLoserSlot": "pairAId",
+                    "feederIds": [
+                      "qf-4"
+                    ],
+                    "elimination": true
+                  },
+                  {
+                    "id": "sf-2",
+                    "roundId": "sf",
+                    "label": "Semifinal 2",
+                    "pairAId": null,
+                    "pairBId": null,
+                    "courtId": "court-1781146442167-5fzaey",
+                    "courtName": "Court 1",
+                    "status": "scheduled",
+                    "scoreA": 0,
+                    "scoreB": 0,
+                    "winnerPairId": null,
+                    "playedAt": null,
+                    "feedsMatchId": "final-1",
+                    "feedsSlot": "pairBId",
+                    "feedsLoserMatchId": "bronze-1",
+                    "feedsLoserSlot": "pairBId",
+                    "feederIds": [],
+                    "elimination": true
+                  }
+                ]
+              },
+              {
+                "id": "final",
+                "label": "Gold medal match",
+                "matches": [
+                  {
+                    "id": "final-1",
+                    "roundId": "final",
+                    "label": "Gold medal match",
+                    "pairAId": null,
+                    "pairBId": null,
+                    "courtId": "court-1781146442167-5fzaey",
+                    "courtName": "Court 1",
+                    "status": "scheduled",
+                    "scoreA": 0,
+                    "scoreB": 0,
+                    "winnerPairId": null,
+                    "playedAt": null,
+                    "feedsMatchId": null,
+                    "feedsSlot": null,
+                    "feedsLoserMatchId": null,
+                    "feedsLoserSlot": null,
+                    "feederIds": [
+                      "sf-1",
+                      "sf-2"
+                    ],
+                    "elimination": true
+                  }
+                ]
+              },
+              {
+                "id": "bronze",
+                "label": "Bronze medal match",
+                "matches": [
+                  {
+                    "id": "bronze-1",
+                    "roundId": "bronze",
+                    "label": "Bronze medal match",
+                    "pairAId": null,
+                    "pairBId": null,
+                    "courtId": "court-1781146442167-5fzaey",
+                    "courtName": "Court 1",
+                    "status": "scheduled",
+                    "scoreA": 0,
+                    "scoreB": 0,
+                    "winnerPairId": null,
+                    "playedAt": null,
+                    "feedsMatchId": null,
+                    "feedsSlot": null,
+                    "feedsLoserMatchId": null,
+                    "feedsLoserSlot": null,
+                    "feederIds": [
+                      "sf-1",
+                      "sf-2"
+                    ],
+                    "elimination": true
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      },
+      "extraTournamentDivisions": [],
+      "tournamentPhase": "knockout",
+      "activeDivisionId": "novice_mens_doubles",
+      "liveStreamUrl": "",
+      "liveStreamEnabled": false,
+      "registrationClosesAt": null,
+      "divisionPairLimit": 20,
+      "offeredDivisionIds": [
+        "novice_mens_doubles"
+      ],
+      "paymentConfig": {
+        "entryFee": "",
+        "gcash": {
+          "enabled": false,
+          "number": ""
+        },
+        "bankQr": {
+          "enabled": false,
+          "imageDataUrl": ""
+        }
+      },
+      "status": "active",
+      "endedAt": null,
+      "id": "1781146442114",
+      "createdAt": "2026-06-11T02:54:02.114Z",
+      "hostId": "api-trial-host@test.com",
+      "hostName": "API Trial Host",
+      "type": "tournament",
+      "name": "API Trial 1781146442054",
+      "tierDivisionOrder": {}
     }
   ],
   "players": [
@@ -9606,6 +11414,38 @@
       "category": "novice",
       "dupr": "",
       "registeredAt": 1781064588071,
+      "avatarDataUrl": ""
+    },
+    {
+      "email": "test-profile-1781144037563@example.com",
+      "name": "Profile Test",
+      "category": "novice",
+      "dupr": "",
+      "registeredAt": 1781144037571,
+      "avatarDataUrl": ""
+    },
+    {
+      "email": "test-profile-1781144428163@example.com",
+      "name": "Profile Test",
+      "category": "novice",
+      "dupr": "",
+      "registeredAt": 1781144428167,
+      "avatarDataUrl": ""
+    },
+    {
+      "email": "test-profile-1781145225253@example.com",
+      "name": "Profile Test",
+      "category": "novice",
+      "dupr": "",
+      "registeredAt": 1781145225257,
+      "avatarDataUrl": ""
+    },
+    {
+      "email": "test-profile-1781145552009@example.com",
+      "name": "Profile Test",
+      "category": "novice",
+      "dupr": "",
+      "registeredAt": 1781145552014,
       "avatarDataUrl": ""
     }
   ],
