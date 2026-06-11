@@ -175,5 +175,73 @@ if (pass) {
   );
 }
 
+if (pass) {
+  const match3Locked = {
+    id: "rr-3",
+    pairAId: pairA,
+    pairBId: pairC,
+    scheduleOrder: 3,
+    status: "completed",
+    scoreA: 11,
+    scoreB: 8,
+    winnerPairId: pairA,
+    resultLocked: true,
+    lockedAt: 3000,
+    playedAt: 3000,
+  };
+  const match3LiveGhost = {
+    id: "rr-bracket-1-pair-a-pair-c",
+    pairAId: pairA,
+    pairBId: pairC,
+    scheduleOrder: 3,
+    status: "live",
+    scoreA: 11,
+    scoreB: 10,
+    startedAt: 4000,
+  };
+  let endLive = makeEvent([
+    match1Locked,
+    {
+      id: "rr-2",
+      pairAId: pairB,
+      pairBId: pairC,
+      scheduleOrder: 2,
+      status: "scheduled",
+      scoreA: 0,
+      scoreB: 0,
+    },
+    match3Locked,
+    match3LiveGhost,
+    {
+      id: "rr-4",
+      pairAId: pairB,
+      pairBId: pairD,
+      scheduleOrder: 4,
+      status: "scheduled",
+      scoreA: 0,
+      scoreB: 0,
+    },
+  ]);
+  endLive = updateTournamentMatch(endLive, "div1", "bracket-1", "rr-3", {
+    status: "completed",
+    scoreA: 11,
+    scoreB: 10,
+  });
+  const ended = endLive.tournamentDivisions.div1.brackets[0].matches.find(
+    (m) => m.pairAId === pairA && m.pairBId === pairC && m.resultLocked
+  );
+  pass =
+    ended?.status === "completed" &&
+    ended?.resultLocked === true &&
+    ended?.scoreA === 11 &&
+    ended?.scoreB === 10;
+  console.log(
+    "after end live ghost with locked canonical:",
+    ended?.status,
+    ended?.resultLocked,
+    `${ended?.scoreA}-${ended?.scoreB}`
+  );
+}
+
 console.log(pass ? "PASS" : "FAIL");
 process.exit(pass ? 0 : 1);
