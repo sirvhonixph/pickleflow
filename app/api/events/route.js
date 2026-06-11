@@ -3,8 +3,21 @@ import { getAllEvents, saveEventRecord } from "@/lib/store-server";
 import { normalizeEvent } from "@/lib/event-normalize";
 
 export async function GET() {
-  const events = await getAllEvents();
-  return NextResponse.json({ events });
+  try {
+    const events = await getAllEvents();
+    return NextResponse.json({ events });
+  } catch (e) {
+    console.error("GET /api/events failed:", e);
+    return NextResponse.json(
+      {
+        error:
+          e.message ??
+          "Could not load events. Check Vercel Blob storage and redeploy.",
+        events: [],
+      },
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(request) {
