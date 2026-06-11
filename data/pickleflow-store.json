@@ -11447,6 +11447,14 @@
       "dupr": "",
       "registeredAt": 1781145552014,
       "avatarDataUrl": ""
+    },
+    {
+      "email": "test-profile-1781147362205@example.com",
+      "name": "Profile Test",
+      "category": "novice",
+      "dupr": "",
+      "registeredAt": 1781147362210,
+      "avatarDataUrl": ""
     }
   ],
   "globalChatMessages": [
